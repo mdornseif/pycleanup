@@ -3,7 +3,7 @@
 
 """XXX."""
 
-from __future__ import with_statement
+##from __future__ import with_statement
 
 __author__ = "Guido van Rossum <guido@python.org>"
 
@@ -17,23 +17,16 @@ from pgen2 import driver
 
 import pynode
 
-logging.basicConfig(level=logging.INFO)
-
-SAMPLE = """\
-for i in range(10):
-    print i
-class C(object, list):
-    def f(a, b, c=1, *args, **kwds):
-        pass
-"""
+logging.basicConfig(level=logging.WARN)
 
 def main():
     gr = driver.load_grammar("Grammar.txt")
     dr = driver.Driver(gr, convert=pynode.convert)
 
-##     tree = dr.parse_file("pynode.py", debug=True)
-##     print tree
+    tree = dr.parse_file("example.py", debug=True)
+    print tree
 
+##     # Process every imported module
 ##     for name in sys.modules:
 ##         mod = sys.modules[name]
 ##         if mod is None or not hasattr(mod, "__file__"):
@@ -46,21 +39,21 @@ def main():
 ##         print >>sys.stderr, "Parsing", fn
 ##         dr.parse_file(fn, debug=True)
 
-    for dir in reversed(sys.path):
-        try:
-            names = os.listdir(dir)
-        except os.error:
-            continue
-        print >>sys.stderr, "Scanning", dir, "..."
-        for name in names:
-            if not name.endswith(".py"):
-                continue
-            print >>sys.stderr, "Parsing", name
-            try:
-                dr.parse_file(os.path.join(dir, name), debug=True)
-            except pgen2.parse.ParseError, err:
-                print "ParseError:", err
-        
+##     # Process every single module on sys.path (but not in packages)
+##     for dir in sys.path:
+##         try:
+##             names = os.listdir(dir)
+##         except os.error:
+##             continue
+##         print >>sys.stderr, "Scanning", dir, "..."
+##         for name in names:
+##             if not name.endswith(".py"):
+##                 continue
+##             print >>sys.stderr, "Parsing", name
+##             try:
+##                 dr.parse_file(os.path.join(dir, name), debug=True)
+##             except pgen2.parse.ParseError, err:
+##                 print "ParseError:", err
 
 if __name__ == "__main__":
     main()

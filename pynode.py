@@ -207,6 +207,8 @@ class GenericSeries(Series):
     __slots__ = ["nodes"]
     def initseries(self, nodes):
         self.nodes = nodes
+    def __str__(self):
+        return " ".join(map(str, self.nodes))
 
 class atom(GenericSeries):
     __slots__ = []
