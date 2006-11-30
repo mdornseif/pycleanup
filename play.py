@@ -33,7 +33,7 @@ def main():
 
     tree = dr.parse_file("example.py", debug=True)
     sys.stdout.write(str(tree))
-    return
+    return # Comment out to run the complete test suite below
 
     # Process every imported module
     for name in sys.modules:
