@@ -371,7 +371,7 @@ def generate_tokens(readline):
                     yield (NAME, token, spos, epos, line)
                 elif initial == '\\':                      # continued stmt
                     # This yield is new; needed for better idempotency:
-                    yield (NL, initial, spos, (spos[0], spos[1]+1), line)
+                    yield (NL, token, spos, (lnum, pos), line)
                     continued = 1
                 else:
                     if initial in '([{': parenlev = parenlev + 1

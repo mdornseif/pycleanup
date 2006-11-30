@@ -32,7 +32,7 @@ class Driver(object):
             logger = logging.getLogger()
         self.logger = logger
         self.convert = convert
- 
+
     def parse_stream_raw(self, stream, debug=False):
         """Parse a stream and return the concrete syntax tree."""
         p = parse.Parser(self.grammar, self.convert)
@@ -51,7 +51,7 @@ class Driver(object):
                     lineno = s_lineno
                     column = 0
                 if column < s_column:
-                    prefix += " " * (s_column - column)
+                    prefix += line_text[column:s_column]
                     column = s_column
             if type in (tokenize.COMMENT, tokenize.NL):
                 prefix += value
@@ -63,7 +63,8 @@ class Driver(object):
             if type == token.OP:
                 type = grammar.opmap[value]
             if debug:
-                self.logger.debug("%s %r", token.tok_name[type], value)
+                self.logger.debug("%s %r (prefix=%r)",
+                                  token.tok_name[type], value, prefix)
             if p.addtoken(type, value, (prefix, start)):
                 if debug:
                     self.logger.debug("Stop.")
