@@ -2,7 +2,8 @@
 # Licensed to PSF under a Contributor Agreement.
 
 # Modifications:
-# Copyright 2006 Python Software Foundation. All Rights Reserved.
+# Copyright 2006 Google, Inc. All Rights Reserved.
+# Licensed to PSF under a Contributor Agreement.
 
 """Syntax tree node definitions.
 

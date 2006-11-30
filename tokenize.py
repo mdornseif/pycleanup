@@ -1,3 +1,6 @@
+# Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006 Python Software Foundation.
+# All rights reserved.
+
 """Tokenization help for Python programs.
 
 generate_tokens(readline) is a generator that breaks a stream of

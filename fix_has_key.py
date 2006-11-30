@@ -1,5 +1,6 @@
 #!/usr/bin/env python2.5
-# Copyright 2006 Python Software Foundation. All Rights Reserved.
+# Copyright 2006 Google Inc. All Rights Reserved.
+# Licensed to PSF under a Contributor Agreement.
 
 """Refactoring tool: change 'x.has_key(y)' into 'y in x'."""
 
