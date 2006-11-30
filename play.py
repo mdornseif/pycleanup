@@ -21,9 +21,12 @@ def main():
     gr = driver.load_grammar("Grammar.txt")
     dr = driver.Driver(gr, convert=pynode.convert)
 
-    tree = dr.parse_file("example.py", debug=True)
+    fn = "example.py"
+    tree = dr.parse_file(fn, debug=True)
     tree.set_parents()
     sys.stdout.write(str(tree))
+    if not diff(fn, tree):
+      print "No diffs."
     return # Comment out to run the complete test suite below
 
     problems = []
