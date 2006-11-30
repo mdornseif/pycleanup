@@ -49,13 +49,13 @@ def visit(node, func):
         visit(child, func)
 
 # Sample nodes
-n_dot = pytree.Leaf(None, token.DOT, ".")
-n_has_key = pytree.Leaf(None, token.NAME, "has_key")
-n_trailer_has_key = pytree.Node(None, syms.trailer, (n_dot, n_has_key))
-n_lpar = pytree.Leaf(None, token.LPAR, "(")
-n_star = pytree.Leaf(None, token.STAR, "*")
-n_comma = pytree.Leaf(None, token.COMMA, ",")
-n_in = pytree.Leaf((" ", (0, 0)), token.NAME, "in") # XXX what operator?
+n_dot = pytree.Leaf(token.DOT, ".")
+n_has_key = pytree.Leaf(token.NAME, "has_key")
+n_trailer_has_key = pytree.Node(syms.trailer, (n_dot, n_has_key))
+n_lpar = pytree.Leaf(token.LPAR, "(")
+n_star = pytree.Leaf(token.STAR, "*")
+n_comma = pytree.Leaf(token.COMMA, ",")
+n_in = pytree.Leaf(token.NAME, "in", context=(" ", (0, 0)))
 
 import pdb
 
@@ -98,8 +98,8 @@ def fix_has_key(node):
     # Change "X.has_key(Y)" into "Y in X"
     arg.set_prefix(nodes[0].get_prefix())
     nodes[0].set_prefix(" ")
-    new = pytree.Node(None, syms.comparison,
-                      (arg, n_in, pytree.Node(None, syms.power, nodes[:i])))
+    new = pytree.Node(syms.comparison,
+                      (arg, n_in, pytree.Node(syms.power, nodes[:i])))
     # XXX Sometimes we need to parenthesize arg or new.  Later.
     parent.parent.replace(parent, new)
 

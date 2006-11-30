@@ -27,7 +27,8 @@ def main():
     sys.stdout.write(str(tree))
     if not diff(fn, tree):
       print "No diffs."
-    return # Comment out to run the complete test suite below
+    if not sys.argv[1:]:
+      return # Pass a dummy argument to run the complete test suite below
 
     problems = []
 

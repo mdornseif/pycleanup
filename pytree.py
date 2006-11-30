@@ -18,9 +18,9 @@ class Base(object):
     parent = None
     children = ()
 
-    def __new__(cls, *rest):
+    def __new__(cls, *args, **kwds):
         assert cls is not Base, "Cannot instantiate Base"
-        return object.__new__(cls, *rest)
+        return object.__new__(cls, *args, **kwds)
 
     def __eq__(self, other):
         if self.__class__ is not other.__class__:
@@ -44,7 +44,7 @@ class Base(object):
 
 class Node(Base):
 
-    def __init__(self, context, type, children):
+    def __init__(self, type, children, context=None):
         self.type = type
         self.children = tuple(children)
         for ch in self.children:
@@ -82,12 +82,13 @@ class Node(Base):
                 l_children.append(ch)
         assert found, (self.children, old, new)
         self.children = tuple(l_children)
+        new.parent = self
 
 
 class Leaf(Base):
 
-    def __init__(self, context, type, value):
-        if context:
+    def __init__(self, type, value, context=None):
+        if context is not None:
             self.prefix, (self.lineno, self.column) = context
         else:
             self.prefix = ""
@@ -116,6 +117,6 @@ class Leaf(Base):
 def convert(gr, raw_node):
     type, value, context, children = raw_node
     if children or type in gr.number2symbol:
-        return Node(context, type, children)
+        return Node(type, children, context=context)
     else:
-        return Leaf(context, type, value)
+        return Leaf(type, value, context=context)
