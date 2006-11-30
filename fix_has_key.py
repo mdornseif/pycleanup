@@ -9,25 +9,34 @@ __author__ = "Guido van Rossum <guido@python.org>"
 # Python imports
 import os
 import sys
+import token
 import logging
 
 import pgen2
 from pgen2 import driver
 
-import pynode
+import pytree
 
-logging.basicConfig(level=logging.WARN)
+logging.basicConfig(level=logging.DEBUG)
+
+gr = driver.load_grammar("Grammar.txt") # used by node initializers
+
+class Symbols(object):
+
+    def __init__(self, gr):
+        for name, symbol in gr.symbol2number.iteritems():
+            setattr(self, name, symbol)
+
+syms = Symbols(gr)
 
 def main():
     args = sys.argv[1:] or ["example.py"]
 
-    gr = driver.load_grammar("Grammar.txt")
-    dr = driver.Driver(gr, convert=pynode.convert)
+    dr = driver.Driver(gr, convert=pytree.convert)
 
     for fn in args:
         print "Parsing", fn
         tree = dr.parse_file(fn)
-        tree.set_parents()
         refactor(tree)
         diff(fn, tree)
 
@@ -36,25 +45,26 @@ def refactor(tree):
 
 def visit(node, func):
     func(node)
-    for child in node.get_children():
+    for child in node.children:
         visit(child, func)
 
 # Sample nodes
-_context = ("", (0, 0))
-n_dot = pynode.Token(_context, ".")
-n_has_key = pynode.Name(_context, "has_key")
-n_trailer_has_key = pynode.trailer(_context, n_dot, n_has_key)
-n_lpar = pynode.Token(_context, "(")
-n_star = pynode.Token(_context, "*")
-n_comma = pynode.Token(_context, ",")
-n_in = pynode.Token((" ", (0, 0)), "in")
+n_dot = pytree.Leaf(None, token.DOT, ".")
+n_has_key = pytree.Leaf(None, token.NAME, "has_key")
+n_trailer_has_key = pytree.Node(None, syms.trailer, (n_dot, n_has_key))
+n_lpar = pytree.Leaf(None, token.LPAR, "(")
+n_star = pytree.Leaf(None, token.STAR, "*")
+n_comma = pytree.Leaf(None, token.COMMA, ",")
+n_in = pytree.Leaf((" ", (0, 0)), token.NAME, "in") # XXX what operator?
+
+import pdb
 
 def fix_has_key(node):
     if node != n_trailer_has_key:
         return
     # XXX Could use more DOM manipulation primitives and matching operations
     parent = node.parent
-    nodes = parent.get_children()
+    nodes = parent.children
     for i, n in enumerate(nodes):
         if n is node:
             break
@@ -66,17 +76,17 @@ def fix_has_key(node):
     if len(nodes) != i+2:
         return # Too much follows ".has_key", e.g. ".has_key(x).blah"
     next = nodes[i+1]
-    if not isinstance(next, pynode.trailer):
+    if next.type != syms.trailer:
         return # ".has_key" not followed by another trailer
-    next_children = next.get_children()
+    next_children = next.children
     if next_children[0] != n_lpar:
         return # ".has_key" not followed by "(...)"
     if len(next_children) != 3:
         return # ".has_key" followed by "()"
     argsnode = next_children[1]
     arg = argsnode
-    if isinstance(argsnode, pynode.arglist):
-        args = argsnode.get_children()
+    if argsnode.type != syms.arglist:
+        args = argsnode.children
         if len(args) > 2:
             return # Too many arguments
         if len(args) == 2:
@@ -88,10 +98,8 @@ def fix_has_key(node):
     # Change "X.has_key(Y)" into "Y in X"
     arg.set_prefix(nodes[0].get_prefix())
     nodes[0].set_prefix(" ")
-    new = pynode.comparison(_context,
-                            arg,
-                            n_in,
-                            pynode.power(_context, *nodes[:i]))
+    new = pytree.Node(None, syms.comparison,
+                      (arg, n_in, pytree.Node(None, syms.power, nodes[:i])))
     # XXX Sometimes we need to parenthesize arg or new.  Later.
     parent.parent.replace(parent, new)
 

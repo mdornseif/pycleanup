@@ -14,17 +14,16 @@ import logging
 import pgen2
 from pgen2 import driver
 
-import pynode
+import pytree
 
 logging.basicConfig(level=logging.WARN)
 
 def main():
     gr = driver.load_grammar("Grammar.txt")
-    dr = driver.Driver(gr, convert=pynode.convert)
+    dr = driver.Driver(gr, convert=pytree.convert)
 
     fn = "example.py"
     tree = dr.parse_file(fn, debug=True)
-    tree.set_parents()
     sys.stdout.write(str(tree))
     if not diff(fn, tree):
       print "No diffs."
