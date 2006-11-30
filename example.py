@@ -1,8 +1,8 @@
 #!/usr/bin/python
-"""Docstring.
-"""
-print (12 + # Hello
-            # world
+"""Docstring."""
 
-       12)
+d = {"x": 42}
+if d.has_key("x") or d.has_key("y"):
+    print d["x"]
+
 # This is the last line.

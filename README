@@ -1,0 +1,21 @@
+A refactoring tool for converting Python 2.x code to 3.0.
+
+This is a prototype!
+
+Files:
+
+play.py        - test program
+pynode.py      - parse tree nodes for Python grammar
+tokenize.py    - modified version of stdlib tokenize.py (1)
+fix_has_key.py - refactoring tool changing 'x.has_key(y)' into 'y in x'
+example.py     - example input
+Grammar.txt    - Grammar input (same as Grammar/Grammar in Python 2.5)
+Grammar.pickle - Pickled grammar tables
+pgen2/         - Parser generator and driver (2)
+
+Notes:
+
+(1) tokenize.py was modified to yield a NL pseudo-token for backslash
+    continuations, so the original source can be reproduced exactly.
+(2) pgen2 was developed while I was at Elemental Security.  It was
+    modified to suit the needs of this refactoring tool.

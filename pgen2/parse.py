@@ -80,9 +80,7 @@ class Parser(object):
         symbols, and None for tokens.
 
         An abstract syntax tree node may be anything; this is entirely
-        up to the converter function.  For example, it can be an
-        instance of a subclass of the astnode.Node class (see the
-        astnode module).
+        up to the converter function.
 
         """
         self.grammar = grammar

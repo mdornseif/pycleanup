@@ -1,6 +1,9 @@
 # Copyright 2004-2005 Elemental Security, Inc. All Rights Reserved.
 # Licensed to PSF under a Contributor Agreement.
 
+# Modifications:
+# Copyright 2006 Python Software Foundation. All Rights Reserved.
+
 def test():
     import sys
     sys.path[0] = ".."
@@ -11,7 +14,8 @@ def test():
     finally:
         f.close()
     sample = "year<=1989 ? ('Modula-3' + ABC) ** 2 : Python"
-    tree = driver.parse_string(sample, True)
+    dr = driver.Driver(driver.load_grammar())
+    tree = dr.parse_string(sample, True)
     print tree
 
 if __name__ == "__main__":

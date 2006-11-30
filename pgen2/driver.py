@@ -22,7 +22,6 @@ import tokenize
 
 # Pgen imports
 from pgen2 import parse
-from pgen2 import astnode
 from pgen2 import grammar
 
 class Driver(object):

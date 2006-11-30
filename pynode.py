@@ -29,15 +29,17 @@ from pgen2 import grammar
 logger = logging.getLogger()
 
 class Node(object):
+
+    # XXX Should refactor this so that there are only two kinds of nodes,
+    # Terminal and Nonterminal; each with subclasses to match the grammar
+    # or perhaps just storing the node type in a slot.
+
     """Abstract base class for all nodes.
 
-    This has no attributes except a context slot which holds the line
-    number (or more detailed context info).  In the future this might
-    change this to several slots (e.g. filename, lineno, column, or
-    even filename, start_lineno, start_column, end_lineno,
-    end_column).  The context is only referenced by two places: the
-    part of the code that sticks it in, and the part of the code that
-    reports errors.
+    This has no attributes except a context slot which holds context
+    info (a tuple of the form (prefix, (lineno, column))), and a
+    parent slot, which is not set by default but can be set to the
+    parent node later.
 
     In order to reduce the amount of boilerplate code, the context is
     argument is handled by __new__ rather than __init__.  There are
@@ -46,13 +48,21 @@ class Node(object):
 
     """
 
-    __slots__ = ["context"]
+    __slots__ = ["context", "parent"]
 
     def __new__(cls, context, *rest):
         assert cls not in (Node, Nonterminal, Terminal, Constant)
         obj = object.__new__(cls)
         obj.context = context
         return obj
+
+    def get_children(self):
+        return ()
+
+    def set_parents(self, parent=None):
+        self.parent = parent
+        for child in self.get_children():
+            child.set_parents(self)
 
     _stretch = False # Set to true to stretch the repr() vertically
 
@@ -101,6 +111,28 @@ class Node(object):
     def __str__(self):
         return self.__repr__(repr_arg=str)
 
+    def __eq__(self, other):
+        if self.__class__ is not other.__class__:
+            return NotImplemented
+        return self.eq(other)
+
+    def __ne__(self, other):
+        result = self.__eq__(other)
+        if result is not NotImplemented:
+            result = not result
+        return result
+
+    def eq(self, other):
+        assert self.__class__ is other.__class__
+        return self.get_children() == other.get_children()
+
+    def set_prefix(self, new_prefix):
+        old_prefix, rest = self.context
+        self.context = (new_prefix, rest)
+
+    def get_prefix(self):
+        return self.context[0]
+
 class Nonterminal(Node):
     """Abstract base class for nonterminal symbols.
 
@@ -134,7 +166,7 @@ class Series(Nonterminal):
             return nodes[0]
         else:
             obj = Nonterminal.__new__(cls, context)
-            obj.initseries(nodes)
+            obj.init_series(nodes)
             return obj
 
 class Constant(Terminal):
@@ -152,8 +184,11 @@ class Constant(Terminal):
         self.repr = repr
 
     def __str__(self):
-        prefix, start = self.context
+        prefix, (lineno, column) = self.context
         return prefix + self.repr
+
+    def eq(self, other):
+        return self.repr == other.repr
 
 # Node classes for terminal symbols
 
@@ -186,6 +221,9 @@ class Name(Terminal):
         prefix, start = self.context
         return prefix + self.name
 
+    def eq(self, other):
+        return self.name == other.name
+
 class Number(Constant):
     """Numeric constant.
 
@@ -207,11 +245,27 @@ class String(Constant):
 # Nodes and factory functions for Python grammar
 
 class GenericSeries(Series):
+
     __slots__ = ["nodes"]
-    def initseries(self, nodes):
+
+    def init_series(self, nodes):
         self.nodes = nodes
+
+    def get_children(self):
+        return self.nodes
+
     def __str__(self):
         return "".join(map(str, self.nodes))
+
+    def replace(self, old, new):
+        self.nodes = tuple((new if n is old else n) for n in self.nodes)
+
+    def set_prefix(self, new_prefix):
+        Series.set_prefix(self, new_prefix)
+        self.nodes[0].set_prefix(new_prefix)
+
+    def get_prefix(self):
+        return self.nodes[0].get_prefix()
 
 class atom(GenericSeries):
     __slots__ = []

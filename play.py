@@ -1,9 +1,7 @@
 #!/usr/bin/env python2.5
 # Copyright 2006 Python Software Foundation. All Rights Reserved.
 
-"""XXX."""
-
-##from __future__ import with_statement
+"""Main program for testing the infrastructure."""
 
 __author__ = "Guido van Rossum <guido@python.org>"
 
@@ -19,21 +17,16 @@ import pynode
 
 logging.basicConfig(level=logging.WARN)
 
-def diff(fn, tree):
-    f = open("@", "w")
-    try:
-        f.write(str(tree))
-    finally:
-        f.close()
-    return os.system("diff -u %s @" % fn)
-
 def main():
     gr = driver.load_grammar("Grammar.txt")
     dr = driver.Driver(gr, convert=pynode.convert)
 
     tree = dr.parse_file("example.py", debug=True)
+    tree.set_parents()
     sys.stdout.write(str(tree))
     return # Comment out to run the complete test suite below
+
+    problems = []
 
     # Process every imported module
     for name in sys.modules:
@@ -47,7 +40,8 @@ def main():
             continue
         print >>sys.stderr, "Parsing", fn
         tree = dr.parse_file(fn, debug=True)
-        diff(fn, tree)
+        if diff(fn, tree):
+            problems.append(fn)
 
     # Process every single module on sys.path (but not in packages)
     for dir in sys.path:
@@ -66,7 +60,27 @@ def main():
             except pgen2.parse.ParseError, err:
                 print "ParseError:", err
             else:
-                diff(fn, tree)
+                if diff(fn, tree):
+                    problems.append(fn)
+
+    # Show summary of problem files
+    if not problems:
+        print "No problems.  Congratulations!"
+    else:
+        print "Problems in following files:"
+        for fn in problems:
+            print "***", fn
+
+def diff(fn, tree):
+    f = open("@", "w")
+    try:
+        f.write(str(tree))
+    finally:
+        f.close()
+    try:
+        return os.system("diff -u %s @" % fn)
+    finally:
+        os.remove("@")
 
 if __name__ == "__main__":
     main()
