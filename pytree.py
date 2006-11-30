@@ -87,6 +87,8 @@ class Node(Base):
 
 class Leaf(Base):
 
+    lineno = column = 0
+
     def __init__(self, type, value, context=None):
         if context is not None:
             self.prefix, (self.lineno, self.column) = context
