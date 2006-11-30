@@ -38,19 +38,42 @@ class Driver(object):
         """Parse a stream and return the concrete syntax tree."""
         p = parse.Parser(self.grammar, self.convert)
         p.setup()
-        t = v = x = None
-        # (t, v, x, y, z) == (type, value, start, end, line)
-        for t, v, x, y, z in tokenize.generate_tokens(stream.readline):
-            if t in (tokenize.COMMENT, tokenize.NL):
+        lineno = 1
+        column = 0
+        type = value = start = end = line_text = None
+        prefix = ""
+        for quintuple in tokenize.generate_tokens(stream.readline):
+            type, value, start, end, line_text = quintuple
+            if start != (lineno, column):
+                assert (lineno, column) <= start, ((lineno, column), start)
+                s_lineno, s_column = start
+                if lineno < s_lineno:
+                    prefix += "\n" * (s_lineno - lineno)
+                    lineno = s_lineno
+                    column = 0
+                if column < s_column:
+                    prefix += " " * (s_column - column)
+                    column = s_column
+            if type in (tokenize.COMMENT, tokenize.NL):
+                prefix += value
+                lineno, column = end
+                if value.endswith("\n"):
+                    lineno += 1
+                    column = 0
                 continue
-            if t == token.OP:
-                t = grammar.opmap[v]
+            if type == token.OP:
+                type = grammar.opmap[value]
             if debug:
-                self.logger.debug("%s %r", token.tok_name[t], v)
-            if p.addtoken(t, v, x):
+                self.logger.debug("%s %r", token.tok_name[type], value)
+            if p.addtoken(type, value, (prefix, start)):
                 if debug:
                     self.logger.debug("Stop.")
                 break
+            prefix = ""
+            lineno, column = end
+            if value.endswith("\n"):
+                lineno += 1
+                column = 0
         else:
             # We never broke out -- EOF is too soon (how can this happen???)
             raise parse.ParseError("incomplete input", t, v, x)

@@ -61,7 +61,7 @@ class Node(object):
 
     _stretch = False # Set to true to stretch the repr() vertically
 
-    def __repr__(self, repr=repr):
+    def __repr__(self, repr_arg=repr):
         stretch = self._stretch
         r = [self.__class__.__name__]
         if stretch:
@@ -93,10 +93,10 @@ class Node(object):
             except AttributeError:
                 continue
             if stretch and isinstance(value, list):
-                rr = map(repr, value)
+                rr = map(repr_arg, value)
                 rv = "[" + ",\n ".join(rr) + "]"
             else:
-                rv = repr(value)
+                rv = repr_arg(value)
             if stretch:
                 rv = rv.replace("\n", "\n    ")
             r.append(rv)
@@ -104,7 +104,7 @@ class Node(object):
         return "".join(r)
 
     def __str__(self):
-        return self.__repr__(repr=str)
+        return self.__repr__(repr_arg=str)
 
 class Nonterminal(Node):
     """Abstract base class for nonterminal symbols.
@@ -157,9 +157,21 @@ class Constant(Terminal):
         self.repr = repr
 
     def __str__(self):
-        return self.repr
+        prefix, start = self.context
+        return prefix + self.repr
 
 # Node classes for terminal symbols
+
+class Token(Constant):
+    """An otherwise unclassified operator or keyword (e.g. '+' or 'if').
+
+    Attributres:
+
+    repr -- a string giving the token's text.
+
+    """
+
+    __slots__ = []
 
 class Name(Terminal):
     """Name (e.g. a variable name or an attribute name).
@@ -176,7 +188,8 @@ class Name(Terminal):
         self.name = name
 
     def __str__(self):
-        return self.name
+        prefix, start = self.context
+        return prefix + self.name
 
 class Number(Constant):
     """Numeric constant.
@@ -208,7 +221,7 @@ class GenericSeries(Series):
     def initseries(self, nodes):
         self.nodes = nodes
     def __str__(self):
-        return " ".join(map(str, self.nodes))
+        return "".join(map(str, self.nodes))
 
 class atom(GenericSeries):
     __slots__ = []
@@ -529,7 +542,7 @@ def UnaryOperator(context, op):
     "Grammar: $ 'not' | '-' $"
     return op
 
-class Operator(Nonterminal):
+class XXXOperator(Nonterminal):
     """Operator.
 
     This has a repr slot and a priority() method.
@@ -619,7 +632,7 @@ token_mapping = {
 ##     token.LBRACE: vanish,
 ##     token.RBRACE: vanish,
 ##     token.NEWLINE: vanish,
-     token.ENDMARKER: vanish,
+##     token.ENDMARKER: vanish,
 ##     grammar.QUESTIONMARK: vanish,
 
     # All other tokens return the token's string value (e.g. "+")
@@ -658,7 +671,7 @@ def convert(grammar, node):
             if value in vanishing_keywords:
                 return None
             else:
-                return value
+                return Token(context, value)
         else:
             return Name(context, value)
 
@@ -668,7 +681,7 @@ def convert(grammar, node):
     if factory:
         return factory(context, value)
     else:
-        return value
+        return Token(context, value)
 
 
 # Support code
