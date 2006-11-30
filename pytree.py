@@ -70,19 +70,24 @@ class Node(Base):
             return ""
         return self.children[0].get_prefix()
 
-    def replace(self, old, new):
+    def replace(self, new):
+        if self is new:
+            return
         l_children = []
         found = False
-        for ch in self.children:
-            if ch is old:
-                assert not found, (self.children, old, new)
-                l_children.append(new)
+        for ch in self.parent.children:
+            if ch is self:
+                assert not found, (self.parent.children, self, new)
+                if new is not None:
+                    l_children.append(new)
                 found = True
             else:
                 l_children.append(ch)
-        assert found, (self.children, old, new)
-        self.children = tuple(l_children)
-        new.parent = self
+        assert found, (self.children, self, new)
+        self.parent.children = tuple(l_children)
+        if new is not None:
+            new.parent = self.parent
+        self.parent = None
 
 
 class Leaf(Base):

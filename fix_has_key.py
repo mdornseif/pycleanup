@@ -101,7 +101,7 @@ def fix_has_key(node):
     new = pytree.Node(syms.comparison,
                       (arg, n_in, pytree.Node(syms.power, nodes[:i])))
     # XXX Sometimes we need to parenthesize arg or new.  Later.
-    parent.parent.replace(parent, new)
+    parent.replace(new)
 
 def diff(fn, tree):
     f = open("@", "w")

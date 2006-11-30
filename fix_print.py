@@ -94,7 +94,7 @@ def fix_print(node):
     n_stmt = pytree.Node(syms.power, (n_print, n_trailer))
     n_stmt.set_prefix(node.get_prefix())
     print "Synthesized: >>>%s<<<" % n_stmt
-    node.parent.replace(node, n_stmt)
+    node.replace(n_stmt)
 
 
 def add_kwarg(l_nodes, s_kwd, n_expr):
