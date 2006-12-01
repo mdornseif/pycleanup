@@ -73,6 +73,30 @@ class Base(object):
         """
         raise NotImplementedError
 
+    def replace(self, new):
+        """Replaces this node with a new one in the parent.
+
+        This can also be used to remove this node from the parent by
+        passing None.
+        """
+        assert self.parent is not None, str(self)
+        assert new is None or new.parent is None, str(new)
+        l_children = []
+        found = False
+        for ch in self.parent.children:
+            if ch is self:
+                assert not found, (self.parent.children, self, new)
+                if new is not None:
+                    l_children.append(new)
+                found = True
+            else:
+                l_children.append(ch)
+        assert found, (self.children, self, new)
+        self.parent.children = tuple(l_children)
+        if new is not None:
+            new.parent = self.parent
+        self.parent = None
+
 
 class Node(Base):
 
@@ -125,30 +149,6 @@ class Node(Base):
         if not self.children:
             return ""
         return self.children[0].get_prefix()
-
-    def replace(self, new):
-        """Replaces this node with a new one in the parent.
-
-        This can also be used to remove this node from the parent by
-        passing None.
-        """
-        assert self.parent is not None, str(self)
-        assert new is None or new.parent is None, str(new)
-        l_children = []
-        found = False
-        for ch in self.parent.children:
-            if ch is self:
-                assert not found, (self.parent.children, self, new)
-                if new is not None:
-                    l_children.append(new)
-                found = True
-            else:
-                l_children.append(ch)
-        assert found, (self.children, self, new)
-        self.parent.children = tuple(l_children)
-        if new is not None:
-            new.parent = self.parent
-        self.parent = None
 
 
 class Leaf(Base):
@@ -207,8 +207,10 @@ def convert(gr, raw_node):
     """
     type, value, context, children = raw_node
     if children or type in gr.number2symbol:
-        # XXX If there's exactly one child, should return that child
-        # instead of synthesizing a new node.
+        # If there's exactly one child, return that child instead of
+        # creating a new node.
+        if len(children) == 1:
+            return children[0]
         return Node(type, children, context=context)
     else:
         return Leaf(type, value, context=context)

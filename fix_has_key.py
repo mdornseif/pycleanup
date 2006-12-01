@@ -85,7 +85,7 @@ def fix_has_key(node):
         return # ".has_key" followed by "()"
     argsnode = next_children[1]
     arg = argsnode
-    if argsnode.type != syms.arglist:
+    if argsnode.type == syms.arglist:
         args = argsnode.children
         if len(args) > 2:
             return # Too many arguments

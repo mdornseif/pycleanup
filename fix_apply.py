@@ -57,7 +57,7 @@ def visit(node, func):
 
 
 # Constant nodes
-n_apply = pytree.Node(syms.atom, [pytree.Leaf(token.NAME, "apply")])
+n_apply = pytree.Leaf(token.NAME, "apply")
 n_lpar = pytree.Leaf(token.LPAR, "(")
 n_rpar = pytree.Leaf(token.RPAR, ")")
 n_comma = pytree.Leaf(token.COMMA, ",")
@@ -75,6 +75,8 @@ def fix_apply(node):
     n_arglist = node.children[1].children[1]
     if n_arglist == n_rpar:
         return # apply() with no arguments?!
+    if n_arglist.type != syms.arglist:
+        return # apply() with only one argument?!
     l_args = []
     for arg in n_arglist.children:
         if arg == n_comma:
