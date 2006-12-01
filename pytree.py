@@ -6,7 +6,7 @@
 This is a very concrete parse tree; we need to keep every token and
 even the comments and whitespace between tokens.
 
-A node may be a subnode of at most one parent.
+There's also a matching pattern implementation here.
 """
 
 __author__ = "Guido van Rossum <guido@python.org>"
@@ -18,6 +18,8 @@ class Base(object):
 
     This provides some default functionality and boilerplate using the
     template pattern.
+
+    A node may be a subnode of at most one parent.
     """
 
     # Default values for instance variables
@@ -214,3 +216,124 @@ def convert(gr, raw_node):
         return Node(type, children, context=context)
     else:
         return Leaf(type, value, context=context)
+
+
+class BasePattern(object):
+
+    """A pattern is a tree matching pattern.
+
+    It looks for a specific node type (token or symbol), and
+    optionally for a specific content.
+    """
+
+    # Defaults for instance variables
+    type = None     # Node type (token if < 256, symbol if >= 256)
+    content = None  # Optional content matching pattern
+    name = None     # Optional name used to store match in results dict
+
+    def __new__(cls, *args, **kwds):
+        """Constructor that prevents BasePattern from being instantiated."""
+        assert cls is not BasePattern, "Cannot instantiate BasePattern"
+        return object.__new__(cls, *args, **kwds)
+
+    def match(self, node, results=None):
+        """Does that node match this pattern?
+
+        Returns True if it matches, False if not.
+
+        If results is not None, it must be a dict which will be
+        updated with the nodes matching named subpatterns.
+        """
+        if self.type is not None and node.type != self.type:
+            return False
+        if self.content is not None:
+            r = None
+            if results is not None:
+                r = {}
+            if not self._submatch(node, r):
+                return False
+            if r:
+                results.update(r)
+        if results is not None and self.name is not None:
+            results[self.name] = node
+        return True
+
+
+class NodePattern(BasePattern):
+
+    def __init__(self, type=None, content=None, name=None):
+        """Constructor.  Takes optional type, content, and name.
+
+        The type, if given, must be a symbol type (>= 256).
+
+        The content, if given, must be a sequence of Patterns that
+        must match the node's children exactly.
+
+        If a name is given, the matching node is stored in the results
+        dict under that key.
+        """
+        if type is not None:
+            assert type >= 256, type
+        else:
+            assert content is None, repr(content)
+        if content is not None:
+            assert not isinstance(content, basestring), repr(content)
+            content = tuple(content)
+            for i, item in enumerate(content):
+                assert isinstance(item, BasePattern), (i, item)
+        self.type = type
+        self.content = content
+        self.name = name
+
+    def _submatch(self, node, results=None):
+        """Match the pattern's content to the node's children.
+
+        This assumes the node type matches and self.content is not None.
+
+        Returns True if it matches, False if not.
+
+        If results is not None, it must be a dict which will be
+        updated with the nodes matching named subpatterns.
+
+        When returning False, the results dict may still be updated.
+        """
+        if len(self.content) != len(node.children):
+            return False
+        for subpattern, child in zip(self.content, node.children):
+            if not subpattern.match(child, results):
+                return False
+        return True
+
+
+class LeafPattern(BasePattern):
+
+    def __init__(self, type, content=None, name=None):
+        """Constructor.  Takes a type, optional content, and optional name.
+
+        The type must be a token type (< 256).
+
+        The content, if given, must be a string.
+
+        If a name is given, the matching node is stored in the results
+        dict under that key.
+        """
+        assert type < 256, type
+        if content is not None:
+            assert isinstance(content, basestring), repr(content)
+        self.type = type
+        self.content = content
+        self.name = name
+
+    def _submatch(self, node, results=None):
+        """Match the pattern's content to the node's children.
+
+        This assumes the node type matches and self.content is not None.
+
+        Returns True if it matches, False if not.
+
+        If results is not None, it must be a dict which will be
+        updated with the nodes matching named subpatterns.
+
+        When returning False, the results dict may still be updated.
+        """
+        return self.content == node.value

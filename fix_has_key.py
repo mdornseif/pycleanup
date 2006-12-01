@@ -49,20 +49,23 @@ def visit(node, func):
         visit(child, func)
 
 # Sample nodes
-n_dot = pytree.Leaf(token.DOT, ".")
-n_has_key = pytree.Leaf(token.NAME, "has_key")
-n_trailer_has_key = pytree.Node(syms.trailer, (n_dot, n_has_key))
-n_lpar = pytree.Leaf(token.LPAR, "(")
 n_star = pytree.Leaf(token.STAR, "*")
 n_comma = pytree.Leaf(token.COMMA, ",")
 n_in = pytree.Leaf(token.NAME, "in", context=(" ", (0, 0)))
 
-import pdb
+# Tree matching patterns
+p_has_key = pytree.NodePattern(syms.trailer,
+                               (pytree.LeafPattern(token.DOT),
+                                pytree.LeafPattern(token.NAME, "has_key")))
+p_trailer_args = pytree.NodePattern(syms.trailer,
+                                    (pytree.LeafPattern(token.LPAR),
+                                     pytree.NodePattern(name="args"),
+                                     pytree.LeafPattern(token.RPAR)))
+
 
 def fix_has_key(node):
-    if node != n_trailer_has_key:
+    if not p_has_key.match(node):
         return
-    # XXX Could use more DOM manipulation primitives and matching operations
     parent = node.parent
     nodes = parent.children
     for i, n in enumerate(nodes):
@@ -76,14 +79,10 @@ def fix_has_key(node):
     if len(nodes) != i+2:
         return # Too much follows ".has_key", e.g. ".has_key(x).blah"
     next = nodes[i+1]
-    if next.type != syms.trailer:
-        return # ".has_key" not followed by another trailer
-    next_children = next.children
-    if next_children[0] != n_lpar:
-        return # ".has_key" not followed by "(...)"
-    if len(next_children) != 3:
-        return # ".has_key" followed by "()"
-    argsnode = next_children[1]
+    results = {}
+    if not p_trailer_args.match(next, results):
+        return
+    argsnode = results["args"]
     arg = argsnode
     if argsnode.type == syms.arglist:
         args = argsnode.children
