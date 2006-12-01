@@ -24,7 +24,6 @@ def main():
 
     fn = "example.py"
     tree = dr.parse_file(fn, debug=True)
-    sys.stdout.write(str(tree))
     if not diff(fn, tree):
       print "No diffs."
     if not sys.argv[1:]:
