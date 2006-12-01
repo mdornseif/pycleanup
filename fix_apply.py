@@ -2,7 +2,7 @@
 # Copyright 2006 Google Inc. All Rights Reserved.
 # Licensed to PSF under a Contributor Agreement.
 
-"""Refactoring tool: change 'x.has_key(y)' into 'y in x'."""
+"""Refactoring tool: change apply(f, a, kw) into f(*a, **kw)."""
 
 __author__ = "Guido van Rossum <guido@python.org>"
 
