@@ -11,6 +11,13 @@ if d.has_key("x") or d.has_key("y"):
 def foo():
 	pass # body indented by tab
 
+def apply_examples():
+    x = apply(f, g + h)
+    y = apply(f, g, h)
+    z = apply(fs[0], g or h, h or g)
+    # Hello
+    apply(f, (x, y) + t)
+
 def print_examples():
     # plain vanilla
     print 1, 1+1, 1+1+1

@@ -51,9 +51,9 @@ class Node(Base):
             ch.parent = self
 
     def __repr__(self):
-        return "%s(<>, %r, %r)" % (self.__class__.__name__,
-                                   self.type,
-                                   self.children)
+        return "%s(%r, %r)" % (self.__class__.__name__,
+                               self.type,
+                               self.children)
 
     def __str__(self):
         return "".join(str(ch) for ch in self.children)
@@ -104,9 +104,9 @@ class Leaf(Base):
         self.value = value
 
     def __repr__(self):
-        return "%s(<>, %r, %r)" % (self.__class__.__name__,
-                                   self.type,
-                                   self.value)
+        return "%s(%r, %r)" % (self.__class__.__name__,
+                               self.type,
+                               self.value)
 
     def __str__(self):
         return self.prefix + self.value
@@ -124,6 +124,8 @@ class Leaf(Base):
 def convert(gr, raw_node):
     type, value, context, children = raw_node
     if children or type in gr.number2symbol:
+        # XXX If there's exactly one child, should return that child
+        # instead of synthesizing a new node.
         return Node(type, children, context=context)
     else:
         return Leaf(type, value, context=context)

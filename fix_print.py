@@ -57,7 +57,6 @@ def visit(node, func):
 def fix_print(node):
     if node.type != syms.print_stmt:
         return
-    print "Bingo! >>>%s<<<" % node
     assert node.children[0] == pytree.Leaf(token.NAME, "print")
     args = node.children[1:]
     sep = end = file = None
@@ -93,7 +92,6 @@ def fix_print(node):
     n_trailer = pytree.Node(syms.trailer, l_args)
     n_stmt = pytree.Node(syms.power, (n_print, n_trailer))
     n_stmt.set_prefix(node.get_prefix())
-    print "Synthesized: >>>%s<<<" % n_stmt
     node.replace(n_stmt)
 
 
