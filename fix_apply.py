@@ -85,7 +85,6 @@ def fix_apply(node):
         l_args.append(arg)
     if not 2 <= len(l_args) <= 3:
         return # too few or too many arguments to handle
-    print "Bingo! >>>%s<<<" % node
     prefix = node.get_prefix()
     l_args[0].replace(None)
     node.children[0].replace(l_args[0])
