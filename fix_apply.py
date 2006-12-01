@@ -56,25 +56,24 @@ def visit(node, func):
         visit(child, func)
 
 
-# Constant nodes
-n_apply = pytree.Leaf(token.NAME, "apply")
-n_lpar = pytree.Leaf(token.LPAR, "(")
-n_rpar = pytree.Leaf(token.RPAR, ")")
+# Constant nodes used for matching
 n_comma = pytree.Leaf(token.COMMA, ",")
 n_star = pytree.Leaf(token.STAR, "*")
 n_doublestar = pytree.Leaf(token.DOUBLESTAR, "**")
 
+# Tree matching patterns
+p_apply = pytree.NodePattern(syms.power,
+                             (pytree.LeafPattern(token.NAME, "apply"),
+                              pytree.NodePattern(syms.trailer,
+                                                 (pytree.LeafPattern(token.LPAR),
+                                                  pytree.NodePattern(name="args"),
+                                                  pytree.LeafPattern(token.RPAR)))))
+
 
 def fix_apply(node):
-    if not (node.type == syms.power and
-            len(node.children) >= 2 and
-            node.children[0] == n_apply and
-            node.children[1].type == syms.trailer and
-            node.children[1].children[0] == n_lpar):
+    if not p_apply.match(node):
         return
     n_arglist = node.children[1].children[1]
-    if n_arglist == n_rpar:
-        return # apply() with no arguments?!
     if n_arglist.type != syms.arglist:
         return # apply() with only one argument?!
     l_args = []
