@@ -3,8 +3,9 @@
 # Licensed to PSF under a Contributor Agreement.
 
 """Refactoring tool: change print statements into function calls, ie change:
+    'print'          into 'Print()'
     'print ...'	     into 'Print(...)'
-    'print ... ,'    into 'Print(..., sep=" ", end="")'
+    'print ... ,'    into 'Print(..., end=" ")'
     'print >>x, ...' into 'Print(..., file=x)'
 """
 
@@ -59,6 +60,16 @@ def visit(node, func):
 
 
 def fix_print(node):
+    if node == pytree.Leaf(token.NAME, "print"):
+        # Special-case print all by itself
+        new = pytree.Node(syms.power,
+                          (pytree.Leaf(token.NAME, "Print"),
+                           pytree.Node(syms.trailer,
+                                       (pytree.Leaf(token.LPAR, "("),
+                                        pytree.Leaf(token.RPAR, ")")))))
+        new.set_prefix(node.get_prefix())
+        node.replace(new)
+        return
     if node.type != syms.print_stmt:
         return
     assert node.children[0] == pytree.Leaf(token.NAME, "print")
@@ -66,8 +77,7 @@ def fix_print(node):
     sep = end = file = None
     if args and args[-1] == pytree.Leaf(token.COMMA, ","):
         args = args[:-1]
-        sep = " "
-        end = ""
+        end = " "
     if args and args[0] == pytree.Leaf(token.RIGHTSHIFT, ">>"):
         assert len(args) >= 2
         file = args[1]
