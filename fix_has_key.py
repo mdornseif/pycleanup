@@ -59,7 +59,7 @@ p_has_key = pytree.NodePattern(syms.trailer,
                                 pytree.LeafPattern(token.NAME, "has_key")))
 p_trailer_args = pytree.NodePattern(syms.trailer,
                                     (pytree.LeafPattern(token.LPAR),
-                                     pytree.NodePattern(name="args"),
+                                     pytree.WildcardPattern(name="args"),
                                      pytree.LeafPattern(token.RPAR)))
 
 
@@ -82,7 +82,10 @@ def fix_has_key(node):
     results = {}
     if not p_trailer_args.match(next, results):
         return
-    argsnode = results["args"]
+    argsnodes = results["args"]
+    if len(argsnodes) != 1:
+        return
+    argsnode = argsnodes[0]
     arg = argsnode
     if argsnode.type == syms.arglist:
         args = argsnode.children

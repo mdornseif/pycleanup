@@ -6,10 +6,12 @@
 This is a very concrete parse tree; we need to keep every token and
 even the comments and whitespace between tokens.
 
-There's also a matching pattern implementation here.
+There's also a pattern matching implementation here.
 """
 
 __author__ = "Guido van Rossum <guido@python.org>"
+
+import sys
 
 
 class Base(object):
@@ -261,6 +263,8 @@ class BasePattern(object):
 
 class NodePattern(BasePattern):
 
+    wildcards = False
+
     def __init__(self, type=None, content=None, name=None):
         """Constructor.  Takes optional type, content, and name.
 
@@ -281,6 +285,8 @@ class NodePattern(BasePattern):
             content = tuple(content)
             for i, item in enumerate(content):
                 assert isinstance(item, BasePattern), (i, item)
+                if isinstance(item, WildcardPattern):
+                    self.wildcards = True
         self.type = type
         self.content = content
         self.name = name
@@ -297,12 +303,46 @@ class NodePattern(BasePattern):
 
         When returning False, the results dict may still be updated.
         """
+        if self.wildcards:
+            return _wcmatch(self.content, node.children, results)
         if len(self.content) != len(node.children):
             return False
         for subpattern, child in zip(self.content, node.children):
             if not subpattern.match(child, results):
                 return False
         return True
+
+
+def _wcmatch(patterns, nodes, results):
+    if not patterns:
+        if nodes:
+            return False
+        return True
+    pat = patterns[0]
+    if isinstance(pat, WildcardPattern):
+        for i in xrange(pat.min):
+            if i >= len(nodes) or not pat.match(nodes[i], None):
+                return False
+        for i in xrange(pat.min, pat.max):
+            # Shortest match wins
+            r = {}
+            if _wcmatch(patterns[1:], nodes[i:], r):
+                if pat.name:
+                    r[pat.name] = nodes[:i]
+                if results is not None:
+                    results.update(r)
+                return True
+        return False
+    else:
+        if not nodes:
+            return False
+        r = {}
+        if pat.match(nodes[0], r):
+            if _wcmatch(patterns[1:], nodes[1:], r):
+                if results is not None:
+                    results.update(r)
+                return True
+        return False
 
 
 class LeafPattern(BasePattern):
@@ -337,3 +377,18 @@ class LeafPattern(BasePattern):
         When returning False, the results dict may still be updated.
         """
         return self.content == node.value
+
+
+class WildcardPattern(NodePattern):
+
+    """A wildcard pattern can match zero or more nodes.
+
+    The matching must be done by special-casing in NodePattern._submatch().
+    """
+
+    def __init__(self, type=None, content=None, name=None,
+                 min=0, max=sys.maxint):
+        """Constructor."""
+        NodePattern.__init__(self, type=type, content=content, name=name)
+        self.min = min
+        self.max = max
