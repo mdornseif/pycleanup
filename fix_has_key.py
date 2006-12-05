@@ -51,7 +51,6 @@ def visit(node, func):
 # Sample nodes
 n_star = pytree.Leaf(token.STAR, "*")
 n_comma = pytree.Leaf(token.COMMA, ",")
-n_in = pytree.Leaf(token.NAME, "in", context=(" ", (0, 0)))
 
 # Tree matching patterns
 p_has_key = pytree.NodePattern(syms.trailer,
@@ -100,6 +99,12 @@ def fix_has_key(node):
     # Change "X.has_key(Y)" into "Y in X"
     arg.set_prefix(nodes[0].get_prefix())
     nodes[0].set_prefix(" ")
+    if arg.parent is not None:
+        arg.replace(None)
+    n_in = pytree.Leaf(token.NAME, "in", context=(" ", (0, 0)))
+    for node in nodes[:i]:
+        if node.parent is not None:
+            node.replace(None)
     new = pytree.Node(syms.comparison,
                       (arg, n_in, pytree.Node(syms.power, nodes[:i])))
     # XXX Sometimes we need to parenthesize arg or new.  Later.

@@ -96,6 +96,9 @@ def fix_apply(node):
                           pytree.Leaf(token.DOUBLESTAR, "**"),
                           l_args[2]])
         l_newargs[-2].set_prefix(" ")
+    for n in l_newargs:
+        if n.parent is not None:
+            n.replace(None) # Force parent to None
     n_arglist.replace(pytree.Node(syms.arglist, l_newargs))
     # XXX Sometimes we can be cleverer, e.g. apply(f, (x, y) + t)
     # can be translated into f(x, y, *t) instead of f(*(x, y) + t)

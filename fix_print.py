@@ -97,6 +97,9 @@ def fix_print(node):
         if file is not None:
             add_kwarg(l_args, "file", file)
     if l_args:
+        for n in l_args:
+            if n.parent is not None:
+                n.replace(None) # Force parent to None
         n_arglist = pytree.Node(syms.arglist, l_args)
     else:
         n_arglist = None
@@ -112,6 +115,8 @@ def fix_print(node):
 def add_kwarg(l_nodes, s_kwd, n_expr):
     # XXX All this prefix-setting may lose comments (though rarely)
     n_expr.set_prefix("")
+    if n_expr.parent is not None:
+        n_expr.replace(None) # Force parent to None
     n_argument = pytree.Node(syms.argument,
                              (pytree.Leaf(token.NAME, s_kwd),
                               pytree.Leaf(token.EQUAL, "="),

@@ -118,6 +118,7 @@ class Node(Base):
         self.type = type
         self.children = tuple(children)
         for ch in self.children:
+            assert ch.parent is None, str(ch)
             ch.parent = self
 
     def __repr__(self):
@@ -226,6 +227,13 @@ class BasePattern(object):
 
     It looks for a specific node type (token or symbol), and
     optionally for a specific content.
+
+    This is an abstract base class.  There are three concrete
+    subclasses:
+
+    - LeafPattern matches a single leaf node;
+    - NodePattern matches a single node (usually non-leaf);
+    - WildcardPattern matches a sequence of nodes of variable length.
     """
 
     # Defaults for instance variables
@@ -238,13 +246,21 @@ class BasePattern(object):
         assert cls is not BasePattern, "Cannot instantiate BasePattern"
         return object.__new__(cls, *args, **kwds)
 
+    def __repr__(self):
+        return "%s(%s)" % (self.__class__.__name__,
+                           ", ".join("%s=%r" % (x, getattr(self, x))
+                                     for x in ("type", "content", "name")
+                                     if getattr(self, x) is not None))
+
     def match(self, node, results=None):
-        """Does that node match this pattern?
+        """Does this pattern exactly match a node?
 
         Returns True if it matches, False if not.
 
         If results is not None, it must be a dict which will be
         updated with the nodes matching named subpatterns.
+
+        Default implementation for non-wildcard patterns.
         """
         if self.type is not None and node.type != self.type:
             return False
@@ -256,9 +272,69 @@ class BasePattern(object):
                 return False
             if r:
                 results.update(r)
-        if results is not None and self.name is not None:
+        if results is not None and self.name:
             results[self.name] = node
         return True
+
+    def match_seq(self, nodes, results=None):
+        """Does this pattern exactly match a sequence of nodes?
+
+        Default implementation for non-wildcard patterns.
+        """
+        if len(nodes) != 1:
+            return False
+        return self.match(nodes[0], results)
+
+    def generate_matches(self, nodes):
+        """Generator yielding all matches for this pattern.
+
+        Default implementation for non-wildcard patterns.
+        """
+        r = {}
+        if nodes and self.match(nodes[0], r):
+            yield 1, r
+
+
+class LeafPattern(BasePattern):
+
+    def __init__(self, type=None, content=None, name=None):
+        """Initializer.  Takes optional type, content, and name.
+
+        The type, if given must be a token type (< 256).  If not given,
+        this matches any *leaf* node; the content may still be required.
+
+        The content, if given, must be a string.
+
+        If a name is given, the matching node is stored in the results
+        dict under that key.
+        """
+        if type is not None:
+            assert 0 <= type < 256, type
+        if content is not None:
+            assert isinstance(content, basestring), repr(content)
+        self.type = type
+        self.content = content
+        self.name = name
+
+    def match(self, node, results=None):
+        """Override match() to insist on a leaf node."""
+        if not isinstance(node, Leaf):
+            return False
+        return BasePattern.match(self, node, results)
+
+    def _submatch(self, node, results=None):
+        """Match the pattern's content to the node's children.
+
+        This assumes the node type matches and self.content is not None.
+
+        Returns True if it matches, False if not.
+
+        If results is not None, it must be a dict which will be
+        updated with the nodes matching named subpatterns.
+
+        When returning False, the results dict may still be updated.
+        """
+        return self.content == node.value
 
 
 class NodePattern(BasePattern):
@@ -266,12 +342,15 @@ class NodePattern(BasePattern):
     wildcards = False
 
     def __init__(self, type=None, content=None, name=None):
-        """Constructor.  Takes optional type, content, and name.
+        """Initializer.  Takes optional type, content, and name.
 
-        The type, if given, must be a symbol type (>= 256).
+        The type, if given, must be a symbol type (>= 256).  If the
+        type is None, the content must be None, and this matches *any*
+        single node (leaf or not).
 
-        The content, if given, must be a sequence of Patterns that
-        must match the node's children exactly.
+        The content, if not None, must be a sequence of Patterns that
+        must match the node's children exactly.  If the content is
+        given, the type must not be None.
 
         If a name is given, the matching node is stored in the results
         dict under that key.
@@ -304,7 +383,12 @@ class NodePattern(BasePattern):
         When returning False, the results dict may still be updated.
         """
         if self.wildcards:
-            return _wcmatch(self.content, node.children, results)
+            for c, r in generate_matches(self.content, node.children):
+                if c == len(node.children):
+                    if results is not None:
+                        results.update(r)
+                    return True
+            return False
         if len(self.content) != len(node.children):
             return False
         for subpattern, child in zip(self.content, node.children):
@@ -313,82 +397,123 @@ class NodePattern(BasePattern):
         return True
 
 
-def _wcmatch(patterns, nodes, results):
-    if not patterns:
-        if nodes:
-            return False
-        return True
-    pat = patterns[0]
-    if isinstance(pat, WildcardPattern):
-        for i in xrange(pat.min):
-            if i >= len(nodes) or not pat.match(nodes[i], None):
-                return False
-        for i in xrange(pat.min, pat.max):
-            # Shortest match wins
-            r = {}
-            if _wcmatch(patterns[1:], nodes[i:], r):
-                if pat.name:
-                    r[pat.name] = nodes[:i]
-                if results is not None:
-                    results.update(r)
-                return True
-        return False
-    else:
-        if not nodes:
-            return False
-        r = {}
-        if pat.match(nodes[0], r):
-            if _wcmatch(patterns[1:], nodes[1:], r):
-                if results is not None:
-                    results.update(r)
-                return True
-        return False
+class WildcardPattern(BasePattern):
 
+    """A wildcard pattern can match zero or more nodes."""
 
-class LeafPattern(BasePattern):
+    def __init__(self, content=None, min=0, max=sys.maxint, name=None):
+        """Initializer.
 
-    def __init__(self, type, content=None, name=None):
-        """Constructor.  Takes a type, optional content, and optional name.
+        Args:
+            content: optional sequence of subsequences of patterns;
+                     if absent, matches one node;
+                     if present, each subsequence is an alternative [*]
+            min: optinal minumum number of times to match, default 0
+            max: optional maximum number of times tro match, default sys.maxint
+            name: optional name assigned to this match
 
-        The type must be a token type (< 256).
-
-        The content, if given, must be a string.
-
-        If a name is given, the matching node is stored in the results
-        dict under that key.
+        [*] Thus, if content is [[a, b, c], [d, e], [f, g, h]] this is
+            equivalent to (a b c | d e | f g h); if content is None,
+            this is equivalent to '.' in regular expression terms.
+            The min and max parameters work as follows:
+                min=0, max=maxint: .*
+                min=1, max=maxint: .+
+                min=0, max=1: .?
+                min=1, max=1: .
+            If content is not None, replace the dot with the parenthesized
+            list of alternatives, e.g. (a b c | d e | f g h)*
         """
-        assert type < 256, type
+        assert 0 <= min <= max <= sys.maxint, (min, max)
         if content is not None:
-            assert isinstance(content, basestring), repr(content)
-        self.type = type
+            content = tuple(map(tuple, content))  # Protect against alterations
+            # Check sanity of alternatives
+            assert len(content), repr(content)  # Can't have zero alternatives
+            for alt in content:
+                assert len(alt), repr(alt) # Can have empty alternatives
         self.content = content
-        self.name = name
-
-    def _submatch(self, node, results=None):
-        """Match the pattern's content to the node's children.
-
-        This assumes the node type matches and self.content is not None.
-
-        Returns True if it matches, False if not.
-
-        If results is not None, it must be a dict which will be
-        updated with the nodes matching named subpatterns.
-
-        When returning False, the results dict may still be updated.
-        """
-        return self.content == node.value
-
-
-class WildcardPattern(NodePattern):
-
-    """A wildcard pattern can match zero or more nodes.
-
-    The matching must be done by special-casing in NodePattern._submatch().
-    """
-
-    def __init__(self, type=None, content=None, name=None,
-                 min=0, max=sys.maxint):
-        """Constructor."""
-        NodePattern.__init__(self, type=type, content=content, name=name)
         self.min = min
         self.max = max
+        self.name = name
+
+    def match(self, node, results=None):
+        """Does this pattern exactly match a node?"""
+        return self.match_seq([node], results)
+
+    def match_seq(self, nodes, results=None):
+        """Does this pattern exactly match a sequence of nodes?"""
+        for c, r in self.generate_matches(nodes):
+            if c == len(nodes):
+                if results is not None:
+                    results.update(r)
+                    if self.name:
+                        results[self.name] = tuple(nodes)
+                return True
+        return False
+
+    def generate_matches(self, nodes):
+        """Generator yielding matches for a sequence of nodes.
+
+        Args:
+            nodes: sequence of nodes
+
+        Yields:
+            (count, results) tuples where:
+            count: the match comprises nodes[:count];
+            results: dict containing named submatches.
+        """
+        if self.content is None:
+            # Shortcut for special case (see __init__.__doc__)
+            for count in xrange(self.min, 1 + min(len(nodes), self.max)):
+                r = {}
+                if self.name:
+                    r[self.name] = nodes[:count]
+                yield count, r
+        else:
+            for count, r in self._recursive_matches(nodes, 0):
+                if self.name:
+                    r[self.name] = nodes[:count]
+                yield count, r
+
+    def _recursive_matches(self, nodes, count):
+        """Helper to recursively yield the matches."""
+        assert self.content is not None
+        if count >= self.min:
+            r = {}
+            if self.name:
+                r[self.name] = nodes[:0]
+            yield 0, r
+        if count < self.max:
+            for alt in self.content:
+                for c0, r0 in generate_matches(alt, nodes):
+                    for c1, r1 in self._recursive_matches(nodes[c0:], count+1):
+                        r = {}
+                        r.update(r0)
+                        r.update(r1)
+                        yield c0 + c1, r
+
+
+def generate_matches(patterns, nodes):
+    """Generator yielding matches for a sequence of patterns and nodes.
+
+    Args:
+        patterns: a sequence of patterns
+        nodes: a sequence of nodes
+
+    Yields:
+        (count, results) tuples where:
+        count: the entire sequence of patterns matches nodes[:count];
+        results: dict containing named submatches.
+        """
+    if not patterns:
+        yield 0, {}
+    else:
+        p, rest = patterns[0], patterns[1:]
+        for c0, r0 in p.generate_matches(nodes):
+            if not rest:
+                yield c0, r0
+            else:
+                for c1, r1 in generate_matches(rest, nodes[c0:]):
+                    r = {}
+                    r.update(r0)
+                    r.update(r1)
+                    yield c0 + c1, r
