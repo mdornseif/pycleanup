@@ -207,7 +207,7 @@ class TestPatterns(unittest.TestCase):
                                     min=1, max=4, name="pw")
         self.assertEqual([x[0] for x in pw.generate_matches(leaves)], [3, 5, 2, 4, 6])
         pr = pytree.NodePattern(type=1000, content=[pw], name="pr")
-        matches = list(pr.generate_matches([root]))
+        matches = list(pytree.generate_matches([pr], [root]))
         self.assertEqual(len(matches), 1)
         c, r = matches[0]
         self.assertEqual(c, 1)

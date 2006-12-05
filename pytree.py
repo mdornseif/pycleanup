@@ -399,7 +399,16 @@ class NodePattern(BasePattern):
 
 class WildcardPattern(BasePattern):
 
-    """A wildcard pattern can match zero or more nodes."""
+    """A wildcard pattern can match zero or more nodes.
+
+    This has all the flexibility needed to implement patterns like:
+
+    .*      .+      .?      .{m,n}
+    (a b c | d e | f)
+    (...)*  (...)+  (...)?  (...){m,n}
+
+    except it always uses non-greedy matching.
+    """
 
     def __init__(self, content=None, min=0, max=sys.maxint, name=None):
         """Initializer.
