@@ -16,6 +16,7 @@ import pgen2
 from pgen2 import driver
 
 import pytree
+import patcomp
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -53,13 +54,9 @@ n_star = pytree.Leaf(token.STAR, "*")
 n_comma = pytree.Leaf(token.COMMA, ",")
 
 # Tree matching patterns
-p_has_key = pytree.NodePattern(syms.trailer,
-                               (pytree.LeafPattern(token.DOT),
-                                pytree.LeafPattern(token.NAME, "has_key")))
-p_trailer_args = pytree.NodePattern(syms.trailer,
-                                    (pytree.LeafPattern(token.LPAR),
-                                     pytree.WildcardPattern(name="args"),
-                                     pytree.LeafPattern(token.RPAR)))
+pat_compile = patcomp.PatternCompiler().compile_pattern
+p_has_key = pat_compile("trailer<'.' 'has_key'>")
+p_trailer_args = pat_compile("trailer<'(' args=(any{1,1}) ')'>")
 
 
 def fix_has_key(node):

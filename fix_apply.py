@@ -16,6 +16,7 @@ import pgen2
 from pgen2 import driver
 
 import pytree
+import patcomp
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -62,12 +63,8 @@ n_star = pytree.Leaf(token.STAR, "*")
 n_doublestar = pytree.Leaf(token.DOUBLESTAR, "**")
 
 # Tree matching patterns
-p_apply = pytree.NodePattern(syms.power,
-                             (pytree.LeafPattern(token.NAME, "apply"),
-                              pytree.NodePattern(syms.trailer,
-                                                 (pytree.LeafPattern(token.LPAR),
-                                                  pytree.NodePattern(name="args"),
-                                                  pytree.LeafPattern(token.RPAR)))))
+pat_compile = patcomp.PatternCompiler().compile_pattern
+p_apply = pat_compile("power< 'apply' trailer<'(' args=any ')'> >")
 
 
 def fix_apply(node):
