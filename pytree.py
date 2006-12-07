@@ -501,6 +501,40 @@ class WildcardPattern(BasePattern):
                         yield c0 + c1, r
 
 
+class NegatedPattern(BasePattern):
+
+    def __init__(self, content=None):
+        """Initializer.
+
+        The argument is either a pattern or None.  If it is None, this
+        only matches an empty sequence (effectively '$' in regex
+        lingo).  If it is not None, this matches whenever the argument
+        pattern doesn't have any matches.
+        """
+        if content is not None:
+            assert isinstance(content, BasePattern), repr(content)
+        self.content = content
+
+    def match(self, node):
+        # We never match a node in its entirety
+        return False
+
+    def match_seq(self, nodes):
+        # We only match an empty sequence of nodes in its entirety
+        return len(nodes) == 0
+
+    def generate_matches(self, nodes):
+        if self.content is None:
+            # Return a match if there is an empty sequence
+            if len(nodes) == 0:
+                yield 0, {}
+        else:
+            # Return a match if the argument pattern has no matches
+            for c, r in self.content.generate_matches(nodes):
+                return
+            yield 0, {}
+
+
 def generate_matches(patterns, nodes):
     """Generator yielding matches for a sequence of patterns and nodes.
 

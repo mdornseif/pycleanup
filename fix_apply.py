@@ -64,40 +64,60 @@ n_doublestar = pytree.Leaf(token.DOUBLESTAR, "**")
 
 # Tree matching patterns
 pat_compile = patcomp.PatternCompiler().compile_pattern
-p_apply = pat_compile("power< 'apply' trailer<'(' args=any ')'> >")
+p_apply = pat_compile("""(
+power< 'apply'
+    trailer<
+        '('
+        arglist<
+            (not argument<NAME '=' any>) func=any ','
+            (not argument<NAME '=' any>) args=any [','
+            (not argument<NAME '=' any>) kwds=any] [',']
+        >
+        ')'
+    >
+>
+)"""
+    )
 
 
 def fix_apply(node):
-    if not p_apply.match(node):
+    results = {}
+    if not p_apply.match(node, results):
         return
     n_arglist = node.children[1].children[1]
-    if n_arglist.type != syms.arglist:
-        return # apply() with only one argument?!
-    l_args = []
-    for arg in n_arglist.children:
-        if arg == n_comma:
-            continue
-        if arg == n_star or arg == n_doublestar:
-            return # apply() with a * or ** in its argument list?!
-        arg.set_prefix("")
-        l_args.append(arg)
-    if not 2 <= len(l_args) <= 3:
-        return # too few or too many arguments to handle
+    assert n_arglist.type
+    func = results["func"]
+    args = results["args"]
+    kwds = results.get("kwds")
     prefix = node.get_prefix()
-    l_args[0].replace(None)
-    node.children[0].replace(l_args[0])
+    func.replace(None)
+    if (func.type not in (token.NAME, syms.atom) and
+        (func.type != syms.power or
+         func.children[-2].type == token.DOUBLESTAR)):
+        # Need to parenthesize
+        func = pytree.Node(syms.atom,
+                           (pytree.Leaf(token.LPAR, "("),
+                            func,
+                            pytree.Leaf(token.RPAR, ")")))
+    func.set_prefix("")
+    args.replace(None)
+    args.set_prefix("")
+    if kwds is not None:
+        kwds.replace(None)
+        kwds.set_prefix("")
+    node.children[0].replace(func)
     node.set_prefix(prefix)
-    l_newargs = [pytree.Leaf(token.STAR, "*"), l_args[1]]
-    if l_args[2:]:
+    l_newargs = [pytree.Leaf(token.STAR, "*"), args]
+    if kwds is not None:
         l_newargs.extend([pytree.Leaf(token.COMMA, ","),
                           pytree.Leaf(token.DOUBLESTAR, "**"),
-                          l_args[2]])
-        l_newargs[-2].set_prefix(" ")
+                          kwds])
+        l_newargs[-2].set_prefix(" ") # that's the ** token
     for n in l_newargs:
         if n.parent is not None:
             n.replace(None) # Force parent to None
     n_arglist.replace(pytree.Node(syms.arglist, l_newargs))
-    # XXX Sometimes we can be cleverer, e.g. apply(f, (x, y) + t)
+    # XXX Sometimes we could be cleverer, e.g. apply(f, (x, y) + t)
     # can be translated into f(x, y, *t) instead of f(*(x, y) + t)
 
 

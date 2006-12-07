@@ -13,13 +13,15 @@ Matcher: Alternatives ENDMARKER
 
 Alternatives: Alternative ('|' Alternative)*
 
-Alternative: Unit+
+Alternative: (Unit | NegatedUnit)+
 
 Unit: [NAME '='] ( STRING [Repeater]
                  | NAME [Details] [Repeater]
                  | '(' Alternatives ')' [Repeater]
                  | '[' Alternatives ']'
 		 )
+
+NegatedUnit: 'not' (STRING | NAME [Details] | '(' Alternatives ')')
 
 Repeater: '*' | '+' | '{' NUMBER ',' NUMBER '}'
 

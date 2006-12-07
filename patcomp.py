@@ -71,6 +71,10 @@ class PatternCompiler(object):
             units = [self.compile_node(ch) for ch in node.children]
             return pytree.WildcardPattern([units], min=1, max=1)
 
+        if node.type == self.syms.NegatedUnit:
+            pattern = self.compile_basic(node.children[1:])
+            return pytree.NegatedPattern(pattern)
+
         assert node.type == self.syms.Unit
 
         name = None
@@ -82,32 +86,10 @@ class PatternCompiler(object):
         if len(nodes) >= 2 and nodes[-1].type == self.syms.Repeater:
             repeat = nodes[-1]
             nodes = nodes[:-1]
+
         # Now we've reduced it to: STRING | NAME [Details] | (...) | [...]
-        assert len(nodes) >= 1
-        node = nodes[0]
-        if node.type == token.STRING:
-            value = literals.evalString(node.value)
-            pattern = pytree.LeafPattern(content=value)
-        elif node.type == token.NAME:
-            value = node.value
-            if value.isupper():
-                pattern = TOKEN_MAP[value]
-            else:
-                if value == "any":
-                    type = None
-                elif not value.startswith("_"):
-                    type = getattr(self.pysyms, value) # XXX KeyError
-                if nodes[1:]: # Details present
-                    content = [self.compile_node(nodes[1].children[1])]
-                else:
-                    content = None
-                pattern = pytree.NodePattern(type, content)
-        elif node.value == "(":
-            pattern = self.compile_node(nodes[1])
-        elif node.value == "[":
-            assert repeat is None
-            subpattern = self.compile_node(nodes[1])
-            pattern = pytree.WildcardPattern([[subpattern]], min=0, max=1)
+        pattern = self.compile_basic(nodes, repeat)
+
         if repeat is not None:
             assert repeat.type == self.syms.Repeater
             children = repeat.children
@@ -127,6 +109,39 @@ class PatternCompiler(object):
         if name is not None:
             pattern.name = name
         return pattern
+
+    def compile_basic(self, nodes, repeat=None):
+        # Compile STRING | NAME [Details] | (...) | [...]
+        assert len(nodes) >= 1
+        node = nodes[0]
+        if node.type == token.STRING:
+            value = literals.evalString(node.value)
+            return pytree.LeafPattern(content=value)
+        elif node.type == token.NAME:
+            value = node.value
+            if value.isupper():
+                if value not in TOKEN_MAP:
+                    raise SyntaxError("Invalid token: %r" % value)
+                return pytree.LeafPattern(TOKEN_MAP[value])
+            else:
+                if value == "any":
+                    type = None
+                elif not value.startswith("_"):
+                    type = getattr(self.pysyms, value, None)
+                    if type is None:
+                        raise SyntaxError("Invalid symbol: %r" % value)
+                if nodes[1:]: # Details present
+                    content = [self.compile_node(nodes[1].children[1])]
+                else:
+                    content = None
+                return pytree.NodePattern(type, content)
+        elif node.value == "(":
+            return self.compile_node(nodes[1])
+        elif node.value == "[":
+            assert repeat is None
+            subpattern = self.compile_node(nodes[1])
+            return pytree.WildcardPattern([[subpattern]], min=0, max=1)
+        assert False, node
 
     def get_int(self, node):
         assert node.type == token.NUMBER
@@ -151,7 +166,7 @@ def pattern_convert(grammar, raw_node_info):
 
 def test():
     pc = PatternCompiler()
-    pat = pc.compile_pattern("a=power< 'apply' trailer<'(' b=any ')'> >")
+    pat = pc.compile_pattern("a=power< 'apply' trailer<'(' b=(not STRING) ')'> >")
     print pat
 
 

@@ -17,6 +17,34 @@ def apply_examples():
     z = apply(fs[0], g or h, h or g)
     # Hello
     apply(f, (x, y) + t)
+    apply(f, args,)
+    apply(f, args, kwds,)
+    # Test that complex functions are parenthesized
+    x = apply(f+g, args)
+    x = apply(f*g, args)
+    x = apply(f**g, args)
+    # But dotted names etc. not
+    x = apply(f.g, args)
+    x = apply(f[x], args)
+    x = apply(f(), args)
+    # Extreme case
+    x = apply(a.b.c.d.e.f, args, kwds)
+    # XXX Comments in weird places still get lost
+    apply(   # foo
+          f, # bar
+          args)
+
+def bad_apply_examples():
+    # These should *not* be touched
+    apply()
+    apply(f)
+    apply(f,)
+    apply(f, args, kwds, extras)
+    apply(f, *args, **kwds)
+    apply(f, *args)
+    apply(func=f, args=args, kwds=kwds)
+    apply(f, args=args, kwds=kwds)
+    apply(f, args, kwds=kwds)
 
 def print_examples():
     # plain vanilla
