@@ -53,59 +53,63 @@ def visit(node, func):
 n_star = pytree.Leaf(token.STAR, "*")
 n_comma = pytree.Leaf(token.COMMA, ",")
 
-# Tree matching patterns
+# Tree matching pattern
 pat_compile = patcomp.PatternCompiler().compile_pattern
-p_has_key = pat_compile("trailer<'.' 'has_key'>")
-p_trailer_args = pat_compile("trailer<'(' args=(any{1,1}) ')'>")
-
+p_has_key_top = pat_compile("""(
+power<
+    before=any+
+    trailer< '.' 'has_key' >
+    trailer<
+        '('
+        ( not(arglist | argument<any '=' any>) arg=any
+        | arglist<(not argument<any '=' any>) arg=any ','>
+        )
+        ')'
+    >
+    after=any*
+>
+)""")
 
 def fix_has_key(node):
-    if not p_has_key.match(node):
-        return
-    parent = node.parent
-    nodes = parent.children
-    for i, n in enumerate(nodes):
-        if n is node:
-            break
-    else:
-        print "Can't find node in parent?!"
-        return
-    if i+1 >= len(nodes):
-        return # Nothing follows ".has_key"
-    if len(nodes) != i+2:
-        return # Too much follows ".has_key", e.g. ".has_key(x).blah"
-    next = nodes[i+1]
     results = {}
-    if not p_trailer_args.match(next, results):
+    if not p_has_key_top.match(node, results):
         return
-    argsnodes = results["args"]
-    if len(argsnodes) != 1:
-        return
-    argsnode = argsnodes[0]
-    arg = argsnode
-    if argsnode.type == syms.arglist:
-        args = argsnode.children
-        if len(args) > 2:
-            return # Too many arguments
-        if len(args) == 2:
-            if args[0] == n_star:
-                return # .has_key(*foo) -- you've gotta be kidding!
-            if args[1] != n_comma:
-                return # Only .has_key(foo,) expected
-        arg = args[0]
-    # Change "X.has_key(Y)" into "Y in X"
-    arg.set_prefix(nodes[0].get_prefix())
-    nodes[0].set_prefix(" ")
-    if arg.parent is not None:
-        arg.replace(None)
-    n_in = pytree.Leaf(token.NAME, "in", context=(" ", (0, 0)))
-    for node in nodes[:i]:
-        if node.parent is not None:
-            node.replace(None)
-    new = pytree.Node(syms.comparison,
-                      (arg, n_in, pytree.Node(syms.power, nodes[:i])))
-    # XXX Sometimes we need to parenthesize arg or new.  Later.
-    parent.replace(new)
+    prefix = node.get_prefix()
+    before = results["before"]
+    arg = results["arg"]
+    after = results["after"]
+    arg.replace(None)
+    if arg.type in (syms.comparison, syms.not_test, syms.and_test,
+                    syms.or_test, syms.test, syms.lambdef, syms.argument):
+        arg = parenthesize(arg)
+    for n in before:
+        n.replace(None)
+    if len(before) == 1:
+        before = before[0]
+    else:
+        before = pytree.Node(syms.power, before)
+    before.set_prefix(" ")
+    n_in = pytree.Leaf(token.NAME, "in")
+    n_in.set_prefix(" ")
+    new = pytree.Node(syms.comparison, (arg, n_in, before))
+    if after:
+        for n in after:
+            n.replace(None)
+        new = parenthesize(new)
+        new = pytree.Node(syms.power, (new,) + tuple(after))
+    if node.parent.type in (syms.comparison, syms.expr, syms.xor_expr,
+                            syms.and_expr, syms.shift_expr, syms.arith_expr,
+                            syms.term, syms.factor, syms.power):
+        new = parenthesize(new)
+    new.set_prefix(prefix)
+    node.replace(new)
+
+def parenthesize(node):
+    return pytree.Node(syms.atom,
+                       (pytree.Leaf(token.LPAR, "("),
+                        node,
+                        pytree.Leaf(token.RPAR, ")")))
+
 
 def diff(fn, tree):
     f = open("@", "w")

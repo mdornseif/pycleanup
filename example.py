@@ -3,10 +3,23 @@
 """Docstring."""
 import sys
 
-d = {"x": 42}
-if d.has_key("x") or d.has_key("y"):
-    print d["x"] + \
-          42
+def has_key_examples():
+    #
+    x = d.has_key("x") or d.has_key("y")
+    #
+    x = a.b.c.d.has_key("x") ** 3
+    #
+    x = a.b.has_key(1 + 2).__repr__()
+    #
+    x = a.b.has_key(1 + 2).__repr__() ** -3 ** 4
+    #
+    x = a.has_key(f or g)
+    #
+    x = a + b.has_key(c)
+    #
+    x = a.has_key(lambda: 12)
+    #
+    x = a.has_key(a for a in b)
 
 def foo():
 	pass # body indented by tab
