@@ -1,21 +1,33 @@
 A refactoring tool for converting Python 2.x code to 3.0.
 
-This is a prototype!
+This is a work in progress!
 
 Files:
 
-play.py        - test program
-pynode.py      - parse tree nodes for Python grammar
+README         - this file
+play.py        - program to exercise the idempotency of pytree nodes
+tests.py       - unit tests for pytree.py
+patcomp.py     - pattern compiler
+pytree.py      - parse tree nodes for Python grammar
 tokenize.py    - modified version of stdlib tokenize.py (1)
+fix_apply.py   - refactoring tool changing 'apply(f, a, k)' into 'f(*a, **k)'
 fix_has_key.py - refactoring tool changing 'x.has_key(y)' into 'y in x'
-example.py     - example input
-Grammar.txt    - Grammar input (same as Grammar/Grammar in Python 2.5)
-Grammar.pickle - Pickled grammar tables
+fix_print.py   - refactoring tool changing print statements into function calls
+example.py     - example input for play.py and fix_*.py
+Grammar.txt    - Python grammar input (a copy of Python 2.5's Grammar/Grammar)
+Grammar.pickle - pickled grammar tables (generated file, not in subversion)
+PatternGrammar.txt    - grammar for the pattern language used by patcomp.py
+PatternGrammar.pickle - pickled pattern grammar tables (generated file)
 pgen2/         - Parser generator and driver (2)
 
 Notes:
 
-(1) tokenize.py was modified to yield a NL pseudo-token for backslash
+(1) I modified tokenize.py to yield a NL pseudo-token for backslash
     continuations, so the original source can be reproduced exactly.
-(2) pgen2 was developed while I was at Elemental Security.  It was
-    modified to suit the needs of this refactoring tool.
+(2) I developed pgen2 while I was at Elemental Security.  I modified
+    it while at Google to suit the needs of this refactoring tool.
+
+All new code I wrote here is copyrighted by Google, licensed to the
+PSF under a contributor agreement.
+
+--Guido van Rossum
