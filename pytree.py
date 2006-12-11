@@ -11,7 +11,8 @@ There's also a pattern matching implementation here.
 
 __author__ = "Guido van Rossum <guido@python.org>"
 
-import sys
+
+HUGE = 0x7FFFFFFF  # maximum repeat count, default max
 
 
 class Base(object):
@@ -247,10 +248,17 @@ class BasePattern(object):
         return object.__new__(cls, *args, **kwds)
 
     def __repr__(self):
-        return "%s(%s)" % (self.__class__.__name__,
-                           ", ".join("%s=%r" % (x, getattr(self, x))
-                                     for x in ("type", "content", "name")
-                                     if getattr(self, x) is not None))
+        args = [self.type, self.content, self.name]
+        while args and args[-1] is None:
+            del args[-1]
+        return "%s(%s)" % (self.__class__.__name__, ", ".join(map(repr, args)))
+
+    def optimize(self):
+        """A subclass can define this as a hook for optimizations.
+
+        Returns either self or another node with the same effect.
+        """
+        return self
 
     def match(self, node, results=None):
         """Does this pattern exactly match a node?
@@ -410,7 +418,7 @@ class WildcardPattern(BasePattern):
     except it always uses non-greedy matching.
     """
 
-    def __init__(self, content=None, min=0, max=sys.maxint, name=None):
+    def __init__(self, content=None, min=0, max=HUGE, name=None):
         """Initializer.
 
         Args:
@@ -418,7 +426,7 @@ class WildcardPattern(BasePattern):
                      if absent, matches one node;
                      if present, each subsequence is an alternative [*]
             min: optinal minumum number of times to match, default 0
-            max: optional maximum number of times tro match, default sys.maxint
+            max: optional maximum number of times tro match, default HUGE
             name: optional name assigned to this match
 
         [*] Thus, if content is [[a, b, c], [d, e], [f, g, h]] this is
@@ -432,7 +440,7 @@ class WildcardPattern(BasePattern):
             If content is not None, replace the dot with the parenthesized
             list of alternatives, e.g. (a b c | d e | f g h)*
         """
-        assert 0 <= min <= max <= sys.maxint, (min, max)
+        assert 0 <= min <= max <= HUGE, (min, max)
         if content is not None:
             content = tuple(map(tuple, content))  # Protect against alterations
             # Check sanity of alternatives
@@ -443,6 +451,25 @@ class WildcardPattern(BasePattern):
         self.min = min
         self.max = max
         self.name = name
+
+    def optimize(self):
+        """Optimize certain stacked wildcard patterns."""
+        subpattern = None
+        if (self.content is not None and
+            len(self.content) == 1 and len(self.content[0]) == 1):
+            subpattern = self.content[0][0]
+        if self.min == 1 and self.max == 1:
+            if self.content is None:
+                return NodePattern(name=self.name)
+            if subpattern is not None and  self.name == subpattern.name:
+                return subpattern.optimize()
+        if (self.min <= 1 and isinstance(subpattern, WildcardPattern) and
+            subpattern.min <= 1 and self.name == subpattern.name):
+            return WildcardPattern(subpattern.content,
+                                   self.min*subpattern.min,
+                                   self.max*subpattern.max,
+                                   subpattern.name)
+        return self
 
     def match(self, node, results=None):
         """Does this pattern exactly match a node?"""

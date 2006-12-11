@@ -10,9 +10,9 @@ The compiler compiles a pattern to a pytree.*Pattern instance.
 
 __author__ = "Guido van Rossum <guido@python.org>"
 
-# Python tokens
-import sys
+# Python imports
 import token
+import tokenize
 
 # Fairly local imports
 from pgen2 import driver
@@ -35,6 +35,16 @@ class Symbols(object):
             setattr(self, name, grammar.symbol2number[name])
 
 
+def tokenize_wrapper(input):
+    """Tokenizes a string suppressing significant whitespace."""
+    skip = (token.NEWLINE, token.INDENT, token.DEDENT)
+    tokens = tokenize.generate_tokens(driver.generate_lines(input).next)
+    for quintuple in tokens:
+        type, value, start, end, line_text = quintuple
+        if type not in skip:
+            yield quintuple
+
+
 class PatternCompiler(object):
 
     def __init__(self, grammar_file="PatternGrammar.txt"):
@@ -50,7 +60,8 @@ class PatternCompiler(object):
 
     def compile_pattern(self, input, debug=False):
         """Compiles a pattern string to a nested pytree.*Pattern object."""
-        root = self.driver.parse_string(input, debug=debug)
+        tokens = tokenize_wrapper(input)
+        root = self.driver.parse_tokens(tokens, debug=debug)
         return self.compile_node(root)
 
     def compile_node(self, node):
@@ -58,22 +69,30 @@ class PatternCompiler(object):
 
         This is one big switch on the node type.
         """
-        # XXX Leave the optimizations to later
+        # XXX Optimize certain Wildcard-containing-Wildcard patterns
+        # that can be merged
         if node.type == self.syms.Matcher:
             node = node.children[0] # Avoid unneeded recursion
 
         if node.type == self.syms.Alternatives:
             # Skip the odd children since they are just '|' tokens
             alts = [self.compile_node(ch) for ch in node.children[::2]]
-            return pytree.WildcardPattern([[a] for a in alts], min=1, max=1)
+            if len(alts) == 1:
+                return alts[0]
+            p = pytree.WildcardPattern([[a] for a in alts], min=1, max=1)
+            return p.optimize()
 
         if node.type == self.syms.Alternative:
             units = [self.compile_node(ch) for ch in node.children]
-            return pytree.WildcardPattern([units], min=1, max=1)
+            if len(units) == 1:
+                return units[0]
+            p = pytree.WildcardPattern([units], min=1, max=1)
+            return p.optimize()
 
         if node.type == self.syms.NegatedUnit:
             pattern = self.compile_basic(node.children[1:])
-            return pytree.NegatedPattern(pattern)
+            p = pytree.NegatedPattern(pattern)
+            return p.optimize()
 
         assert node.type == self.syms.Unit
 
@@ -96,19 +115,25 @@ class PatternCompiler(object):
             child = children[0]
             if child.type == token.STAR:
                 min = 0
-                max = sys.maxint
+                max = pytree.HUGE
             elif child.type == token.PLUS:
                 min = 1
-                max = sys.maxint
+                max = pytree.HUGE
+            elif child.type == token.LBRACE:
+                assert children[-1].type == token.RBRACE
+                assert  len(children) in (3, 5)
+                min = max = self.get_int(children[1])
+                if len(children) == 5:
+                    max = self.get_int(children[3])
             else:
-                assert len(children) == 5
-                assert child.type == token.LBRACE
-                min = self.get_int(children[1])
-                max = self.get_int(children[3])
-            pattern = pytree.WildcardPattern([[pattern]], min=min, max=max)
+                assert False
+            if min != 1 or max != 1:
+                pattern = pattern.optimize()
+                pattern = pytree.WildcardPattern([[pattern]], min=min, max=max)
+
         if name is not None:
             pattern.name = name
-        return pattern
+        return pattern.optimize()
 
     def compile_basic(self, nodes, repeat=None):
         # Compile STRING | NAME [Details] | (...) | [...]
@@ -164,11 +189,15 @@ def pattern_convert(grammar, raw_node_info):
         return pytree.Leaf(type, value, context=context)
 
 
-def test():
+_SAMPLE = """(a=(power< ('apply' trailer<'(' b=(not STRING) ')'> ) >){1})
+{1,1}"""
+
+
+def _test():
     pc = PatternCompiler()
-    pat = pc.compile_pattern("a=power< 'apply' trailer<'(' b=(not STRING) ')'> >")
+    pat = pc.compile_pattern(_SAMPLE)
     print pat
 
 
 if __name__ == "__main__":
-    test()
+    _test()

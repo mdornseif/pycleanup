@@ -64,7 +64,7 @@ n_doublestar = pytree.Leaf(token.DOUBLESTAR, "**")
 
 # Tree matching patterns
 pat_compile = patcomp.PatternCompiler().compile_pattern
-p_apply = pat_compile("""(
+p_apply = pat_compile("""
 power< 'apply'
     trailer<
         '('
@@ -76,7 +76,7 @@ power< 'apply'
         ')'
     >
 >
-)"""
+"""
     )
 
 

@@ -25,6 +25,7 @@ import tokenize
 from pgen2 import parse
 from pgen2 import grammar
 
+
 class Driver(object):
 
     def __init__(self, grammar, convert=None, logger=None):
@@ -34,15 +35,16 @@ class Driver(object):
         self.logger = logger
         self.convert = convert
 
-    def parse_stream_raw(self, stream, debug=False):
-        """Parse a stream and return the concrete syntax tree."""
+    def parse_tokens(self, tokens, debug=False):
+        """Parse a series of tokens and return the syntax tree."""
+        # XXX Move the prefix computation into a wrapper around tokenize.
         p = parse.Parser(self.grammar, self.convert)
         p.setup()
         lineno = 1
         column = 0
         type = value = start = end = line_text = None
         prefix = ""
-        for quintuple in tokenize.generate_tokens(stream.readline):
+        for quintuple in tokens:
             type, value, start, end, line_text = quintuple
             if start != (lineno, column):
                 assert (lineno, column) <= start, ((lineno, column), start)
@@ -80,6 +82,11 @@ class Driver(object):
             raise parse.ParseError("incomplete input", t, v, x)
         return p.rootnode
 
+    def parse_stream_raw(self, stream, debug=False):
+        """Parse a stream and return the syntax tree."""
+        tokens = tokenize.generate_tokens(stream.readline)
+        return self.parse_tokens(tokens, debug)
+
     def parse_stream(self, stream, debug=False):
         """Parse a stream and return the syntax tree."""
         return self.parse_stream_raw(stream, debug)
@@ -94,9 +101,17 @@ class Driver(object):
 
     def parse_string(self, text, debug=False):
         """Parse a string and return the syntax tree."""
-        from StringIO import StringIO
-        stream = StringIO(text)
-        return self.parse_stream(stream, debug)
+        tokens = tokenize.generate_tokens(generate_lines(text).next)
+        return self.parse_tokens(tokens, debug)
+
+
+def generate_lines(text):
+    """Generator that behaves like readline without using StringIO."""
+    for line in text.splitlines(True):
+        yield line
+    while True:
+        yield ""
+
 
 def load_grammar(gt="Grammar.txt", gp=None,
                  save=True, force=False, logger=None):
@@ -119,6 +134,7 @@ def load_grammar(gt="Grammar.txt", gp=None,
         g = grammar.Grammar()
         g.load(gp)
     return g
+
 
 def _newer(a, b):
     """Inquire whether file a was written since file b."""

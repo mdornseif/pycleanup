@@ -55,7 +55,7 @@ n_comma = pytree.Leaf(token.COMMA, ",")
 
 # Tree matching pattern
 pat_compile = patcomp.PatternCompiler().compile_pattern
-p_has_key_top = pat_compile("""(
+p_has_key_top = pat_compile("""
 power<
     before=any+
     trailer< '.' 'has_key' >
@@ -68,7 +68,7 @@ power<
     >
     after=any*
 >
-)""")
+""")
 
 def fix_has_key(node):
     results = {}
