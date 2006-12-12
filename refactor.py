@@ -42,6 +42,7 @@ def main(args=None):
                       help="List available transformations (fixes/fix_*.py)")
     parser.add_option("-v", "--verbose", action="store_true",
                       help="More verbose logging")
+    parser.add_option("-w", "--write", action="store_true")
 
     # Parse command line arguments
     options, args = parser.parse_args(args)
@@ -122,7 +123,7 @@ class RefactoringTool(object):
         return fixers
 
     def log_error(self, msg, *args):
-        """Increment error count and log a message."""
+        """Increments error count and log a message."""
         self.errors += 1
         self.log_message(msg, *args)
 
@@ -133,7 +134,7 @@ class RefactoringTool(object):
         print >>sys.stderr, msg
 
     def refactor_args(self, args):
-        """Refactor files and directories from an argument list."""
+        """Refactors files and directories from an argument list."""
         for arg in args:
             if os.path.isdir(arg):
                 self.refactor_dir(arg)
@@ -141,7 +142,7 @@ class RefactoringTool(object):
                 self.refactor_file(arg)
 
     def refactor_dir(self, arg):
-        """Descend down a directory and refactor every Python file found.
+        """Descends down a directory and refactor every Python file found.
 
         Python files are assumed to have a .py extension.
 
@@ -158,7 +159,7 @@ class RefactoringTool(object):
             dirnames[:] = [dn for dn in dirnames if not dn.startswith(".")]
 
     def refactor_file(self, filename):
-        """Refactor a file."""
+        """Refactors a file."""
         try:
             f = open(filename)
         except IOError, err:
@@ -174,11 +175,14 @@ class RefactoringTool(object):
             if self.options.verbose:
                 self.log_message("Refactoring %s", filename)
             if self.refactor_tree(tree):
-                self.save_tree(tree, filename)
+                self.write_tree(tree, filename)
+            elif self.options.verbose:
+                self.log_message("No changes in %s", filename)
         finally:
             f.close()
 
     def refactor_tree(self, tree):
+        """Refactors a parse tree."""
         changes = 0
         for node in tree.post_order():
             for fixer in self.fixers:
@@ -189,29 +193,60 @@ class RefactoringTool(object):
                         changes += 1
         return changes
 
-    def save_tree(self, tree, filename):
-        """Save a (presumably modified) tree to a file.
+    def write_tree(self, tree, filename):
+        """Writes a (presumably modified) tree to a file.
 
-        Skip the saving if no changes were made.
+        First it shows a unified diff between the old file and the tree.
 
-        XXX For now, don't save, just print a unified diff.
+        If the diff shows any changes, it rewrites the file, but only
+        if the write option is set.
         """
+        text = str(tree)
         tfn = tempfile.mktemp()
         f = open(tfn, "w")
         try:
             try:
-                f.write(str(tree))
+                f.write(text)
             finally:
                 f.close()
+            # XXX Use difflib instead
             sts = os.system("diff -u %s %s" % (filename, tfn))
             if sts == 0:
-                pass # No changes
-            elif sts == 1<<8:
-                # XXX Actually save it
-                pass
-            else:
+                if self.options.verbose:
+                    self.log_message("No changes to %s", filename)
+                return
+            if sts != 1<<8:
                 self.log_error("Diff %s returned exit (%s,%s)",
                                filename, sts>>8, sts&0xFF)
+                return
+            if not self.options.write:
+                if self.options.verbose:
+                    self.log_message("Not writing changes to %s", filename)
+                return
+            backup = filename + ".bak"
+            if os.path.lexists(backup):
+                try:
+                    os.remove(backup)
+                except os.error, err:
+                    self.log_message("Can't remove backup %s", backup)
+            try:
+                os.rename(filename, backup)
+            except os.error, err:
+                self.log_message("Can't rename %s to %s", filename, backup)
+            try:
+                f = open(filename, "w")
+            except os.error, err:
+                self.log_error("Can't create %s: %s", filename, err)
+                return
+            try:
+                try:
+                    f.write(text)
+                except os.error, err:
+                    self.log_error("Can't write %s: %s", filename, err)
+            finally:
+                f.close()
+            if self.options.verbose:
+                self.log_message("Wrote changes to %s", filename)
         finally:
             os.remove(tfn)
 
