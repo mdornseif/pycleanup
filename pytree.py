@@ -64,6 +64,13 @@ class Base(object):
         """
         raise NotImplementedError
 
+    def clone(self):
+        """Returns a cloned (deep) copy of self.
+
+        This must be implemented by the concrete subclass.
+        """
+        raise NotImplementedError
+
     def post_order(self):
         """Returns a post-order iterator for the tree.
 
@@ -126,7 +133,7 @@ class Node(Base):
         self.type = type
         self.children = tuple(children)
         for ch in self.children:
-            assert ch.parent is None, str(ch)
+            assert ch.parent is None, repr(ch)
             ch.parent = self
 
     def __repr__(self):
@@ -145,6 +152,10 @@ class Node(Base):
     def _eq(self, other):
         """Compares two nodes for equality."""
         return (self.type, self.children) == (other.type, other.children)
+
+    def clone(self):
+        """Returns a cloned (deep) copy of self."""
+        return Node(self.type, (ch.clone() for ch in self.children))
 
     def post_order(self):
         """Returns a post-order iterator for the tree."""
@@ -208,6 +219,11 @@ class Leaf(Base):
     def _eq(self, other):
         """Compares two nodes for equality."""
         return (self.type, self.value) == (other.type, other.value)
+
+    def clone(self):
+        """Returns a cloned (deep) copy of self."""
+        return Leaf(self.type, self.value,
+                    (self.prefix, (self.lineno, self.column)))
 
     def post_order(self):
         """Returns a post-order iterator for the tree."""

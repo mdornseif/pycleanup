@@ -22,6 +22,8 @@ import tempfile
 import pytree
 import patcomp
 from pgen2 import driver
+import fixes
+import pygram
 
 
 def main(args=None):
@@ -37,7 +39,7 @@ def main(args=None):
     parser.add_option("-f", "--fix", action="append", default=[],
                       help="Each FIX specifies a transformation; default all")
     parser.add_option("-l", "--list-fixes", action="store_true",
-                      help="List available transformations")
+                      help="List available transformations (fixes/fix_*.py)")
     parser.add_option("-v", "--verbose", action="store_true",
                       help="More verbose logging")
 
@@ -45,7 +47,7 @@ def main(args=None):
     options, args = parser.parse_args(args)
     if options.list_fixes:
         print "Available transformations for the -f/--fix option:"
-        for fixname in get_all_fixes():
+        for fixname in get_all_fix_names():
             print fixname
         if not args:
             return 0
@@ -65,14 +67,14 @@ def main(args=None):
     return int(bool(rt.errors))
 
 
-def get_all_fixes():
-    """Return a sorted list of all available fixes."""
-    fixes = []
-    for name in os.listdir(os.path.dirname(__file__)):
+def get_all_fix_names():
+    """Return a sorted list of all available fix names."""
+    fix_names = []
+    for name in os.listdir(os.path.dirname(fixes.__file__)):
         if name.startswith("fix_") and name.endswith(".py"):
-            fixes.append(name[4:-3])
-    fixes.sort()
-    return fixes
+            fix_names.append(name[4:-3])
+    fix_names.sort()
+    return fix_names
 
 
 class RefactoringTool(object):
@@ -84,35 +86,40 @@ class RefactoringTool(object):
         """
         self.options = options
         self.errors = 0
-        self.gr = driver.load_grammar("Grammar.txt")
-        self.dr = dr = driver.Driver(self.gr, convert=pytree.convert)
-        self.pairs = self.get_refactoring_pairs()
+        self.driver = driver.Driver(pygram.python_grammar,
+                                    convert=pytree.convert)
+        self.fixers = self.get_fixers()
 
-    def get_refactoring_pairs(self):
+    def get_fixers(self):
         """Inspects the options to load the requested patterns and handlers."""
-        pairs = []
-        fixes = self.options.fix
-        if not fixes or "all" in fixes:
-            fixes = get_all_fixes()
-        for fixname in fixes:
+        fixers = []
+        fix_names = self.options.fix
+        if not fix_names or "all" in fix_names:
+            fixes = get_all_fix_names()
+        for fix_name in fix_names:
             try:
-                mod = __import__("fix_" + fixname)
-            except (ImportError, AttributeError):
-                self.log_error("Can't find transformation %s", fixname)
-            else:
-                name = "?"
-                try:
-                    name = "p_" + fixname
-                    pattern = getattr(mod, name)
-                    name = "fix_" + fixname
-                    handler = getattr(mod, name)
-                except AttributeError:
-                    self.log_error("Can't find fix_%s.%s", fixname, name)
-                else:
-                    if self.options.verbose:
-                        self.log_message("adding transformation: %s", fixname)
-                    pairs.append((pattern, handler))
-        return pairs
+                mod = __import__("fixes.fix_" + fix_name, {}, {}, ["*"])
+            except ImportError:
+                self.log_error("Can't find transformation %s", fix_name)
+                continue
+            parts = fix_name.split("_")
+            class_name = "Fix" + "".join(p.title() for p in parts)
+            try:
+                fix_class = getattr(mod, class_name)
+            except AttributeError:
+                self.log_error("Can't find fixes.fix_%s.%s",
+                               fix_name, class_name)
+                continue
+            try:
+                fixer = fix_class(self.options)
+            except Exception, err:
+                self.log_error("Can't instantiate fixes.fix_%s.%s()",
+                               fix_name, class_name)
+                continue
+            if self.options.verbose:
+                self.log_message("Adding transformation: %s", fix_name)
+            fixers.append(fixer)
+        return fixers
 
     def log_error(self, msg, *args):
         """Increment error count and log a message."""
@@ -159,7 +166,7 @@ class RefactoringTool(object):
             return
         try:
             try:
-                tree = self.dr.parse_file(filename)
+                tree = self.driver.parse_file(filename)
             except Exception, err:
                 self.log_error("Can't parse %s: %s: %s",
                                filename, err.__class__.__name__, err)
@@ -174,11 +181,12 @@ class RefactoringTool(object):
     def refactor_tree(self, tree):
         changes = 0
         for node in tree.post_order():
-            for pattern, handler in self.pairs:
-                if pattern.match(node):
-                    # XXX Change handler API to return a replacement node
-                    handler(node)
-                    changes += 1
+            for fixer in self.fixers:
+                if fixer.match(node):
+                    new = fixer.transform(node)
+                    if new is not None and new != node:
+                        node.replace(new)
+                        changes += 1
         return changes
 
     def save_tree(self, tree, filename):
@@ -202,7 +210,7 @@ class RefactoringTool(object):
                 # XXX Actually save it
                 pass
             else:
-                self.log_error("diff %s returned exit (%s,%s)",
+                self.log_error("Diff %s returned exit (%s,%s)",
                                filename, sts>>8, sts&0xFF)
         finally:
             os.remove(tfn)
