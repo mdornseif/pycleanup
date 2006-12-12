@@ -3,6 +3,11 @@
 
 """Export the Python grammar and symbols."""
 
+# Python imports
+import token
+
+# Local imports
+import pytree
 from pgen2 import driver
 
 
@@ -15,3 +20,10 @@ class Symbols(object):
 
 python_grammar = driver.load_grammar("Grammar.txt")
 python_symbols = Symbols(python_grammar)
+
+
+def parenthesize(node):
+    return pytree.Node(python_symbols.atom,
+                       (pytree.Leaf(token.LPAR, "("),
+                        node,
+                        pytree.Leaf(token.RPAR, ")")))

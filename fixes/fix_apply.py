@@ -9,8 +9,9 @@ import token
 # Local imports
 import pytree
 import patcomp
-from pygram import python_symbols as syms
+import pygram
 
+syms = pygram.python_symbols
 pat_compile = patcomp.PatternCompiler().compile_pattern
 
 PATTERN = """
@@ -41,9 +42,6 @@ class FixApply(object):
     def transform(self, node):
         results = self.match(node)
         assert results
-        if not results:
-            return
-        assert node.children[1].children[1].type == syms.arglist
         func = results["func"]
         args = results["args"]
         kwds = results.get("kwds")
@@ -53,10 +51,7 @@ class FixApply(object):
             (func.type != syms.power or
              func.children[-2].type == token.DOUBLESTAR)):
             # Need to parenthesize
-            func = pytree.Node(syms.atom,
-                               (pytree.Leaf(token.LPAR, "("),
-                                func,
-                                pytree.Leaf(token.RPAR, ")")))
+            func = pygram.parenthesize(func)
         func.set_prefix("")
         args = args.clone()
         args.set_prefix("")
