@@ -95,7 +95,7 @@ class RefactoringTool(object):
         fixers = []
         fix_names = self.options.fix
         if not fix_names or "all" in fix_names:
-            fixes = get_all_fix_names()
+            fix_names = get_all_fix_names()
         for fix_name in fix_names:
             try:
                 mod = __import__("fixes.fix_" + fix_name, {}, {}, ["*"])
