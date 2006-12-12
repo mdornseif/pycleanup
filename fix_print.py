@@ -21,6 +21,7 @@ import pgen2
 from pgen2 import driver
 
 import pytree
+import patcomp
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -59,8 +60,18 @@ def visit(node, func):
         visit(child, func)
 
 
+pat_compile = patcomp.PatternCompiler().compile_pattern
+p_print = pat_compile("""
+'print' | print_stmt
+""")
+
+
 def fix_print(node):
+    if not p_print.match(node):
+        return
     if node == pytree.Leaf(token.NAME, "print"):
+        if node.parent.type == syms.print_stmt:
+            return # Will be covered when parent is handled
         # Special-case print all by itself
         new = pytree.Node(syms.power,
                           (pytree.Leaf(token.NAME, "Print"),

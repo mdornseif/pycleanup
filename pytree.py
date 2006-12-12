@@ -64,6 +64,13 @@ class Base(object):
         """
         raise NotImplementedError
 
+    def post_order(self):
+        """Returns a post-order iterator for the tree.
+
+        This must be implemented by the concrete subclass.
+        """
+        raise NotImplementedError
+
     def set_prefix(self, prefix):
         """Sets the prefix for the node (see Leaf class).
 
@@ -139,6 +146,13 @@ class Node(Base):
         """Compares two nodes for equality."""
         return (self.type, self.children) == (other.type, other.children)
 
+    def post_order(self):
+        """Returns a post-order iterator for the tree."""
+        for child in self.children:
+            for node in child.post_order():
+                yield node
+        yield self
+
     def set_prefix(self, prefix):
         """Sets the prefix for the node.
 
@@ -194,6 +208,10 @@ class Leaf(Base):
     def _eq(self, other):
         """Compares two nodes for equality."""
         return (self.type, self.value) == (other.type, other.value)
+
+    def post_order(self):
+        """Returns a post-order iterator for the tree."""
+        yield self
 
     def set_prefix(self, prefix):
         """Sets the prefix for the node."""
