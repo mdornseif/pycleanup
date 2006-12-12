@@ -8,17 +8,16 @@ README         - this file
 play.py        - program to exercise the idempotency of pytree nodes
 tests.py       - unit tests for pytree.py
 patcomp.py     - pattern compiler
-pytree.py      - parse tree nodes for Python grammar
+pytree.py      - parse tree nodes (not specific to Python, despite the name!)
+pygram.py      - code specific to the Python grammar
 tokenize.py    - modified version of stdlib tokenize.py (1)
-fix_apply.py   - refactoring tool changing 'apply(f, a, k)' into 'f(*a, **k)'
-fix_has_key.py - refactoring tool changing 'x.has_key(y)' into 'y in x'
-fix_print.py   - refactoring tool changing print statements into function calls
 example.py     - example input for play.py and fix_*.py
 Grammar.txt    - Python grammar input (a copy of Python 2.5's Grammar/Grammar)
 Grammar.pickle - pickled grammar tables (generated file, not in subversion)
 PatternGrammar.txt    - grammar for the pattern language used by patcomp.py
 PatternGrammar.pickle - pickled pattern grammar tables (generated file)
 pgen2/         - Parser generator and driver (2)
+fixes/         - Individual transformations
 
 Notes:
 
