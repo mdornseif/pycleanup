@@ -15,8 +15,8 @@ __author__ = "Guido van Rossum <guido@python.org>"
 # Python imports
 import os
 import sys
+import difflib
 import optparse
-import tempfile
 
 # Local imports
 import pytree
@@ -196,59 +196,64 @@ class RefactoringTool(object):
     def write_tree(self, tree, filename):
         """Writes a (presumably modified) tree to a file.
 
-        First it shows a unified diff between the old file and the tree.
+        If there are no changes, this is a no-op.
 
-        If the diff shows any changes, it rewrites the file, but only
-        if the write option is set.
+        Otherwise, it first shows a unified diff between the old file
+        and the tree, and then rewrites the file, but the latter is
+        only done if the write option is set.
         """
-        text = str(tree)
-        tfn = tempfile.mktemp()
-        f = open(tfn, "w")
+        try:
+            f = open(filename, "r")
+        except IOError, err:
+            self.log_error("Can't read %s: %s", filename, err)
+            return
+        try:
+            old_text = f.read()
+        finally:
+            f.close()
+        new_text = str(tree)
+        if old_text == new_text:
+            if self.options.verbose:
+                self.log_message("No changes to %s", filename)
+            return
+        diff_texts(old_text, new_text, filename)
+        if not self.options.write:
+            if self.options.verbose:
+                self.log_message("Not writing changes to %s", filename)
+            return
+        backup = filename + ".bak"
+        if os.path.lexists(backup):
+            try:
+                os.remove(backup)
+            except os.error, err:
+                self.log_message("Can't remove backup %s", backup)
+        try:
+            os.rename(filename, backup)
+        except os.error, err:
+            self.log_message("Can't rename %s to %s", filename, backup)
+        try:
+            f = open(filename, "w")
+        except os.error, err:
+            self.log_error("Can't create %s: %s", filename, err)
+            return
         try:
             try:
-                f.write(text)
-            finally:
-                f.close()
-            # XXX Use difflib instead
-            sts = os.system("diff -u %s %s" % (filename, tfn))
-            if sts == 0:
-                if self.options.verbose:
-                    self.log_message("No changes to %s", filename)
-                return
-            if sts != 1<<8:
-                self.log_error("Diff %s returned exit (%s,%s)",
-                               filename, sts>>8, sts&0xFF)
-                return
-            if not self.options.write:
-                if self.options.verbose:
-                    self.log_message("Not writing changes to %s", filename)
-                return
-            backup = filename + ".bak"
-            if os.path.lexists(backup):
-                try:
-                    os.remove(backup)
-                except os.error, err:
-                    self.log_message("Can't remove backup %s", backup)
-            try:
-                os.rename(filename, backup)
+                f.write(new_text)
             except os.error, err:
-                self.log_message("Can't rename %s to %s", filename, backup)
-            try:
-                f = open(filename, "w")
-            except os.error, err:
-                self.log_error("Can't create %s: %s", filename, err)
-                return
-            try:
-                try:
-                    f.write(text)
-                except os.error, err:
-                    self.log_error("Can't write %s: %s", filename, err)
-            finally:
-                f.close()
-            if self.options.verbose:
-                self.log_message("Wrote changes to %s", filename)
+                self.log_error("Can't write %s: %s", filename, err)
         finally:
-            os.remove(tfn)
+            f.close()
+        if self.options.verbose:
+            self.log_message("Wrote changes to %s", filename)
+
+
+def diff_texts(a, b, filename):
+    a = a.splitlines()
+    b = b.splitlines()
+    for line in difflib.unified_diff(a, b, filename, filename,
+                                     "(original)", "(refactored)",
+                                     lineterm=""):
+        print line
 
 
 if __name__ == "__main__":
