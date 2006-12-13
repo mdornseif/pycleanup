@@ -63,6 +63,7 @@ def main(args=None):
     # Refactor all files and directories passed as arguments
     if not rt.errors:
         rt.refactor_args(args)
+        rt.summarize()
 
     # Return error status (0 if rt.errors is zero)
     return int(bool(rt.errors))
@@ -90,6 +91,7 @@ class RefactoringTool(object):
         self.driver = driver.Driver(pygram.python_grammar,
                                     convert=pytree.convert)
         self.fixers = self.get_fixers()
+        self.files = []  # List of files that were or should be modified
 
     def get_fixers(self):
         """Inspects the options to load the requested patterns and handlers."""
@@ -202,6 +204,7 @@ class RefactoringTool(object):
         and the tree, and then rewrites the file, but the latter is
         only done if the write option is set.
         """
+        self.files.append(filename)
         try:
             f = open(filename, "r")
         except IOError, err:
@@ -245,6 +248,16 @@ class RefactoringTool(object):
             f.close()
         if self.options.verbose:
             self.log_message("Wrote changes to %s", filename)
+
+    def summarize(self):
+        if not self.files:
+            self.log_message("No files were (or should be) modified.")
+        else:
+            self.log_message("Files that were (or should be) modified:")
+            for file in self.files:
+                self.log_message(file)
+        if self.errors:
+            self.log_message("There were %d errors", self.errors)
 
 
 def diff_texts(a, b, filename):
