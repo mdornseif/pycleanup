@@ -257,7 +257,10 @@ class RefactoringTool(object):
             for file in self.files:
                 self.log_message(file)
         if self.errors:
-            self.log_message("There were %d errors", self.errors)
+            if self.errors == 1:
+                self.log_message("There was 1 error")
+            else:
+                self.log_message("There were %d errors", self.errors)
 
 
 def diff_texts(a, b, filename):
