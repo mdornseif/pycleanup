@@ -20,6 +20,12 @@ def has_key_examples():
     x = a.has_key(lambda: 12)
     #
     x = a.has_key(a for a in b)
+    #
+    if not a.has_key(b): pass
+    #
+    if not a.has_key(b).__repr__(): pass
+    #
+    if not a.has_key(b) ** 2: pass
 
 def foo():
 	pass # body indented by tab

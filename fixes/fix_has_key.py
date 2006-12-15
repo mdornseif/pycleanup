@@ -15,7 +15,7 @@ syms = pygram.python_symbols
 pat_compile = patcomp.PatternCompiler().compile_pattern
 
 PATTERN = """
-power<
+anchor=power<
     before=any+
     trailer< '.' 'has_key' >
     trailer<
@@ -26,6 +26,21 @@ power<
         ')'
     >
     after=any*
+>
+|
+negation=not_test<
+    'not'
+    anchor=power<
+        before=any+
+        trailer< '.' 'has_key' >
+        trailer<
+            '('
+            ( not(arglist | argument<any '=' any>) arg=any
+            | arglist<(not argument<any '=' any>) arg=any ','>
+            )
+            ')'
+        >
+    >
 >
 """
 
@@ -43,10 +58,17 @@ class FixHasKey(object):
     def transform(self, node):
         results = self.match(node)
         assert results
+        if (node.parent.type == syms.not_test and
+            self.pattern.match(node.parent)):
+            # Don't transform a node matching the first alternative of the
+            # pattern when its parent matches the second alternative
+            return None
+        negation = results.get("negation")
+        anchor = results["anchor"]
         prefix = node.get_prefix()
         before = [n.clone() for n in results["before"]]
         arg = results["arg"].clone()
-        after = results["after"]
+        after = results.get("after")
         if after:
             after = [n.clone() for n in after]
         if arg.type in (syms.comparison, syms.not_test, syms.and_test,
@@ -57,15 +79,20 @@ class FixHasKey(object):
         else:
             before = pytree.Node(syms.power, before)
         before.set_prefix(" ")
-        n_in = pytree.Leaf(token.NAME, "in")
-        n_in.set_prefix(" ")
-        new = pytree.Node(syms.comparison, (arg, n_in, before))
+        n_op = pytree.Leaf(token.NAME, "in")
+        n_op.set_prefix(" ")
+        if negation:
+            n_not = pytree.Leaf(token.NAME, "not")
+            n_not.set_prefix(" ")
+            n_op = pytree.Node(syms.comp_op, (n_not, n_op))
+        new = pytree.Node(syms.comparison, (arg, n_op, before))
         if after:
             new = pygram.parenthesize(new)
             new = pytree.Node(syms.power, (new,) + tuple(after))
         if node.parent.type in (syms.comparison, syms.expr, syms.xor_expr,
-                                syms.and_expr, syms.shift_expr, syms.arith_expr,
-                                syms.term, syms.factor, syms.power):
+                                syms.and_expr, syms.shift_expr,
+                                syms.arith_expr, syms.term,
+                                syms.factor, syms.power):
             new = pygram.parenthesize(new)
         new.set_prefix(prefix)
         return new
