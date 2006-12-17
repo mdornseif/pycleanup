@@ -72,7 +72,9 @@ def main(args=None):
 def get_all_fix_names():
     """Return a sorted list of all available fix names."""
     fix_names = []
-    for name in os.listdir(os.path.dirname(fixes.__file__)):
+    names = os.listdir(os.path.dirname(fixes.__file__))
+    names.sort()
+    for name in names:
         if name.startswith("fix_") and name.endswith(".py"):
             fix_names.append(name[4:-3])
     fix_names.sort()
@@ -153,6 +155,8 @@ class RefactoringTool(object):
         for dirpath, dirnames, filenames in os.walk(arg):
             if self.options.verbose:
                 self.log_message("Descending into %s", dirpath)
+            dirnames.sort()
+            filenames.sort()
             for name in filenames:
                 if not name.startswith(".") and name.endswith("py"):
                     fullname = os.path.join(dirpath, name)
