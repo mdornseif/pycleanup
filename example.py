@@ -93,4 +93,26 @@ def print_examples():
     #
     print >>  sys.stderr           # spaces before sys.stderr
 
+def exec_examples():
+    #
+    exec code
+    #
+    exec code in ns
+    #
+    exec code in ns1, ns2
+    #
+    exec (a.b()) in ns
+    #
+    exec a.b() + c in ns
+    #
+    # These should not be touched:
+    #
+    exec(code)
+    #
+    exec (code)
+    #
+    exec(code, ns)
+    #
+    exec(code, ns1, ns2)
+
 # This is the last line.
