@@ -3,6 +3,14 @@
 """Docstring."""
 import sys
 
+def ne_examples():
+    if x <> y:
+        pass
+    if x<>y:
+        pass
+    if x<>y<>z:
+        pass
+
 def has_key_examples():
     #
     x = d.has_key("x") or d.has_key("y")
