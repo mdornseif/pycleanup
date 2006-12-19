@@ -73,6 +73,29 @@ def bad_apply_examples():
     apply(f, args=args, kwds=kwds)
     apply(f, args, kwds=kwds)
 
+def intern_examples():
+    #
+    # These should be refactored:
+    #
+    x = intern(a)
+    #
+    y = intern("b" # test
+              )
+    #
+    z = intern(a+b+c.d,)
+    #
+    intern("y%s" % 5).replace("y", "")
+    #
+    # These not:
+    #
+    intern(a=1)
+    #
+    intern(f, g)
+    #
+    intern(*h)
+    #
+    intern(**i)
+
 def print_examples():
     # plain vanilla
     print 1, 1+1, 1+1+1
