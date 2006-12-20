@@ -4,7 +4,7 @@
 
 """Refactoring framework.
 
-Used as a main program, this can refactory any number of files and/or
+Used as a main program, this can refactor any number of files and/or
 recursively descend down directories.  Imported as a module, this
 provides infrastructure to write your own refactoring tool.
 """
