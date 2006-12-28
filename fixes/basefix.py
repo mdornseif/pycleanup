@@ -10,7 +10,13 @@ import pygram
 
 class BaseFix(object):
 
-    """Optional base class for fixers."""
+    """Optional base class for fixers.
+
+    The subclass name must be FixFooBar where FooBar is the result of
+    removing underscores and capitalizing the words of the fix name.
+    For example, the class name for a fixer named 'has_key' should be
+    FixHasKey.
+    """
 
     PATTERN = None  # Subclass *must* override with a string literal
     pattern = None  # Compiled pattern, set by compile_pattern()
@@ -20,7 +26,11 @@ class BaseFix(object):
     syms = pygram.python_symbols
 
     def __init__(self, options):
-        """Initializer.  Subclass may override."""
+        """Initializer.  Subclass may override.
+o
+        The argument is an optparse.Values instance which can be used
+        to inspect the command line options.
+        """
         self.options = options
         self.compile_pattern()
 
@@ -35,6 +45,10 @@ class BaseFix(object):
     def match(self, node):
         """Returns match for a given parse tree node.
 
+        Should return a true or false object (not necessarily a bool).
+        It may return a non-empty dict of matching sub-nodes as
+        returned by a matching pattern.
+
         Subclass may override.
         """
         results = {}
@@ -43,7 +57,10 @@ class BaseFix(object):
     def transform(self, node):
         """Returns the transformation for a given parse tree node.
 
-        Subclass must override.
+        Should return None, or a node that is a modified copy of the
+        argument node.  The argument should not be modified in place.
+
+        Subclass *must* override.
         """
         return None
 

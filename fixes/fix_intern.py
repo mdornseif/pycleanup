@@ -8,34 +8,23 @@ import token
 
 # Local imports
 import pytree
-import patcomp
-import pygram
-
-syms = pygram.python_symbols
-pat_compile = patcomp.PatternCompiler().compile_pattern
-
-PATTERN = """
-power< 'intern'
-       trailer< lpar='('
-                ( not(arglist | argument<any '=' any>) obj=any
-                  | obj=arglist<(not argument<any '=' any>) any ','> )
-                rpar=')' >
-       after=any*
->
-"""
+from fixes import basefix
 
 
-class FixIntern(object):
+class FixIntern(basefix.BaseFix):
 
-    def __init__(self, options):
-        self.options = options
-        self.pattern = pat_compile(PATTERN)
-
-    def match(self, node):
-        results = {}
-        return self.pattern.match(node, results) and results
+    PATTERN = """
+    power< 'intern'
+           trailer< lpar='('
+                    ( not(arglist | argument<any '=' any>) obj=any
+                      | obj=arglist<(not argument<any '=' any>) any ','> )
+                    rpar=')' >
+           after=any*
+    >
+    """
 
     def transform(self, node):
+        syms = self.syms
         results = self.match(node)
         assert results
         obj = results["obj"].clone()
@@ -58,4 +47,3 @@ class FixIntern(object):
                           + after)
         new.set_prefix(node.get_prefix())
         return new
-                

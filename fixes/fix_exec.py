@@ -8,30 +8,19 @@ import token
 
 # Local imports
 import pytree
-import patcomp
-import pygram
-
-syms = pygram.python_symbols
-pat_compile = patcomp.PatternCompiler().compile_pattern
-
-PATTERN = """
-exec_stmt< 'exec' a=any 'in' b=any [',' c=any] >
-|
-exec_stmt< 'exec' (not atom<'(' [any] ')'>) a=any >
-"""
+from fixes import basefix
 
 
-class FixExec(object):
+class FixExec(basefix.BaseFix):
 
-    def __init__(self, options):
-        self.options = options
-        self.pattern = pat_compile(PATTERN)
-
-    def match(self, node):
-        results = {}
-        return self.pattern.match(node, results) and results
+    PATTERN = """
+    exec_stmt< 'exec' a=any 'in' b=any [',' c=any] >
+    |
+    exec_stmt< 'exec' (not atom<'(' [any] ')'>) a=any >
+    """
 
     def transform(self, node):
+        syms = self.syms
         results = self.match(node)
         assert results
         a = results["a"]
@@ -51,4 +40,3 @@ class FixExec(object):
                                         pytree.Leaf(token.RPAR, ")")])])
         new.set_prefix(node.get_prefix())
         return new
-                

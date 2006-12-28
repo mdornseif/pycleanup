@@ -15,30 +15,24 @@ import token
 
 # Local imports
 import pytree
-import patcomp
-import pygram
-
-syms = pygram.python_symbols
-pat_compile = patcomp.PatternCompiler().compile_pattern
-
-PATTERN = """
-'print' | print_stmt
-"""
+from fixes import basefix
 
 
-class FixPrint(object):
+class FixPrint(basefix.BaseFix):
 
-    def __init__(self, options):
-        self.options = options
-        self.pattern = pat_compile(PATTERN)
+    PATTERN = """
+    'print' | print_stmt
+    """
 
     def match(self, node):
-        if node.parent is not None and node.parent.type == syms.print_stmt:
+        # Override
+        if node.parent is not None and node.parent.type == self.syms.print_stmt:
             # Avoid matching 'print' as part of a print_stmt
             return None
         return self.pattern.match(node)
 
     def transform(self, node):
+        syms = self.syms
         results = self.match(node)
         assert results
 
@@ -68,13 +62,13 @@ class FixPrint(object):
             l_args[0].set_prefix("")
         if sep is not None or end is not None or file is not None:
             if sep is not None:
-                add_kwarg(l_args, "sep",
-                          pytree.Leaf(token.STRING, repr(sep)))
+                self.add_kwarg(l_args, "sep",
+                               pytree.Leaf(token.STRING, repr(sep)))
             if end is not None:
-                add_kwarg(l_args, "end",
-                          pytree.Leaf(token.STRING, repr(end)))
+                self.add_kwarg(l_args, "end",
+                               pytree.Leaf(token.STRING, repr(end)))
             if file is not None:
-                add_kwarg(l_args, "file", file)
+                self.add_kwarg(l_args, "file", file)
         if l_args:
             n_arglist = pytree.Node(syms.arglist, l_args)
         else:
@@ -87,14 +81,14 @@ class FixPrint(object):
         n_stmt.set_prefix(node.get_prefix())
         return n_stmt
 
-def add_kwarg(l_nodes, s_kwd, n_expr):
-    # XXX All this prefix-setting may lose comments (though rarely)
-    n_expr.set_prefix("")
-    n_argument = pytree.Node(syms.argument,
-                             (pytree.Leaf(token.NAME, s_kwd),
-                              pytree.Leaf(token.EQUAL, "="),
-                              n_expr))
-    if l_nodes:
-        l_nodes.append(pytree.Leaf(token.COMMA, ","))
-        n_argument.set_prefix(" ")
-    l_nodes.append(n_argument)
+    def add_kwarg(self, l_nodes, s_kwd, n_expr):
+        # XXX All this prefix-setting may lose comments (though rarely)
+        n_expr.set_prefix("")
+        n_argument = pytree.Node(self.syms.argument,
+                                 (pytree.Leaf(token.NAME, s_kwd),
+                                  pytree.Leaf(token.EQUAL, "="),
+                                  n_expr))
+        if l_nodes:
+            l_nodes.append(pytree.Leaf(token.COMMA, ","))
+            n_argument.set_prefix(" ")
+        l_nodes.append(n_argument)

@@ -11,17 +11,17 @@ import token
 
 # Local imports
 import pytree
-import pygram
-
-syms = pygram.python_symbols
+from fixes import basefix
 
 
-class FixNe(object):
+class FixNe(basefix.BaseFix):
 
-    def __init__(self, options):
-        self.options = options
+    def compile_pattern(self):
+        # Override
+        pass
 
     def match(self, node):
+        # Override
         return node.type == token.NOTEQUAL and node.value == "<>"
 
     def transform(self, node):
