@@ -146,4 +146,17 @@ def exec_examples():
     #
     exec(code, ns1, ns2)
 
+def repr_examples():
+    x = `1 + 2`
+    #
+    y = `x`
+    #
+    z = `y`.__repr__()
+    #
+    x = `1, 2, 3`
+    #
+    x = `1 + `2``
+    #
+    x = `1, 2 + `3, 4``
+
 # This is the last line.
