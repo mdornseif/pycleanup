@@ -8,38 +8,27 @@ import token
 
 # Local imports
 import pytree
-import patcomp
-import pygram
+from fixes import basefix
 
-syms = pygram.python_symbols
-pat_compile = patcomp.PatternCompiler().compile_pattern
 
-PATTERN = """
-power< 'apply'
-    trailer<
-        '('
-        arglist<
-            (not argument<NAME '=' any>) func=any ','
-            (not argument<NAME '=' any>) args=any [','
-            (not argument<NAME '=' any>) kwds=any] [',']
+class FixApply(basefix.BaseFix):
+
+    PATTERN = """
+    power< 'apply'
+        trailer<
+            '('
+            arglist<
+                (not argument<NAME '=' any>) func=any ','
+                (not argument<NAME '=' any>) args=any [','
+                (not argument<NAME '=' any>) kwds=any] [',']
+            >
+            ')'
         >
-        ')'
     >
->
-"""
-
-
-class FixApply(object):
-
-    def __init__(self, options):
-        self.options = options
-        self.pattern = pat_compile(PATTERN)
-
-    def match(self, node):
-        results = {}
-        return self.pattern.match(node, results) and results
+    """
 
     def transform(self, node):
+        syms = self.syms
         results = self.match(node)
         assert results
         func = results["func"]
@@ -51,7 +40,7 @@ class FixApply(object):
             (func.type != syms.power or
              func.children[-2].type == token.DOUBLESTAR)):
             # Need to parenthesize
-            func = pygram.parenthesize(func)
+            func = self.parenthesize(func)
         func.set_prefix("")
         args = args.clone()
         args.set_prefix("")
