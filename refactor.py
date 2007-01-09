@@ -17,6 +17,7 @@ import os
 import sys
 import difflib
 import optparse
+import logging
 
 # Local imports
 import pytree
@@ -25,6 +26,7 @@ from pgen2 import driver
 import fixes
 import pygram
 
+logging.basicConfig(format='%(name)s: %(message)s', level=logging.INFO)
 
 def main(args=None):
     """Main program.
@@ -90,8 +92,10 @@ class RefactoringTool(object):
         """
         self.options = options
         self.errors = 0
+        self.logger = logging.getLogger("RefactoringTool")
         self.driver = driver.Driver(pygram.python_grammar,
-                                    convert=pytree.convert)
+                                    convert=pytree.convert,
+                                    logger=self.logger)
         self.fixers = self.get_fixers()
         self.files = []  # List of files that were or should be modified
 
@@ -129,13 +133,13 @@ class RefactoringTool(object):
     def log_error(self, msg, *args):
         """Increments error count and log a message."""
         self.errors += 1
-        self.log_message(msg, *args)
+        self.logger.error(msg, *args)
 
     def log_message(self, msg, *args):
         """Hook to log a message."""
         if args:
             msg = msg % args
-        print >>sys.stderr, msg
+        self.logger.info(msg)
 
     def refactor_args(self, args):
         """Refactors files and directories from an argument list."""
@@ -180,15 +184,17 @@ class RefactoringTool(object):
                 return
             if self.options.verbose:
                 self.log_message("Refactoring %s", filename)
-            if self.refactor_tree(tree):
+            if self.refactor_tree(tree, filename):
                 self.write_tree(tree, filename)
             elif self.options.verbose:
                 self.log_message("No changes in %s", filename)
         finally:
             f.close()
 
-    def refactor_tree(self, tree):
+    def refactor_tree(self, tree, filename):
         """Refactors a parse tree."""
+        for fixer in self.fixers:
+            fixer.set_filename(filename)
         changes = 0
         for node in tree.post_order():
             for fixer in self.fixers:

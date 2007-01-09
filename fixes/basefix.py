@@ -3,6 +3,9 @@
 
 """Base class for fixers (optional, but recommended)."""
 
+# Python imports
+import logging
+
 # Local imports
 import patcomp
 import pygram
@@ -21,6 +24,8 @@ class BaseFix(object):
     PATTERN = None  # Subclass *must* override with a string literal
     pattern = None  # Compiled pattern, set by compile_pattern()
     options = None  # Options object passed to initializer
+    filename = None # The filename (set by set_filename)
+    logger = None   # A logger (set by set_filename)
 
     # Shortcut for access to Python grammar symbols
     syms = pygram.python_symbols
@@ -41,6 +46,14 @@ o
         self.{pattern,PATTERN} in .match().
         """
         self.pattern = patcomp.PatternCompiler().compile_pattern(self.PATTERN)
+
+    def set_filename(self, filename):
+        """Set the filename, and a logger derived from it.
+
+        The main refactoring tool should call this.
+        """
+        self.filename = filename
+        self.logger = logging.getLogger(filename)
 
     def match(self, node):
         """Returns match for a given parse tree node.

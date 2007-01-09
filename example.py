@@ -159,4 +159,47 @@ def repr_examples():
     #
     x = `1, 2 + `3, 4``
 
+def except_examples():
+    try:
+        pass
+    except Exception, e:
+        pass
+    #
+    try:
+        pass
+    except (RuntimeError, ImportError), e:
+        pass
+    #
+    # These should not be touched
+    #
+    try:
+        pass
+    except Exception, (a, b):
+        pass
+    #
+    try:
+        pass
+    except Exception, d[5]:
+        pass
+    #
+    try:
+        pass
+    except Exception, a.foo:
+        pass
+    #
+    try:
+        pass
+    except Exception, a().foo:
+        pass
+    #
+    try:
+        pass
+    except Exception:
+        pass
+    #
+    try:
+        pass
+    except (RuntimeError, ImportError):
+        pass
+    
 # This is the last line.
