@@ -35,7 +35,12 @@ class FixExcept(basefix.BaseFix):
             return node
         
         as_leaf = pytree.Leaf(token.NAME, "as")
-        as_leaf.set_prefix(' ')
+        as_leaf.set_prefix(" ")
+        
+        # Python 2 excepts could take the form except E,V: (no space)
+        # That doesn't work for the new version
+        if not b.get_prefix():
+            b.set_prefix(" ")
         
         new = pytree.Node(syms.except_clause,
                           [pytree.Leaf(token.NAME, "except"),
