@@ -208,6 +208,25 @@ def except_examples():
         pass
     except (Exception, SystemExit):
         pass
+        
+def raise_examples():
+    raise Exception, 5
+    #
+    raise Exception,5
+    #
+    raise Exception, (5, 6, 7)
+    #
+    # These should not be touched
+    #
+    raise Exception
+    #
+    raise Exception(5, 6)
+    #
+    # These should produce a warning
+    #
+    raise Exception, 5, 6
+    #
+    raise Exception,5,6
     
     
 # This is the last line.
