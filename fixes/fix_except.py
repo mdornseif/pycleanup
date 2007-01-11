@@ -2,6 +2,7 @@
 
 # Python imports
 import token
+import pprint
 
 # Local imports
 import pytree
@@ -13,11 +14,27 @@ def get_lineno(node):
             return
         node = node.children[0]
     return node.lineno
+    
+def find_excepts(nodes):
+    for i in range(len(nodes)):
+        n = nodes[i]
+        if isinstance(n, pytree.Node):
+            if n.children[0].value == 'except':
+                yield (n, nodes[i+2])
+
+as_leaf = pytree.Leaf(token.NAME, "as")
+as_leaf.set_prefix(" ")
+
+ass_leaf = pytree.Leaf(token.EQUAL, "=")
+ass_leaf.set_prefix(" ")
 
 class FixExcept(basefix.BaseFix):
 
     PATTERN = """
-    except_clause< 'except' a=any ',' b=any >
+    try_stmt< 'try' ':' suite
+                  cleanup=((except_clause ':' suite)+ ['else' ':' suite]
+                                                      ['finally' ':' suite]
+	                       | 'finally' ':' suite) >
     """
     
     def transform(self, node):
@@ -25,27 +42,38 @@ class FixExcept(basefix.BaseFix):
         results = self.match(node)
         assert results
         
-        a = results["a"].clone()
-        b = results["b"].clone()
+        try_cleanup = [ch.clone() for ch in results['cleanup']]
+        for except_clause, e_suite in find_excepts(try_cleanup):
+            if len(except_clause.children) == 4:
+                (E, comma, N) = except_clause.children[1:4]
+                comma.replace(as_leaf.clone())
+                if str(N).strip()[0] == '(':
+                    # We're dealing with a tuple
+                    lineno = get_lineno(N)
+                    msg = "At line %d, exception unpacking is going away"
+                    self.logger.warning(msg % lineno)
+                elif N.type != token.NAME:
+                    # Generate a new N for the except clause
+                    new_N = pytree.Leaf(token.NAME, self.new_name())
+                    new_N.set_prefix(" ")
+                    target = N.clone()
+                    target.set_prefix("")
+                    N.replace(new_N)
+                    
+                    # Insert "old_N = new_N" as the first statement in
+                    #  the except body
+                    suite_stmts = list(e_suite.children)
+                    for i, stmt in enumerate(suite_stmts):
+                        if isinstance(stmt, pytree.Node):
+                            break
+                    assign = pytree.Node(syms.atom,
+                                         [target,
+                                          ass_leaf.clone(),
+                                          new_N.clone()])
+                    
+                    assign.parent = e_suite                      
+                    suite_stmts = suite_stmts[:i] + [assign] + suite_stmts
+                    e_suite.children = tuple(suite_stmts)
         
-        if b.type != token.NAME:
-            lineno = get_lineno(node)
-            self.logger.warning("At line %s, unable to transform: %s" %
-                                                                (lineno, node))
-            return node
-        
-        as_leaf = pytree.Leaf(token.NAME, "as")
-        as_leaf.set_prefix(" ")
-        
-        # Python 2 excepts could take the form except E,V: (no space)
-        # That doesn't work for the new version
-        if not b.get_prefix():
-            b.set_prefix(" ")
-        
-        new = pytree.Node(syms.except_clause,
-                          [pytree.Leaf(token.NAME, "except"),
-                           pytree.Node(syms.test, [a]),
-                           as_leaf,
-                           pytree.Node(syms.test, [b])])
-        new.set_prefix(node.get_prefix())
-        return new
+        children = [c.clone() for c in node.children[:3]] + try_cleanup
+        return pytree.Node(node.type, children)

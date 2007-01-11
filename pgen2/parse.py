@@ -108,6 +108,7 @@ class Parser(object):
         stackentry = (self.grammar.dfas[start], 0, newnode)
         self.stack = [stackentry]
         self.rootnode = None
+        self.used_names = set() # Aliased to self.rootnode.used_names in pop()
 
     def addtoken(self, type, value, context):
         """Add a token; return True iff this is the end of the program."""
@@ -160,6 +161,8 @@ class Parser(object):
     def classify(self, type, value, context):
         """Turn a token into a label.  (Internal)"""
         if type == token.NAME:
+            # Keep a listing of all used names
+            self.used_names.add(value)
             # Check for reserved words
             ilabel = self.grammar.keywords.get(value)
             if ilabel is not None:
@@ -195,3 +198,4 @@ class Parser(object):
                 node[-1].append(newnode)
             else:
                 self.rootnode = newnode
+                self.rootnode.used_names = self.used_names

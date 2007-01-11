@@ -162,15 +162,15 @@ def repr_examples():
 def except_examples():
     try:
         pass
-    except Exception, e:
+    except Exception, (f, e):
+        pass
+    except ImportError, e:
         pass
     #
     try:
         pass
     except (RuntimeError, ImportError), e:
         pass
-    #
-    # These should not be touched
     #
     try:
         pass
@@ -192,6 +192,13 @@ def except_examples():
     except Exception, a().foo:
         pass
     #
+    # These should not be touched:
+    #
+    try:
+        pass
+    except:
+        pass
+    #
     try:
         pass
     except Exception:
@@ -199,7 +206,8 @@ def except_examples():
     #
     try:
         pass
-    except (RuntimeError, ImportError):
+    except (Exception, SystemExit):
         pass
+    
     
 # This is the last line.

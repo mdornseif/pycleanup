@@ -195,6 +195,7 @@ class RefactoringTool(object):
         """Refactors a parse tree."""
         for fixer in self.fixers:
             fixer.set_filename(filename)
+            fixer.used_names = tree.used_names
         changes = 0
         for node in tree.post_order():
             for fixer in self.fixers:

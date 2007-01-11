@@ -5,11 +5,14 @@
 
 # Python imports
 import logging
+import itertools
 
 # Local imports
 import patcomp
 import pygram
 
+# For new_name()
+numbers = itertools.count(1)
 
 class BaseFix(object):
 
@@ -26,13 +29,14 @@ class BaseFix(object):
     options = None  # Options object passed to initializer
     filename = None # The filename (set by set_filename)
     logger = None   # A logger (set by set_filename)
+    used_names = set() # A set of all used NAMEs
 
     # Shortcut for access to Python grammar symbols
     syms = pygram.python_symbols
 
     def __init__(self, options):
         """Initializer.  Subclass may override.
-o
+
         The argument is an optparse.Values instance which can be used
         to inspect the command line options.
         """
@@ -80,3 +84,10 @@ o
     def parenthesize(self, node):
         """Wrapper around pygram.parenthesize()."""
         return pygram.parenthesize(node)
+
+    def new_name(self, template="xxx_todo_changeme"):
+        name = template
+        while name in self.used_names:
+            name = template + str(numbers.next())
+        self.used_names.add(name)
+        return name
