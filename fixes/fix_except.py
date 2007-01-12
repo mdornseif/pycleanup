@@ -2,19 +2,11 @@
 
 # Python imports
 import token
-import pprint
 
 # Local imports
 import pytree
 from fixes import basefix
 
-def get_lineno(node):
-    while not isinstance(node, pytree.Leaf):
-        if not node.children:
-            return
-        node = node.children[0]
-    return node.lineno
-    
 def find_excepts(nodes):
     for i in range(len(nodes)):
         n = nodes[i]
@@ -22,11 +14,14 @@ def find_excepts(nodes):
             if n.children[0].value == 'except':
                 yield (n, nodes[i+2])
 
+### Common across all transforms
 as_leaf = pytree.Leaf(token.NAME, "as")
 as_leaf.set_prefix(" ")
 
 ass_leaf = pytree.Leaf(token.EQUAL, "=")
 ass_leaf.set_prefix(" ")
+
+tuple_reason = "exception unpacking is going away"
 
 class FixExcept(basefix.BaseFix):
 
@@ -49,9 +44,7 @@ class FixExcept(basefix.BaseFix):
                 comma.replace(as_leaf.clone())
                 if str(N).strip()[0] == '(':
                     # We're dealing with a tuple
-                    lineno = get_lineno(N)
-                    msg = "At line %d, exception unpacking is going away"
-                    self.logger.warning(msg % lineno)
+                    self.cannot_convert(N, tuple_reason)
                 elif N.type != token.NAME:
                     # Generate a new N for the except clause
                     new_N = pytree.Leaf(token.NAME, self.new_name())

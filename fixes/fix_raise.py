@@ -7,15 +7,7 @@ import token
 import pytree
 from fixes import basefix
 
-could_not_convert = "At line %d: could not convert: %s"
-reason = "At line %d: Python 3's raise will not support providing a traceback"
-
-def get_lineno(node):
-    while not isinstance(node, pytree.Leaf):
-        if not node.children:
-            return
-        node = node.children[0]
-    return node.lineno
+reason = "Python 3's raise will not support providing a traceback"
 
 class FixRaise(basefix.BaseFix):
 
@@ -34,11 +26,7 @@ class FixRaise(basefix.BaseFix):
         
         arg2 = results.get("a2")
         if arg2 is not None:
-            lineno = get_lineno(node)
-            for_output = node.clone()
-            for_output.set_prefix("")
-            self.logger.warning(could_not_convert % (lineno, for_output))
-            self.logger.warning(reason % lineno)
+            self.cannot_convert(node, reason)
             return node
         
         new = pytree.Node(syms.raise_stmt,

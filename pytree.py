@@ -115,6 +115,14 @@ class Base(object):
         if new is not None:
             new.parent = self.parent
         self.parent = None
+        
+    def get_lineno(self):
+        node = self
+        while not isinstance(node, Leaf):
+            if not node.children:
+                return
+            node = node.children[0]
+        return node.lineno
 
 
 class Node(Base):

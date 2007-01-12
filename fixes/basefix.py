@@ -91,3 +91,12 @@ class BaseFix(object):
             name = template + str(numbers.next())
         self.used_names.add(name)
         return name
+
+    def cannot_convert(self, node, reason=None):
+        lineno = node.get_lineno()
+        for_output = node.clone()
+        for_output.set_prefix("")
+        msg = "At line %d: could not convert: %s"
+        self.logger.warning(msg % (lineno, for_output))
+        if reason:
+            self.logger.warning(reason)
