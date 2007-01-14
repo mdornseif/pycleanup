@@ -227,6 +227,17 @@ def raise_examples():
     raise Exception, 5, 6
     #
     raise Exception,5,6
+
+def long_examples():
+    x = long(x)
+    y = isinstance(x, long)
+    z = type(x) in (int, long)
+    a = 12L
+    b = 0x12l
+    # unchanged:
+    a = 12
+    b = 0x12
+    c = 3.14
     
     
 # This is the last line.
