@@ -123,17 +123,17 @@ class RefactoringTool(object):
                 fixer = fix_class(self.options)
             except Exception, err:
                 self.log_error("Can't instantiate fixes.fix_%s.%s()",
-                               fix_name, class_name)
+                               fix_name, class_name, exc_info=True)
                 continue
             if self.options.verbose:
                 self.log_message("Adding transformation: %s", fix_name)
             fixers.append(fixer)
         return fixers
 
-    def log_error(self, msg, *args):
+    def log_error(self, msg, *args, **kwds):
         """Increments error count and log a message."""
         self.errors += 1
-        self.logger.error(msg, *args)
+        self.logger.error(msg, *args, **kwds)
 
     def log_message(self, msg, *args):
         """Hook to log a message."""

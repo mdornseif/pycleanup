@@ -11,6 +11,7 @@ The compiler compiles a pattern to a pytree.*Pattern instance.
 __author__ = "Guido van Rossum <guido@python.org>"
 
 # Python imports
+import os
 import token
 import tokenize
 
@@ -20,19 +21,11 @@ from pgen2 import literals
 
 # Really local imports
 import pytree
+import pygram
 
-
-class Symbols(object):
-
-    def __init__(self, grammar):
-        """Initializer.
-
-        Creates an attribute for each grammar symbol (nonterminal),
-        whose value is the symbol's type (an int >= 256).
-        """
-        self._grammar = grammar
-        for name in grammar.symbol2number:
-            setattr(self, name, grammar.symbol2number[name])
+# The pattern grammar file
+_PATTERN_GRAMMAR_FILE = os.path.join(os.path.dirname(__file__),
+                                     "PatternGrammar.txt")
 
 
 def tokenize_wrapper(input):
@@ -47,15 +40,15 @@ def tokenize_wrapper(input):
 
 class PatternCompiler(object):
 
-    def __init__(self, grammar_file="PatternGrammar.txt"):
+    def __init__(self, grammar_file=_PATTERN_GRAMMAR_FILE):
         """Initializer.
 
         Takes an optional alternative filename for the pattern grammar.
         """
         self.grammar = driver.load_grammar(grammar_file)
-        self.syms = Symbols(self.grammar)
-        self.pygrammar = driver.load_grammar("Grammar.txt")
-        self.pysyms = Symbols(self.pygrammar)
+        self.syms = pygram.Symbols(self.grammar)
+        self.pygrammar = pygram.python_grammar
+        self.pysyms = pygram.python_symbols
         self.driver = driver.Driver(self.grammar, convert=pattern_convert)
 
     def compile_pattern(self, input, debug=False):
