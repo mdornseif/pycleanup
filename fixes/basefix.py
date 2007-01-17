@@ -68,7 +68,7 @@ class BaseFix(object):
 
         Subclass may override.
         """
-        results = {}
+        results = {"node": node}
         return self.pattern.match(node, results) and results
 
     def transform(self, node):
