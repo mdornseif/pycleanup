@@ -1,4 +1,5 @@
 """Fixer for 'raise E, a1, a2, ...'"""
+# Author: Collin Winter
 
 # Python imports
 import token

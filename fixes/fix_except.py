@@ -1,4 +1,5 @@
 """Fixer for except statements with named exceptions."""
+# Author: Collin Winter
 
 # Python imports
 import token
