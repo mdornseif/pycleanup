@@ -1,6 +1,6 @@
 #!/usr/bin/env python2.5
 
-"""A script that makes determining PATTERN for a new fixer much, much easier.
+"""Script that makes determining PATTERN for a new fix much easier.
 
 Figuring out exactly what PATTERN I want for a given fixer class is
 getting tedious. This script will step through each possible subtree
@@ -32,7 +32,6 @@ Some minor tweaks later, I'm left with
 
 power< any trailer< '.' 'throw' >
        trailer< '(' args=arglist< exc=any ',' val=any [',' tb=any] > ')' > >
-
 
 which is exactly what I was after.
 
