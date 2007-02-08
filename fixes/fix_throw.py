@@ -14,7 +14,7 @@ class FixThrow(basefix.BaseFix):
     PATTERN = """
     power< any trailer< '.' 'throw' >
            trailer< '(' args=arglist< exc=any ',' val=any [',' tb=any] > ')' >
-         >
+    >
     """
 
     def transform(self, node):
