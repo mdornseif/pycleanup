@@ -1,3 +1,4 @@
+#!/usr/bin/env python2.5
 """ Test suite for the fixer modules """
 # Author: Collin Winter
 
