@@ -115,8 +115,9 @@ class Base(object):
         if new is not None:
             new.parent = self.parent
         self.parent = None
-        
+
     def get_lineno(self):
+        """Returns the line number which generated the invocant node."""
         node = self
         while not isinstance(node, Leaf):
             if not node.children:

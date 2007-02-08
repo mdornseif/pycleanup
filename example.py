@@ -165,7 +165,7 @@ def except_examples():
     except Exception, (f, e):
         pass
     except ImportError, e:
-        pass
+        print e.args
     #
     try:
         pass
@@ -208,7 +208,7 @@ def except_examples():
         pass
     except (Exception, SystemExit):
         pass
-        
+
 def raise_examples():
     raise Exception, 5
     #
@@ -223,10 +223,14 @@ def raise_examples():
     raise Exception(5, 6)
     #
     # These should produce a warning
+    # TODO: convert "raise E, V, T" to
+    #  "e = E(V); e.__traceback__ = T; raise e;"
     #
     raise Exception, 5, 6
     #
     raise Exception,5,6
+    #
+    raise Exception, (5, 6, 7), 6
 
 def long_examples():
     x = long(x)
@@ -238,6 +242,6 @@ def long_examples():
     a = 12
     b = 0x12
     c = 3.14
-    
-    
+
+
 # This is the last line.

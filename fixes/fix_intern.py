@@ -9,6 +9,7 @@ import token
 # Local imports
 import pytree
 from fixes import basefix
+from fixes.macros import Name, Attr
 
 
 class FixIntern(basefix.BaseFix):
@@ -36,14 +37,11 @@ class FixIntern(basefix.BaseFix):
         if after:
             after = tuple(n.clone() for n in after)
         new = pytree.Node(syms.power,
-                          (pytree.Leaf(token.NAME, "sys"),
-                           pytree.Node(syms.trailer,
-                                       [pytree.Leaf(token.DOT, "."),
-                                        pytree.Leaf(token.NAME, "intern")]),
-                           pytree.Node(syms.trailer,
+                          Attr(Name("sys"), Name("intern")) +
+                          (pytree.Node(syms.trailer,
                                        [results["lpar"].clone(),
                                         newarglist,
-                                        results["rpar"].clone()]))
+                                        results["rpar"].clone()]),)
                           + after)
         new.set_prefix(node.get_prefix())
         return new

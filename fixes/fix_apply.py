@@ -9,7 +9,7 @@ import token
 # Local imports
 import pytree
 from fixes import basefix
-
+from fixes.macros import Call, Comma
 
 class FixApply(basefix.BaseFix):
 
@@ -49,17 +49,13 @@ class FixApply(basefix.BaseFix):
             kwds.set_prefix("")
         l_newargs = [pytree.Leaf(token.STAR, "*"), args]
         if kwds is not None:
-            l_newargs.extend([pytree.Leaf(token.COMMA, ","),
+            l_newargs.extend([Comma(),
                               pytree.Leaf(token.DOUBLESTAR, "**"),
                               kwds])
             l_newargs[-2].set_prefix(" ") # that's the ** token
         # XXX Sometimes we could be cleverer, e.g. apply(f, (x, y) + t)
         # can be translated into f(x, y, *t) instead of f(*(x, y) + t)
-        new = pytree.Node(syms.power,
-                          (func,
-                           pytree.Node(syms.trailer,
-                                       (pytree.Leaf(token.LPAR, "("),
-                                        pytree.Node(syms.arglist, l_newargs),
-                                        pytree.Leaf(token.RPAR, ")")))))
+        #new = pytree.Node(syms.power, (func, ArgList(l_newargs)))
+        new = Call(func, l_newargs)
         new.set_prefix(prefix)
         return new

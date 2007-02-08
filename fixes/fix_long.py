@@ -12,6 +12,7 @@ import token
 # Local imports
 import pytree
 from fixes import basefix
+from fixes.macros import Name
 
 
 class FixLong(basefix.BaseFix):
@@ -20,8 +21,8 @@ class FixLong(basefix.BaseFix):
     (long_type = 'long' | number = NUMBER)
     """
 
-    static_long = pytree.Leaf(token.NAME, "long")
-    static_int = pytree.Leaf(token.NAME, "int")
+    static_long = Name("long")
+    static_int = Name("int")
 
     def transform(self, node):
         results = self.match(node)

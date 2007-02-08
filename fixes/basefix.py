@@ -86,6 +86,10 @@ class BaseFix(object):
         return pygram.parenthesize(node)
 
     def new_name(self, template="xxx_todo_changeme"):
+        """Return a string suitable for use as an identifier
+
+        The new name is guaranteed not to conflict with other identifiers.
+        """
         name = template
         while name in self.used_names:
             name = template + str(numbers.next())
@@ -93,6 +97,12 @@ class BaseFix(object):
         return name
 
     def cannot_convert(self, node, reason=None):
+        """Warn the user that a given chunk of code is not valid Python 3,
+        but that it cannot be converted automatically.
+
+        First argument is the top-level node for the code in question.
+        Optional second argument is why it can't be converted.
+        """
         lineno = node.get_lineno()
         for_output = node.clone()
         for_output.set_prefix("")

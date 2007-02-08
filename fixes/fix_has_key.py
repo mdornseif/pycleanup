@@ -9,6 +9,7 @@ import token
 # Local imports
 import pytree
 from fixes import basefix
+from fixes.macros import Name
 
 
 class FixHasKey(basefix.BaseFix):
@@ -68,10 +69,10 @@ class FixHasKey(basefix.BaseFix):
         else:
             before = pytree.Node(syms.power, before)
         before.set_prefix(" ")
-        n_op = pytree.Leaf(token.NAME, "in")
+        n_op = Name("in")
         n_op.set_prefix(" ")
         if negation:
-            n_not = pytree.Leaf(token.NAME, "not")
+            n_not = Name("not")
             n_not.set_prefix(" ")
             n_op = pytree.Node(syms.comp_op, (n_not, n_op))
         new = pytree.Node(syms.comparison, (arg, n_op, before))

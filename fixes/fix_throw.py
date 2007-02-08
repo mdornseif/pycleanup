@@ -1,4 +1,4 @@
-"""Fixer for 'raise E, V, T'"""
+"""Fixer for generator.throw(E, V, T)"""
 # Author: Collin Winter
 
 # Python imports
@@ -9,10 +9,12 @@ import pytree
 from fixes import basefix
 from fixes.macros import Name, Call, Assign, Newline, Attr
 
-class FixRaise(basefix.BaseFix):
+class FixThrow(basefix.BaseFix):
 
     PATTERN = """
-    raise_stmt< 'raise' exc=any ',' val=any [',' tb=any] >
+    power< any trailer< '.' 'throw' >
+           trailer< '(' args=arglist< exc=any ',' val=any [',' tb=any] > ')' >
+         >
     """
 
     def transform(self, node):
@@ -20,6 +22,7 @@ class FixRaise(basefix.BaseFix):
         results = self.match(node)
         assert results
 
+        throw_args = results["args"]
         exc = results["exc"].clone()
         args = [results["val"].clone()]
         args[0].set_prefix("")
@@ -27,20 +30,23 @@ class FixRaise(basefix.BaseFix):
         if "tb" in results:
             tb = results["tb"].clone()
             name = Name(self.new_name())
-            children = list(node.parent.parent.children)
-            i = children.index(node.parent)
-            indent = children[1].value
+            suite = find_parent_suite(node)
+            stmts = list(suite.children)
+            node_stmt = find_stmt(stmts, node)
+            i = stmts.index(node_stmt)
+            indent = stmts[1].value
 
             # Instance the exception
             build_e = pytree.Node(syms.simple_stmt,
                                   [Assign(name.clone(), Call(exc, args)),
                                    Newline()])
             build_e.parent = node.parent.parent
-            if node.get_prefix():
+            if node_stmt.get_prefix():
                 # Over-indents otherwise
                 build_e.set_prefix(indent)
 
             # Assign the traceback
+            tb.set_prefix(" ")
             set_tb = pytree.Node(syms.simple_stmt,
                                  [Assign(Attr(name.clone(),
                                               Name("__traceback__")), tb),
@@ -49,15 +55,26 @@ class FixRaise(basefix.BaseFix):
             set_tb.parent = node.parent.parent
 
             # Insert into the suite
-            children[i:i] = [build_e, set_tb]
-            node.parent.parent.children = tuple(children)
+            stmts[i:i] = [build_e, set_tb]
+            suite.children = tuple(stmts)
 
-            name.set_prefix(" ")
-            new = pytree.Node(syms.simple_stmt, [Name("raise"), name])
-            new.set_prefix(indent)
-            return new
+            throw_args.replace(name)
+            if not node_stmt.get_prefix():
+                node_stmt.set_prefix(indent)
+            # No return
         else:
-            new = pytree.Node(syms.raise_stmt,
-                              [Name("raise"), Call(exc, args)])
-            new.set_prefix(node.get_prefix())
-            return new
+            throw_args.replace(Call(exc, args))
+            # No return
+
+
+def find_parent_suite(node):
+    parent = node.parent
+    while parent:
+        if len(parent.children) > 2 and parent.children[0].value == "\n":
+            return parent
+        parent = parent.parent
+
+def find_stmt(stmts, node):
+    while node not in stmts:
+        node = node.parent
+    return node

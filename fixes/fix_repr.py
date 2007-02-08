@@ -9,6 +9,7 @@ import token
 # Local imports
 import pytree
 from fixes import basefix
+from fixes.macros import Call, Name
 
 
 class FixRepr(basefix.BaseFix):
@@ -23,11 +24,6 @@ class FixRepr(basefix.BaseFix):
       expr = results["expr"].clone()
       if expr.type == self.syms.testlist1:
         expr = self.parenthesize(expr)
-      new = pytree.Node(self.syms.power,
-                        (pytree.Leaf(token.NAME, "repr"),
-                         pytree.Node(self.syms.trailer,
-                                     (pytree.Leaf(token.LPAR, "("),
-                                      expr,
-                                      pytree.Leaf(token.RPAR, ")")))))
+      new = Call(Name("repr"), [expr])
       new.set_prefix(node.get_prefix())
       return new

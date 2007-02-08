@@ -9,6 +9,7 @@ import token
 # Local imports
 import pytree
 from fixes import basefix
+from fixes.macros import Comma, Name, Call
 
 
 class FixExec(basefix.BaseFix):
@@ -29,14 +30,10 @@ class FixExec(basefix.BaseFix):
         args = [a.clone()]
         args[0].set_prefix("")
         if b is not None:
-            args.extend([pytree.Leaf(token.COMMA, ","), b.clone()])
+            args.extend([Comma(), b.clone()])
         if c is not None:
-            args.extend([pytree.Leaf(token.COMMA, ","), c.clone()])
-        new = pytree.Node(syms.factor,
-                          [pytree.Leaf(token.NAME, "exec"),
-                           pytree.Node(syms.trailer,
-                                       [pytree.Leaf(token.LPAR, "("),
-                                        pytree.Node(syms.arglist, args),
-                                        pytree.Leaf(token.RPAR, ")")])])
+            args.extend([Comma(), c.clone()])
+
+        new = Call(Name("exec"), args)
         new.set_prefix(node.get_prefix())
         return new

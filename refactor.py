@@ -24,6 +24,7 @@ import pytree
 import patcomp
 from pgen2 import driver
 import fixes
+import fixes.macros
 import pygram
 
 logging.basicConfig(format='%(name)s: %(message)s', level=logging.INFO)

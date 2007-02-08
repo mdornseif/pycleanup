@@ -16,6 +16,7 @@ import token
 # Local imports
 import pytree
 from fixes import basefix
+from fixes.macros import Name, Call, Comma
 
 
 class FixPrint(basefix.BaseFix):
@@ -36,19 +37,15 @@ class FixPrint(basefix.BaseFix):
         results = self.match(node)
         assert results
 
-        if node == pytree.Leaf(token.NAME, "print"):
+        if node == Name("print"):
             # Special-case print all by itself
-            new = pytree.Node(syms.power,
-                              (pytree.Leaf(token.NAME, "Print"),
-                               pytree.Node(syms.trailer,
-                                           (pytree.Leaf(token.LPAR, "("),
-                                            pytree.Leaf(token.RPAR, ")")))))
+            new = Call(Name("Print"), [])
             new.set_prefix(node.get_prefix())
             return new
-        assert node.children[0] == pytree.Leaf(token.NAME, "print")
+        assert node.children[0] == Name("print")
         args = node.children[1:]
         sep = end = file = None
-        if args and args[-1] == pytree.Leaf(token.COMMA, ","):
+        if args and args[-1] == Comma():
             args = args[:-1]
             end = " "
         if args and args[0] == pytree.Leaf(token.RIGHTSHIFT, ">>"):
@@ -56,7 +53,6 @@ class FixPrint(basefix.BaseFix):
             file = args[1].clone()
             args = args[3:] # Strip a possible comma after the file expression
         # Now synthesize a Print(args, sep=..., end=..., file=...) node.
-        n_print = pytree.Leaf(token.NAME, "Print") # XXX -> "print"
         l_args = [arg.clone() for arg in args]
         if l_args:
             l_args[0].set_prefix("")
@@ -69,15 +65,7 @@ class FixPrint(basefix.BaseFix):
                                pytree.Leaf(token.STRING, repr(end)))
             if file is not None:
                 self.add_kwarg(l_args, "file", file)
-        if l_args:
-            n_arglist = pytree.Node(syms.arglist, l_args)
-        else:
-            n_arglist = None
-        l_args = [pytree.Leaf(token.LPAR, "("), pytree.Leaf(token.RPAR, ")")]
-        if n_arglist:
-            l_args.insert(1, n_arglist)
-        n_trailer = pytree.Node(syms.trailer, l_args)
-        n_stmt = pytree.Node(syms.power, (n_print, n_trailer))
+        n_stmt = Call(Name("Print"), l_args)
         n_stmt.set_prefix(node.get_prefix())
         return n_stmt
 
@@ -85,10 +73,10 @@ class FixPrint(basefix.BaseFix):
         # XXX All this prefix-setting may lose comments (though rarely)
         n_expr.set_prefix("")
         n_argument = pytree.Node(self.syms.argument,
-                                 (pytree.Leaf(token.NAME, s_kwd),
+                                 (Name(s_kwd),
                                   pytree.Leaf(token.EQUAL, "="),
                                   n_expr))
         if l_nodes:
-            l_nodes.append(pytree.Leaf(token.COMMA, ","))
+            l_nodes.append(Comma())
             n_argument.set_prefix(" ")
         l_nodes.append(n_argument)
