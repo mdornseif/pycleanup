@@ -1,6 +1,33 @@
 #!/usr/bin/python
 	# comment indented by tab
-"""Docstring."""
+
+"""Docstring.
+
+Here are some doctest exampes:
+
+>>> print 42
+42
+
+ >>> d = {1: 1, 2: 2, 2: 2}
+ >>> d.keys().sort()
+ >>> print d
+ {1: 1, 2: 2}
+
+  >>> for i in d.keys():
+  ...     print i, d[i]
+
+And a tricky one:
+
+>>> class X(Structure):
+...     _fields_ = [("x", c_int), ("y", c_int), ("array", c_char_p * 5)]
+...
+>>> x = X()
+>>> print x._objects
+None
+>>>
+
+"""
+
 import sys
 
 def ne_examples():

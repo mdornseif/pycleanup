@@ -26,8 +26,10 @@ from pgen2 import driver
 import fixes
 import fixes.macros
 import pygram
+import tokenize
 
 logging.basicConfig(format='%(name)s: %(message)s', level=logging.INFO)
+
 
 def main(args=None):
     """Main program.
@@ -39,13 +41,16 @@ def main(args=None):
     """
     # Set up option parser
     parser = optparse.OptionParser(usage="refactor.py [options] file|dir ...")
+    parser.add_option("-d", "--doctests_only", action="store_true",
+                      help="Fix up doctests only")
     parser.add_option("-f", "--fix", action="append", default=[],
                       help="Each FIX specifies a transformation; default all")
     parser.add_option("-l", "--list-fixes", action="store_true",
                       help="List available transformations (fixes/fix_*.py)")
     parser.add_option("-v", "--verbose", action="store_true",
                       help="More verbose logging")
-    parser.add_option("-w", "--write", action="store_true")
+    parser.add_option("-w", "--write", action="store_true",
+                      help="Write back modified files")
 
     # Parse command line arguments
     options, args = parser.parse_args(args)
@@ -92,7 +97,7 @@ class RefactoringTool(object):
         The argument is an optparse.Values instance.
         """
         self.options = options
-        self.errors = 0
+        self.errors = []
         self.logger = logging.getLogger("RefactoringTool")
         self.driver = driver.Driver(pygram.python_grammar,
                                     convert=pytree.convert,
@@ -133,7 +138,7 @@ class RefactoringTool(object):
 
     def log_error(self, msg, *args, **kwds):
         """Increments error count and log a message."""
-        self.errors += 1
+        self.errors.append((msg, args, kwds))
         self.logger.error(msg, *args, **kwds)
 
     def log_message(self, msg, *args):
@@ -177,23 +182,35 @@ class RefactoringTool(object):
             self.log_error("Can't open %s: %s", filename, err)
             return
         try:
-            try:
-                tree = self.driver.parse_file(filename)
-            except Exception, err:
-                self.log_error("Can't parse %s: %s: %s",
-                               filename, err.__class__.__name__, err)
-                return
+            if self.options.doctests_only:
+                input = f.read()
+            else:
+                try:
+                    tree = self.driver.parse_file(filename)
+                except Exception, err:
+                    self.log_error("Can't parse %s: %s: %s",
+                                   filename, err.__class__.__name__, err)
+                    return
+        finally:
+            f.close()
+        if self.options.doctests_only:
+            if self.options.verbose:
+                self.log_message("Refactoring doctests in %s", filename)
+            output = self.refactor_docstring(input, filename)
+            if output != input:
+                self.write_file(output, filename, input)
+            elif self.options.verbose:
+                self.log_message("No doctest changes in %s", filename)
+        else:
             if self.options.verbose:
                 self.log_message("Refactoring %s", filename)
             if self.refactor_tree(tree, filename):
-                self.write_tree(tree, filename)
+                self.write_file(str(tree), filename)
             elif self.options.verbose:
                 self.log_message("No changes in %s", filename)
-        finally:
-            f.close()
 
     def refactor_tree(self, tree, filename):
-        """Refactors a parse tree."""
+        """Refactors a parse tree (modifying the tree in place)."""
         for fixer in self.fixers:
             fixer.set_filename(filename)
             fixer.used_names = tree.used_names
@@ -207,26 +224,26 @@ class RefactoringTool(object):
                         changes += 1
         return changes
 
-    def write_tree(self, tree, filename):
-        """Writes a (presumably modified) tree to a file.
+    def write_file(self, new_text, filename, old_text=None):
+        """Writes a string to a file.
 
         If there are no changes, this is a no-op.
 
-        Otherwise, it first shows a unified diff between the old file
-        and the tree, and then rewrites the file, but the latter is
+        Otherwise, it first shows a unified diff between the old text
+        and the new text, and then rewrites the file; the latter is
         only done if the write option is set.
         """
         self.files.append(filename)
-        try:
-            f = open(filename, "r")
-        except IOError, err:
-            self.log_error("Can't read %s: %s", filename, err)
-            return
-        try:
-            old_text = f.read()
-        finally:
-            f.close()
-        new_text = str(tree)
+        if old_text is None:
+            try:
+                f = open(filename, "r")
+            except IOError, err:
+                self.log_error("Can't read %s: %s", filename, err)
+                return
+            try:
+                old_text = f.read()
+            finally:
+                f.close()
         if old_text == new_text:
             if self.options.verbose:
                 self.log_message("No changes to %s", filename)
@@ -261,11 +278,86 @@ class RefactoringTool(object):
         if self.options.verbose:
             self.log_message("Wrote changes to %s", filename)
 
+    PS1 = ">>> "
+    PS2 = "... "
+
+    def refactor_docstring(self, input, filename):
+        """Refactors a docstring, looking for doctests.
+
+        This returns a modified version of the input string.  It looks
+        for doctests, which start with a ">>>" prompt, and may be
+        continued with "..." prompts, as long as the "..." is indented
+        the same as the ">>>".
+
+        (Unfortunately we can't use the doctest module's parser,
+        since, like most parsers, it is not geared towards preserving
+        the original source.)
+        """
+        result = []
+        block = None
+        block_lineno = None
+        indent = None
+        lineno = 0
+        for line in input.splitlines(True):
+            lineno += 1
+            if line.lstrip().startswith(self.PS1):
+                if block is not None:
+                    result.extend(self.refactor_doctest(block, block_lineno,
+                                                        indent, filename))
+                block_lineno = lineno
+                block = [line]
+                i = line.find(self.PS1)
+                indent = line[:i]
+            elif (indent is not None and
+                  (line.startswith(indent + self.PS2) or
+                   line == indent + self.PS2.rstrip() + "\n")):
+                block.append(line)
+            else:
+                if block is not None:
+                    result.extend(self.refactor_doctest(block, block_lineno,
+                                                        indent, filename))
+                block = None
+                indent = None
+                result.append(line)
+        if block is not None:
+            result.extend(self.refactor_doctest(block, block_lineno,
+                                                indent, filename))
+        return "".join(result)
+
+    def refactor_doctest(self, block, lineno, indent, filename):
+        """Refactors one doctest.
+
+        A doctest is given as a block of lines, the first of which starts
+        with ">>>" (possibly indented), while the remaining lines start
+        with "..." (identically indented).
+
+        """
+        try:
+            tree = self.parse_block(block, lineno, indent)
+        except Exception, err:
+            if self.options.verbose:
+                for line in block:
+                    self.log_message("Source: %s", line.rstrip("\n"))
+            self.log_error("Can't parse docstring in %s line %s: %s: %s",
+                           filename, lineno, err.__class__.__name__, err)
+            return block
+        if self.refactor_tree(tree, filename):
+            new = str(tree).splitlines(True)
+            # Undo the adjustment of the line numbers in wrap_toks() below.
+            clipped, new = new[:lineno-1], new[lineno-1:]
+            assert clipped == ["\n"] * (lineno-1), clipped
+            if not new[-1].endswith("\n"):
+                new[-1] += "\n"
+            block = [indent + self.PS1 + new.pop(0)]
+            if new:
+                block += [indent + self.PS2 + line for line in new]
+        return block
+
     def summarize(self):
         if self.options.write:
             were = "were"
         else:
-            were = "should be"
+            were = "need to be"
         if not self.files:
             self.log_message("No files %s modified.", were)
         else:
@@ -273,13 +365,57 @@ class RefactoringTool(object):
             for file in self.files:
                 self.log_message(file)
         if self.errors:
-            if self.errors == 1:
-                self.log_message("There was 1 error")
+            if len(self.errors) == 1:
+                self.log_message("There was 1 error:")
             else:
-                self.log_message("There were %d errors", self.errors)
+                self.log_message("There were %d errors:", len(self.errors))
+            for msg, args, kwds in self.errors:
+                self.log_message(msg, *args, **kwds)
+
+    def parse_block(self, block, lineno, indent):
+        """Parses a block into a tree.
+
+        This is necessary to get correct line number / offset information
+        in the parser diagnostics and embedded into the parse tree.
+        """
+        return self.driver.parse_tokens(self.wrap_toks(block, lineno, indent))
+
+    def wrap_toks(self, block, lineno, indent):
+        """Wraps a tokenize stream to systematically modify start/end."""
+        tokens = tokenize.generate_tokens(self.gen_lines(block, indent).next)
+        for type, value, (line0, col0), (line1, col1), line_text in tokens:
+            line0 += lineno - 1
+            line1 += lineno - 1
+            # Don't bother updating the columns; this is too complicated
+            # since line_text would also have to be updated and it would
+            # still break for tokens spanning lines.  Let the user guess
+            # that the column numbers for doctests are relative to the
+            # end of the prompt string (PS1 or PS2).
+            yield type, value, (line0, col0), (line1, col1), line_text
+
+
+    def gen_lines(self, block, indent):
+        """Generates lines as expected by tokenize from a list of lines.
+
+        This strips the first len(indent + self.PS1) characters off each line.
+        """
+        prefix1 = indent + self.PS1
+        prefix2 = indent + self.PS2
+        prefix = prefix1
+        for line in block:
+            if line.startswith(prefix):
+                yield line[len(prefix):]
+            elif line == prefix.rstrip() + "\n":
+                yield "\n"
+            else:
+                raise AssertionError("line=%r, prefix=%r" % (line, prefix))
+            prefix = prefix2
+        while True:
+            yield ""
 
 
 def diff_texts(a, b, filename):
+    """Prints a unified diff of two strings."""
     a = a.splitlines()
     b = b.splitlines()
     for line in difflib.unified_diff(a, b, filename, filename,
