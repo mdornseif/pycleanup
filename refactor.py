@@ -262,10 +262,14 @@ class RefactoringTool(object):
             self.log_message("Wrote changes to %s", filename)
 
     def summarize(self):
-        if not self.files:
-            self.log_message("No files were (or should be) modified.")
+        if self.options.write:
+            were = "were"
         else:
-            self.log_message("Files that were (or should be) modified:")
+            were = "should be"
+        if not self.files:
+            self.log_message("No files %s modified.", were)
+        else:
+            self.log_message("Files that %s modified:", were)
             for file in self.files:
                 self.log_message(file)
         if self.errors:
