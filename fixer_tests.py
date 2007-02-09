@@ -334,34 +334,34 @@ class Test_print(FixerTestCase):
 
     def test_1(self):
         b = """print 1, 1+1, 1+1+1"""
-        a = """Print(1, 1+1, 1+1+1)"""
+        a = """print(1, 1+1, 1+1+1)"""
         self.check(b, a)
 
     def test_2(self):
         b = """print 1, 2"""
-        a = """Print(1, 2)"""
+        a = """print(1, 2)"""
         self.check(b, a)
 
     def test_3(self):
         b = """print"""
-        a = """Print()"""
+        a = """print()"""
         self.check(b, a)
 
     # trailing commas
 
     def test_4(self):
         b = """print 1, 2, 3,"""
-        a = """Print(1, 2, 3, end=' ')"""
+        a = """print(1, 2, 3, end=' ')"""
         self.check(b, a)
 
     def test_5(self):
         b = """print 1, 2,"""
-        a = """Print(1, 2, end=' ')"""
+        a = """print(1, 2, end=' ')"""
         self.check(b, a)
 
     def test_6(self):
         b = """print 1,"""
-        a = """Print(1, end=' ')"""
+        a = """print(1, end=' ')"""
         self.check(b, a)
 
     # >> stuff
@@ -369,25 +369,25 @@ class Test_print(FixerTestCase):
     # no trailing comma
     def test_7(self):
         b = """print >>sys.stderr, 1, 2, 3"""
-        a = """Print(1, 2, 3, file=sys.stderr)"""
+        a = """print(1, 2, 3, file=sys.stderr)"""
         self.check(b, a)
 
     # trailing comma
     def test_8(self):
         b = """print >>sys.stderr, 1, 2,"""
-        a = """Print(1, 2, end=' ', file=sys.stderr)"""
+        a = """print(1, 2, end=' ', file=sys.stderr)"""
         self.check(b, a)
 
     # no trailing comma
     def test_9(self):
         b = """print >>sys.stderr, 1+1"""
-        a = """Print(1+1, file=sys.stderr)"""
+        a = """print(1+1, file=sys.stderr)"""
         self.check(b, a)
 
     # spaces before sys.stderr
     def test_10(self):
         b = """print >>  sys.stderr"""
-        a = """Print(file=sys.stderr)"""
+        a = """print(file=sys.stderr)"""
         self.check(b, a)
 
 
