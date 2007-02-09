@@ -911,6 +911,116 @@ class Test_sysexcinfo(FixerTestCase):
         s = """f = sys.exc_type + ":" + sys.exc_value"""
         self.warns(s, s, "This attribute is going away")
 
+
+class Test_dict(FixerTestCase):
+    fixer = "dict"
+
+    def test_01(self):
+        b = "d.keys()"
+        a = "list(d.keys())"
+        self.check(b, a)
+
+    def test_01a(self):
+        b = "a[0].foo().keys()"
+        a = "list(a[0].foo().keys())"
+        self.check(b, a)
+
+    def test_02(self):
+        b = "d.items()"
+        a = "list(d.items())"
+        self.check(b, a)
+
+    def test_03(self):
+        b = "d.values()"
+        a = "list(d.values())"
+        self.check(b, a)
+
+    def test_04(self):
+        b = "d.iterkeys()"
+        a = "iter(d.keys())"
+        self.check(b, a)
+
+    def test_05(self):
+        b = "d.iteritems()"
+        a = "iter(d.items())"
+        self.check(b, a)
+
+    def test_06(self):
+        b = "d.itervalues()"
+        a = "iter(d.values())"
+        self.check(b, a)
+
+    def test_07(self):
+        b = "list(d.keys())"
+        a = b
+        self.check(b, a)
+
+    def test_08(self):
+        b = "sorted(d.keys())"
+        a = b
+        self.check(b, a)
+
+    def test_09(self):
+        b = "iter(d.keys())"
+        a = "iter(list(d.keys()))"
+        self.check(b, a)
+
+    def test_10(self):
+        b = "foo(d.keys())"
+        a = "foo(list(d.keys()))"
+        self.check(b, a)
+
+    def test_11(self):
+        b = "for i in d.keys(): print i"
+        a = "for i in list(d.keys()): print i"
+        self.check(b, a)
+
+    def test_12(self):
+        b = "for i in d.iterkeys(): print i"
+        a = "for i in d.keys(): print i"
+        self.check(b, a)
+
+    def test_13(self):
+        b = "[i for i in d.keys()]"
+        a = "[i for i in list(d.keys())]"
+        self.check(b, a)
+
+    def test_14(self):
+        b = "[i for i in d.iterkeys()]"
+        a = "[i for i in d.keys()]"
+        self.check(b, a)
+
+    def test_15(self):
+        b = "(i for i in d.keys())"
+        a = "(i for i in list(d.keys()))"
+        self.check(b, a)
+
+    def test_16(self):
+        b = "(i for i in d.iterkeys())"
+        a = "(i for i in d.keys())"
+        self.check(b, a)
+
+    def test_17(self):
+        b = "iter(d.iterkeys())"
+        a = "iter(d.keys())"
+        self.check(b, a)
+
+    def test_18(self):
+        b = "list(d.iterkeys())"
+        a = "list(d.keys())"
+        self.check(b, a)
+
+    def test_19(self):
+        b = "sorted(d.iterkeys())"
+        a = "sorted(d.keys())"
+        self.check(b, a)
+
+    def test_20(self):
+        b = "foo(d.iterkeys())"
+        a = "foo(iter(d.keys()))"
+        self.check(b, a)
+
+
 if __name__ == "__main__":
     import sys
     if not sys.argv[1:]:
