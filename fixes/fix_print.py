@@ -4,10 +4,10 @@
 """Fixer for print.
 
 Change:
-    'print'          into 'Print()'
-    'print ...'	     into 'Print(...)'
-    'print ... ,'    into 'Print(..., end=" ")'
-    'print >>x, ...' into 'Print(..., file=x)'
+    'print'          into 'print()'
+    'print ...'	     into 'print(...)'
+    'print ... ,'    into 'print(..., end=" ")'
+    'print >>x, ...' into 'print(..., file=x)'
 """
 
 # Python imports
@@ -39,7 +39,7 @@ class FixPrint(basefix.BaseFix):
 
         if node == Name("print"):
             # Special-case print all by itself
-            new = Call(Name("Print"), [])
+            new = Call(Name("print"), [])
             new.set_prefix(node.get_prefix())
             return new
         assert node.children[0] == Name("print")
@@ -52,7 +52,7 @@ class FixPrint(basefix.BaseFix):
             assert len(args) >= 2
             file = args[1].clone()
             args = args[3:] # Strip a possible comma after the file expression
-        # Now synthesize a Print(args, sep=..., end=..., file=...) node.
+        # Now synthesize a print(args, sep=..., end=..., file=...) node.
         l_args = [arg.clone() for arg in args]
         if l_args:
             l_args[0].set_prefix("")
@@ -65,7 +65,7 @@ class FixPrint(basefix.BaseFix):
                                pytree.Leaf(token.STRING, repr(end)))
             if file is not None:
                 self.add_kwarg(l_args, "file", file)
-        n_stmt = Call(Name("Print"), l_args)
+        n_stmt = Call(Name("print"), l_args)
         n_stmt.set_prefix(node.get_prefix())
         return n_stmt
 
