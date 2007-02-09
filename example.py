@@ -243,5 +243,36 @@ def long_examples():
     b = 0x12
     c = 3.14
 
+def dict_examples():
+    #
+    # Plain method calls
+    #
+    print d.keys()
+    print d.items()
+    print d.values()
+    #
+    # Plain method calls in special contexts
+    #
+    print list(e.keys())
+    print sorted(e.keys())
+    print iter(e.keys())
+    for i in e.keys(): print i
+    #
+    # Iterator method calls
+    #
+    print d.iterkeys()
+    print d.iteritems()
+    print d.itervalues()
+    #
+    # Iterator method calls in special contexts
+    #
+    print list(e.iterkeys())
+    print sorted(e.iterkeys())
+    print iter(e.iterkeys())
+    for i in e.iterkeys(): print i
+    #
+    # This should be left unchanged but trigger a warning:
+    #
+    print d.keys()[0]
 
 # This is the last line.
