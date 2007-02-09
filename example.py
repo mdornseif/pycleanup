@@ -253,26 +253,35 @@ def dict_examples():
     #
     # Plain method calls in special contexts
     #
-    print list(e.keys())
-    print sorted(e.keys())
     print iter(e.keys())
     for i in e.keys(): print i
+    [i for i in e.keys()]
+    (i for i in e.keys())
     #
     # Iterator method calls
     #
-    print d.iterkeys()
-    print d.iteritems()
-    print d.itervalues()
+    print f.iterkeys()
+    print f.iteritems()
+    print f.itervalues()
     #
     # Iterator method calls in special contexts
     #
-    print list(e.iterkeys())
-    print sorted(e.iterkeys())
-    print iter(e.iterkeys())
-    for i in e.iterkeys(): print i
+    print list(g.iterkeys())
+    print sorted(g.iterkeys())
+    print iter(g.iterkeys())
+    for i in g.iterkeys(): print i
+    [i for i in g.iterkeys()]
+    (i for i in g.iterkeys())
+
+def dict_negative_examples():
     #
-    # This should be left unchanged but trigger a warning:
+    # These should all remain unchanged:
     #
-    print d.keys()[0]
+    print list(h.keys())
+    print sorted(h.keys())
+    #
+    # This should be left unchanged and trigger a warning:
+    #
+    print h.keys()[0]
 
 # This is the last line.

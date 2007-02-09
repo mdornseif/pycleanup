@@ -68,23 +68,29 @@ class FixDict(basefix.BaseFix):
     new.set_prefix(node.get_prefix())
     return new
 
-  P1 = "trailer< '(' node=any ')' >"
+  P1 = "power< func=NAME trailer< '(' node=any ')' > any* >"
   p1 = patcomp.PatternCompiler().compile_pattern(P1)
 
-  P2 = "power< func=NAME trailer< '(' node=any ')' > any* >"
+  P2 = """for_stmt< 'for' any 'in' node=any ':' any* >
+        | list_for< 'for' any 'in' node=any any* >
+        | gen_for< 'for' any 'in' node=any any* >
+       """
   p2 = patcomp.PatternCompiler().compile_pattern(P2)
 
   def in_special_context(self, node, isiter):
-    results = {}
-    if not (self.p1.match(node.parent, results) and
-            results["node"] is node):
+    if node.parent is None:
       return False
     results = {}
-    if not (self.p2.match(node.parent.parent, results) and
-            results["node"] is node):
+    if  (node.parent.parent is not None and
+         self.p1.match(node.parent.parent, results) and
+         results["node"] is node):
+      if isiter:
+        # iter(d.iterkeys()) -> iter(d.keys()), etc.
+        return results["func"].value in ("iter", "list", "sorted")
+      else:
+        # list(d.keys()) -> list(d.keys()), etc.
+        return results["func"].value in ("list", "sorted")
+    if not isiter:
       return False
-    if isiter:
-      return results["func"].value == ("iter", "list", "sorted")
-    else:
-      return results["func"].value in ("list", "sorted")
-    # XXX TODO: for...in context.
+    # for ... in d.iterkeys() -> for ... in d.keys(), etc.
+    return self.p2.match(node.parent, results) and results["node"] is node
