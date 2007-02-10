@@ -37,7 +37,7 @@ class Options:
 
 class FixerTestCase(unittest.TestCase):
     def setUp(self):
-        options = Options(fix=[self.fixer])
+        options = Options(fix=[self.fixer], print_function=False)
         self.refactor = refactor.RefactoringTool(options)
 
         self.logging_stream = StringIO()
