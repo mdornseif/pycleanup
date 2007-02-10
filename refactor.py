@@ -47,6 +47,8 @@ def main(args=None):
                       help="Each FIX specifies a transformation; default all")
     parser.add_option("-l", "--list-fixes", action="store_true",
                       help="List available transformations (fixes/fix_*.py)")
+    parser.add_option("-p", "--print-function", action="store_true",
+                      help="Modify the grammar so that print() is a function")
     parser.add_option("-v", "--verbose", action="store_true",
                       help="More verbose logging")
     parser.add_option("-w", "--write", action="store_true",
@@ -99,6 +101,8 @@ class RefactoringTool(object):
         self.options = options
         self.errors = []
         self.logger = logging.getLogger("RefactoringTool")
+        if self.options.print_function:
+            del pygram.python_grammar.keywords["print"]
         self.driver = driver.Driver(pygram.python_grammar,
                                     convert=pytree.convert,
                                     logger=self.logger)
