@@ -1020,6 +1020,27 @@ class Test_dict(FixerTestCase):
         a = "foo(iter(d.keys()))"
         self.check(b, a)
 
+    def test_21(self):
+        b = "print h.iterkeys().next()"
+        a = "print iter(h.keys()).next()"
+        self.check(b, a)
+
+    def test_22(self):
+        b = "print h.keys()[0]"
+        a = "print list(h.keys())[0]"
+        self.check(b, a)
+
+    def test_23(self):
+        b = "print list(h.iterkeys().next())"
+        a = "print list(iter(h.keys()).next())"
+        self.check(b, a)
+
+    def test_24(self):
+        b = "for x in h.keys()[0]: print x"
+        a = "for x in list(h.keys())[0]: print x"
+        self.check(b, a)
+
+
 
 if __name__ == "__main__":
     import sys

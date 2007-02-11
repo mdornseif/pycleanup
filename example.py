@@ -299,6 +299,13 @@ def dict_examples():
     for i in g.iterkeys(): print i
     [i for i in g.iterkeys()]
     (i for i in g.iterkeys())
+    #
+    # Examples with a "tail"; these are never "special"
+    #
+    print h.iterkeys().next()
+    print h.keys()[0]
+    print list(h.iterkeys().next())
+    for x in h.keys()[0]: print x
 
 def dict_negative_examples():
     #
@@ -306,10 +313,6 @@ def dict_negative_examples():
     #
     print list(h.keys())
     print sorted(h.keys())
-    #
-    # This should be left unchanged and trigger a warning:
-    #
-    print h.keys()[0]
 
 def xrange_examples():
     for i in xrange(100): print i
