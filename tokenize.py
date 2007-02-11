@@ -36,13 +36,17 @@ import token
 __all__ = [x for x in dir(token) if x[0] != '_'] + ["COMMENT", "tokenize",
            "generate_tokens", "NL", "untokenize"]
 del x
-del token
 
 COMMENT = N_TOKENS
 tok_name[COMMENT] = 'COMMENT'
 NL = N_TOKENS + 1
 tok_name[NL] = 'NL'
-N_TOKENS += 2
+RARROW = N_TOKENS + 2
+token.RARROW = RARROW
+tok_name[RARROW] = 'RARROW'
+N_TOKENS += 3
+
+del token
 
 def group(*choices): return '(' + '|'.join(choices) + ')'
 def any(*choices): return group(*choices) + '*'
@@ -81,7 +85,7 @@ String = group(r"[uU]?[rR]?'[^\n'\\]*(?:\\.[^\n'\\]*)*'",
 # longest operators first (e.g., if = came before ==, == would get
 # recognized as two instances of =).
 Operator = group(r"\*\*=?", r">>=?", r"<<=?", r"<>", r"!=",
-                 r"//=?",
+                 r"//=?", r"->",
                  r"[+\-*/%&|^=<>]=?",
                  r"~")
 

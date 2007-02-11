@@ -158,6 +158,7 @@ opmap_raw = """
 **= DOUBLESTAREQUAL
 // DOUBLESLASH
 //= DOUBLESLASHEQUAL
+-> RARROW
 """
 
 opmap = {}
