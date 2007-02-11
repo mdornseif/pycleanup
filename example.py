@@ -311,4 +311,9 @@ def dict_negative_examples():
     #
     print h.keys()[0]
 
+def xrange_examples():
+    for i in xrange(100): print i
+    for i in xrange(0, 100): print i
+    for i in xrange(0, 100, 10): print i
+
 # This is the last line.
