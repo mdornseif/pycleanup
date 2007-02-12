@@ -6,11 +6,9 @@
 This is so simple that we don't need the pattern compiler.
 """
 
-# Python imports
-import token
-
 # Local imports
 import pytree
+from pgen2 import token
 from fixes import basefix
 
 

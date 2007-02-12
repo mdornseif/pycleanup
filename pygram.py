@@ -5,10 +5,10 @@
 
 # Python imports
 import os
-import token
 
 # Local imports
 import pytree
+from pgen2 import token
 from pgen2 import driver
 
 # The grammar file

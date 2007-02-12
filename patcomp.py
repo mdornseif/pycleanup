@@ -12,12 +12,12 @@ __author__ = "Guido van Rossum <guido@python.org>"
 
 # Python imports
 import os
-import token
-import tokenize
 
 # Fairly local imports
 from pgen2 import driver
 from pgen2 import literals
+from pgen2 import token
+from pgen2 import tokenize
 
 # Really local imports
 import pytree

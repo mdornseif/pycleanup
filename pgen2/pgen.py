@@ -1,12 +1,8 @@
 # Copyright 2004-2005 Elemental Security, Inc. All Rights Reserved.
 # Licensed to PSF under a Contributor Agreement.
 
-# Python imports
-import token
-import tokenize
-
 # Pgen imports
-from pgen2 import grammar
+from pgen2 import grammar, token, tokenize
 
 class PgenGrammar(grammar.Grammar):
     pass

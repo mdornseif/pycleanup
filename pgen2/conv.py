@@ -28,9 +28,10 @@ without having to invoke the Python pgen C program.
 
 # Python imports
 import re
-import token
 
-from pgen2 import grammar
+# Local imports
+from pgen2 import grammar, token
+
 
 class Converter(grammar.Grammar):
     """Grammar subclass that reads classic pgen output files.

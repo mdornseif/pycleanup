@@ -1,10 +1,8 @@
 """Fixer/warner for sys.exc_{info,value,type,traceback}"""
 # Author: Collin Winter
 
-# Python imports
-import token
-
 # Local imports
+from pgen2 import token
 from pytree import Leaf
 from fixes import basefix
 

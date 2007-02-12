@@ -10,11 +10,9 @@ Change:
     'print >>x, ...' into 'print(..., file=x)'
 """
 
-# Python imports
-import token
-
 # Local imports
 import pytree
+from pgen2 import token
 from fixes import basefix
 from fixes.macros import Name, Call, Comma
 

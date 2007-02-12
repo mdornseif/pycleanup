@@ -21,12 +21,10 @@ are (rare) contexts where it makes a difference (e.g. when passing it
 as an argument to a function that introspects the argument).
 """
 
-# Python imports
-import token
-
 # Local imports
 import pytree
 import patcomp
+from pgen2 import token
 from fixes import basefix
 from fixes import macros
 

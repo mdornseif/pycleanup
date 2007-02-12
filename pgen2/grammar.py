@@ -13,8 +13,11 @@ fallback token code OP, but the parser needs the actual token code.
 """
 
 # Python imports
-import token, tokenize
 import cPickle as pickle
+
+# Local imports
+from pgen2 import token, tokenize
+
 
 class Grammar(object):
     """Pgen parsing tables tables conversion class.

@@ -20,10 +20,10 @@ import optparse
 import logging
 
 # Local imports
-import tokenize
 import pytree
 import patcomp
 from pgen2 import driver
+from pgen2 import tokenize
 import fixes
 import fixes.macros
 import pygram

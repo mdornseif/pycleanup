@@ -3,11 +3,9 @@
 
 """Fixer for intern()."""
 
-# Python imports
-import token
-
 # Local imports
 import pytree
+from pgen2 import token
 from fixes import basefix
 from fixes.macros import Name, Attr
 

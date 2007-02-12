@@ -30,23 +30,12 @@ __credits__ = \
     'GvR, ESR, Tim Peters, Thomas Wouters, Fred Drake, Skip Montanaro'
 
 import string, re
-from token import *
+from pgen2.token import *
 
-import token
-__all__ = [x for x in dir(token) if x[0] != '_'] + ["COMMENT", "tokenize",
-           "generate_tokens", "NL", "untokenize"]
-del x
-
-COMMENT = N_TOKENS
-tok_name[COMMENT] = 'COMMENT'
-NL = N_TOKENS + 1
-tok_name[NL] = 'NL'
-RARROW = N_TOKENS + 2
-token.RARROW = RARROW
-tok_name[RARROW] = 'RARROW'
-N_TOKENS += 3
-
-del token
+from pgen2 import token
+__all__ = [x for x in dir(token) if x[0] != '_'] + ["tokenize",
+           "generate_tokens", "untokenize"]
+del x, token
 
 def group(*choices): return '(' + '|'.join(choices) + ')'
 def any(*choices): return group(*choices) + '*'

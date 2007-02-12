@@ -10,8 +10,8 @@ how this parsing engine works.
 
 """
 
-# Python imports
-import token
+# Local imports
+from pgen2 import token
 
 class ParseError(Exception):
     """Exception to signal the parser is stuck."""
