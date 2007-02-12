@@ -55,3 +55,13 @@ def Call(func_name, args):
 def Newline():
     """A newline literal"""
     return Leaf(token.NEWLINE, "\n")
+
+def is_tuple(node):
+    """Does the node represent a tuple literal?"""
+    
+    return (isinstance(node, Node)
+           and len(node.children) > 1
+           and isinstance(node.children[0], Leaf)
+           and isinstance(node.children[-1], Leaf)
+           and node.children[0].value == "("
+           and node.children[-1].value == ")")

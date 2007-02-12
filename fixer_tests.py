@@ -643,20 +643,37 @@ class Test_raise(FixerTestCase):
 
     def test_3(self):
         b = """raise Exception, (5, 6, 7)"""
-        a = """raise Exception((5, 6, 7))"""
+        a = """raise Exception(5, 6, 7)"""
         self.check(b, a)
-
-    # These should not be touched
-
+        
     def test_4(self):
-        b = """raise Exception"""
-        a = """raise Exception"""
+        b = """raise E, (5, 6) % (a, b)"""
+        a = """raise E((5, 6) % (a, b))"""
         self.check(b, a)
-
+        
     def test_5(self):
-        b = """raise Exception(5, 6)"""
-        a = """raise Exception(5, 6)"""
+        b = """raise (((E1, E2), E3), E4), V"""
+        a = """raise E1(V)"""
         self.check(b, a)
+        
+    def test_6(self):
+        b = """raise (E1, (E2, E3), E4), V"""
+        a = """raise E1(V)"""
+        self.check(b, a)
+        
+    # These should produce a warning
+    
+    def test_warn_1(self):
+        s = """raise 'foo'"""
+        self.warns(s, s, "Python 3 does not support string exceptions")
+    
+    def test_warn_2(self):
+        s = """raise "foo", 5"""
+        self.warns(s, s, "Python 3 does not support string exceptions")
+    
+    def test_warn_3(self):
+        s = """raise "foo", 5, 6"""
+        self.warns(s, s, "Python 3 does not support string exceptions")
 
     # These should result in traceback-assignment
 
@@ -708,7 +725,7 @@ class Test_raise(FixerTestCase):
         b = """def foo():
                     raise Exception, (5, 6, 7), 6"""
         a = """def foo():
-                    xxx_todo_changeme9 = Exception((5, 6, 7))
+                    xxx_todo_changeme9 = Exception(5, 6, 7)
                     xxx_todo_changeme9.__traceback__ = 6
                     raise xxx_todo_changeme9"""
         self.check(b, a)
@@ -720,7 +737,7 @@ class Test_raise(FixerTestCase):
                     b = 6"""
         a = """def foo():
                     a = 5
-                    xxx_todo_changeme10 = Exception((5, 6, 7))
+                    xxx_todo_changeme10 = Exception(5, 6, 7)
                     xxx_todo_changeme10.__traceback__ = 6
                     raise xxx_todo_changeme10
                     b = 6"""
