@@ -4,6 +4,7 @@
 
 # Python imports
 from StringIO import StringIO
+import re
 import unittest
 import logging
 
@@ -11,6 +12,15 @@ import logging
 import pytree
 import refactor
 
+skip_whitespace = re.compile(r"""\S""")
+
+def reformat(string):
+    indent = re.search(skip_whitespace, string).start()
+    if indent == 0:
+        code = string
+    else:
+        code = "\n".join(line[indent-1:] for line in string.split("\n")[1:])
+    return code + "\n\n"
 
 # We wrap the RefactoringTool's fixer objects so we can intercept
 #  the call to set_filename() and so modify the fixers' logging objects.
@@ -46,8 +56,8 @@ class FixerTestCase(unittest.TestCase):
         self.refactor.fixers = [Fixer(f, sh) for f in self.refactor.fixers]
 
     def check(self, before, after):
-        before += "\n"
-        after += "\n"
+        before = reformat(before)
+        after = reformat(after)
         refactored = self.refactor_stream("<string>", StringIO(before))
         self.failUnlessEqual(after, refactored)
 
@@ -475,25 +485,28 @@ class Test_repr(FixerTestCase):
         a = """x = repr((1, 2 + repr((3, 4))))"""
         self.check(b, a)
 
-class Test_except():
+class Test_except(FixerTestCase):
     fixer = "except"
 
     def test_1(self):
         b = """
-            try:
-                pass
-            except Exception, (f, e):
-                pass
-            except ImportError, e:
-                pass"""
+            def foo():
+                try:
+                    pass
+                except Exception, (f, e):
+                    pass
+                except ImportError, e:
+                    pass"""
 
         a = """
-            try:
-                pass
-            except Exception as (f, e):
-                pass
-            except ImportError as e:
-                pass"""
+            def foo():
+                try:
+                    pass
+                except Exception as xxx_todo_changeme:
+                    (f, e) = xxx_todo_changeme.message
+                    pass
+                except ImportError as e:
+                    pass"""
         self.check(b, a)
 
     def test_2(self):
@@ -520,7 +533,8 @@ class Test_except():
         a = """
             try:
                 pass
-            except Exception as (a, b):
+            except Exception as xxx_todo_changeme1:
+                (a, b) = xxx_todo_changeme1.message
                 pass"""
         self.check(b, a)
 
@@ -534,8 +548,8 @@ class Test_except():
         a = """
             try:
                 pass
-            except Exception as xxx_todo_changeme:
-                d[5] = xxx_todo_changeme
+            except Exception as xxx_todo_changeme2:
+                d[5] = xxx_todo_changeme2
                 pass"""
         self.check(b, a)
 
@@ -549,8 +563,8 @@ class Test_except():
         a = """
             try:
                 pass
-            except Exception as xxx_todo_changeme1:
-                a.foo = xxx_todo_changeme1
+            except Exception as xxx_todo_changeme3:
+                a.foo = xxx_todo_changeme3
                 pass"""
         self.check(b, a)
 
@@ -564,8 +578,8 @@ class Test_except():
         a = """
             try:
                 pass
-            except Exception as xxx_todo_changeme2:
-                a().foo = xxx_todo_changeme2
+            except Exception as xxx_todo_changeme4:
+                a().foo = xxx_todo_changeme4
                 pass"""
         self.check(b, a)
 
@@ -650,9 +664,9 @@ class Test_raise(FixerTestCase):
         b = """def foo():
                     raise Exception, 5, 6"""
         a = """def foo():
-                    xxx_todo_changeme = Exception(5)
-                    xxx_todo_changeme.__traceback__ = 6
-                    raise xxx_todo_changeme"""
+                    xxx_todo_changeme5 = Exception(5)
+                    xxx_todo_changeme5.__traceback__ = 6
+                    raise xxx_todo_changeme5"""
         self.check(b, a)
 
     def test_tb_2(self):
@@ -662,9 +676,9 @@ class Test_raise(FixerTestCase):
                     b = 6"""
         a = """def foo():
                     a = 5
-                    xxx_todo_changeme1 = Exception(5)
-                    xxx_todo_changeme1.__traceback__ = 6
-                    raise xxx_todo_changeme1
+                    xxx_todo_changeme6 = Exception(5)
+                    xxx_todo_changeme6.__traceback__ = 6
+                    raise xxx_todo_changeme6
                     b = 6"""
         self.check(b, a)
 
@@ -672,9 +686,9 @@ class Test_raise(FixerTestCase):
         b = """def foo():
                     raise Exception,5,6"""
         a = """def foo():
-                    xxx_todo_changeme2 = Exception(5)
-                    xxx_todo_changeme2.__traceback__ = 6
-                    raise xxx_todo_changeme2"""
+                    xxx_todo_changeme7 = Exception(5)
+                    xxx_todo_changeme7.__traceback__ = 6
+                    raise xxx_todo_changeme7"""
         self.check(b, a)
 
     def test_tb_4(self):
@@ -684,9 +698,9 @@ class Test_raise(FixerTestCase):
                     b = 6"""
         a = """def foo():
                     a = 5
-                    xxx_todo_changeme3 = Exception(5)
-                    xxx_todo_changeme3.__traceback__ = 6
-                    raise xxx_todo_changeme3
+                    xxx_todo_changeme8 = Exception(5)
+                    xxx_todo_changeme8.__traceback__ = 6
+                    raise xxx_todo_changeme8
                     b = 6"""
         self.check(b, a)
 
@@ -694,9 +708,9 @@ class Test_raise(FixerTestCase):
         b = """def foo():
                     raise Exception, (5, 6, 7), 6"""
         a = """def foo():
-                    xxx_todo_changeme4 = Exception((5, 6, 7))
-                    xxx_todo_changeme4.__traceback__ = 6
-                    raise xxx_todo_changeme4"""
+                    xxx_todo_changeme9 = Exception((5, 6, 7))
+                    xxx_todo_changeme9.__traceback__ = 6
+                    raise xxx_todo_changeme9"""
         self.check(b, a)
 
     def test_tb_6(self):
@@ -706,9 +720,9 @@ class Test_raise(FixerTestCase):
                     b = 6"""
         a = """def foo():
                     a = 5
-                    xxx_todo_changeme5 = Exception((5, 6, 7))
-                    xxx_todo_changeme5.__traceback__ = 6
-                    raise xxx_todo_changeme5
+                    xxx_todo_changeme10 = Exception((5, 6, 7))
+                    xxx_todo_changeme10.__traceback__ = 6
+                    raise xxx_todo_changeme10
                     b = 6"""
         self.check(b, a)
 
@@ -759,9 +773,9 @@ class Test_throw(FixerTestCase):
         b = """def foo():
                     g.throw(Exception, 5, 6)"""
         a = """def foo():
-                    xxx_todo_changeme6 = Exception(5)
-                    xxx_todo_changeme6.__traceback__ = 6
-                    g.throw(xxx_todo_changeme6)"""
+                    xxx_todo_changeme11 = Exception(5)
+                    xxx_todo_changeme11.__traceback__ = 6
+                    g.throw(xxx_todo_changeme11)"""
         self.check(b, a)
 
     def test_tb_2(self):
@@ -771,9 +785,9 @@ class Test_throw(FixerTestCase):
                     b = 6"""
         a = """def foo():
                     a = 5
-                    xxx_todo_changeme7 = Exception(5)
-                    xxx_todo_changeme7.__traceback__ = 6
-                    g.throw(xxx_todo_changeme7)
+                    xxx_todo_changeme12 = Exception(5)
+                    xxx_todo_changeme12.__traceback__ = 6
+                    g.throw(xxx_todo_changeme12)
                     b = 6"""
         self.check(b, a)
 
@@ -781,9 +795,9 @@ class Test_throw(FixerTestCase):
         b = """def foo():
                     g.throw(Exception,5,6)"""
         a = """def foo():
-                    xxx_todo_changeme8 = Exception(5)
-                    xxx_todo_changeme8.__traceback__ = 6
-                    g.throw(xxx_todo_changeme8)"""
+                    xxx_todo_changeme13 = Exception(5)
+                    xxx_todo_changeme13.__traceback__ = 6
+                    g.throw(xxx_todo_changeme13)"""
         self.check(b, a)
 
     def test_tb_4(self):
@@ -793,9 +807,9 @@ class Test_throw(FixerTestCase):
                     b = 6"""
         a = """def foo():
                     a = 5
-                    xxx_todo_changeme9 = Exception(5)
-                    xxx_todo_changeme9.__traceback__ = 6
-                    g.throw(xxx_todo_changeme9)
+                    xxx_todo_changeme14 = Exception(5)
+                    xxx_todo_changeme14.__traceback__ = 6
+                    g.throw(xxx_todo_changeme14)
                     b = 6"""
         self.check(b, a)
 
@@ -803,9 +817,9 @@ class Test_throw(FixerTestCase):
         b = """def foo():
                     g.throw(Exception, (5, 6, 7), 6)"""
         a = """def foo():
-                    xxx_todo_changeme10 = Exception((5, 6, 7))
-                    xxx_todo_changeme10.__traceback__ = 6
-                    g.throw(xxx_todo_changeme10)"""
+                    xxx_todo_changeme15 = Exception((5, 6, 7))
+                    xxx_todo_changeme15.__traceback__ = 6
+                    g.throw(xxx_todo_changeme15)"""
         self.check(b, a)
 
     def test_tb_6(self):
@@ -815,9 +829,9 @@ class Test_throw(FixerTestCase):
                     b = 6"""
         a = """def foo():
                     a = 5
-                    xxx_todo_changeme11 = Exception((5, 6, 7))
-                    xxx_todo_changeme11.__traceback__ = 6
-                    g.throw(xxx_todo_changeme11)
+                    xxx_todo_changeme16 = Exception((5, 6, 7))
+                    xxx_todo_changeme16.__traceback__ = 6
+                    g.throw(xxx_todo_changeme16)
                     b = 6"""
         self.check(b, a)
 
@@ -825,9 +839,9 @@ class Test_throw(FixerTestCase):
         b = """def foo():
                     a + g.throw(Exception, 5, 6)"""
         a = """def foo():
-                    xxx_todo_changeme12 = Exception(5)
-                    xxx_todo_changeme12.__traceback__ = 6
-                    a + g.throw(xxx_todo_changeme12)"""
+                    xxx_todo_changeme17 = Exception(5)
+                    xxx_todo_changeme17.__traceback__ = 6
+                    a + g.throw(xxx_todo_changeme17)"""
         self.check(b, a)
 
     def test_tb_8(self):
@@ -837,9 +851,9 @@ class Test_throw(FixerTestCase):
                     b = 6"""
         a = """def foo():
                     a = 5
-                    xxx_todo_changeme13 = Exception(5)
-                    xxx_todo_changeme13.__traceback__ = 6
-                    a + g.throw(xxx_todo_changeme13)
+                    xxx_todo_changeme18 = Exception(5)
+                    xxx_todo_changeme18.__traceback__ = 6
+                    a + g.throw(xxx_todo_changeme18)
                     b = 6"""
         self.check(b, a)
 
