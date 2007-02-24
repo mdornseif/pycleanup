@@ -5,7 +5,7 @@
 import pytree
 from pgen2 import token
 from fixes import basefix
-from fixes.macros import Name, Call, Assign, Newline, Attr, is_tuple
+from fixes.macros import Name, Call, Attr, ArgList, is_tuple
 
 class FixRaise(basefix.BaseFix):
 
@@ -50,34 +50,14 @@ class FixRaise(basefix.BaseFix):
 
         if "tb" in results:
             tb = results["tb"].clone()
-            name = Name(self.new_name())
-            children = list(node.parent.parent.children)
-            i = children.index(node.parent)
-            indent = children[1].value
+            tb.set_prefix("")
+            
+            e = Call(exc, args)
+            with_tb = Attr(e, Name('with_traceback'))
+            call_wtb = list(with_tb + (ArgList([tb]),))            
 
-            # Instance the exception
-            build_e = pytree.Node(syms.simple_stmt,
-                                  [Assign(name.clone(), Call(exc, args)),
-                                   Newline()])
-            build_e.parent = node.parent.parent
-            if node.get_prefix():
-                # Over-indents otherwise
-                build_e.set_prefix(indent)
-
-            # Assign the traceback
-            set_tb = pytree.Node(syms.simple_stmt,
-                                 [Assign(Attr(name.clone(), Name("__traceback__")), tb),
-                                  Newline()])
-            set_tb.set_prefix(indent)
-            set_tb.parent = node.parent.parent
-
-            # Insert into the suite
-            children[i:i] = [build_e, set_tb]
-            node.parent.parent.children = tuple(children)
-
-            name.set_prefix(" ")
-            new = pytree.Node(syms.simple_stmt, [Name("raise"), name])
-            new.set_prefix(indent)
+            new = pytree.Node(syms.simple_stmt, [Name("raise")] + call_wtb)
+            new.set_prefix(node.get_prefix())
             return new
         else:
             new = pytree.Node(syms.raise_stmt, [Name("raise"), Call(exc, args)])
