@@ -319,4 +319,12 @@ def xrange_examples():
     for i in xrange(0, 100): print i
     for i in xrange(0, 100, 10): print i
 
+def input_examples():
+    a = input()
+    b = input(str(a))
+
+def raw_input_examples():
+    a = raw_input()
+    b = raw_input(a.rstrip())
+
 # This is the last line.

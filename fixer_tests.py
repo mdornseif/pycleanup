@@ -1057,6 +1057,66 @@ class Test_dict(FixerTestCase):
         a = "for x in list(h.keys())[0]: print x"
         self.check(b, a)
 
+class Test_xrange(FixerTestCase):
+    fixer = "xrange"
+    
+    def test_1(self):
+        b = """x = xrange(10)"""
+        a = """x = range(10)"""
+        self.check(b, a)
+    
+    def test_2(self):
+        b = """x = xrange(1, 10)"""
+        a = """x = range(1, 10)"""
+        self.check(b, a)
+    
+    def test_3(self):
+        b = """x = xrange(0, 10, 2)"""
+        a = """x = range(0, 10, 2)"""
+        self.check(b, a)
+    
+    def test_4(self):
+        b = """for i in xrange(10):\n    j=i"""
+        a = """for i in range(10):\n    j=i"""
+        self.check(b, a)
+
+
+class Test_raw_input(FixerTestCase):
+    fixer = "raw_input"
+    
+    def test_1(self):
+        b = """x = raw_input()"""
+        a = """x = input()"""
+        self.check(b, a)
+    
+    def test_2(self):
+        b = """x = raw_input('')"""
+        a = """x = input('')"""
+        self.check(b, a)
+    
+    def test_3(self):
+        b = """x = raw_input('prompt')"""
+        a = """x = input('prompt')"""
+        self.check(b, a)
+
+
+class Test_input(FixerTestCase):
+    fixer = "input"
+    
+    def test_1(self):
+        b = """x = input()"""
+        a = """x = eval(input())"""
+        self.check(b, a)
+    
+    def test_2(self):
+        b = """x = input('')"""
+        a = """x = eval(input(''))"""
+        self.check(b, a)
+    
+    def test_3(self):
+        b = """x = input('prompt')"""
+        a = """x = eval(input('prompt'))"""
+        self.check(b, a)
 
 
 if __name__ == "__main__":
