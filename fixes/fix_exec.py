@@ -1,7 +1,13 @@
 # Copyright 2006 Google, Inc. All Rights Reserved.
 # Licensed to PSF under a Contributor Agreement.
 
-"""Fixer for exec."""
+"""Fixer for exec.
+
+This converts usages of the exec statement into calls to a built-in
+exec() function.
+
+exec code in ns1, ns2 -> exec(code, ns1, ns2)
+"""
 
 # Local imports
 import pytree

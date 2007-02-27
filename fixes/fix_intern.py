@@ -1,7 +1,9 @@
 # Copyright 2006 Georg Brandl.
 # Licensed to PSF under a Contributor Agreement.
 
-"""Fixer for intern()."""
+"""Fixer for intern().
+
+intern(s) -> sys.intern(s)"""
 
 # Local imports
 import pytree
