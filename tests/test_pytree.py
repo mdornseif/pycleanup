@@ -10,14 +10,16 @@ more helpful than printing of (the first line of) the docstring,
 especially when debugging a test.
 """
 
-# Python imports
-import unittest
+# Testing imports
+import support
+if __name__ == '__main__':
+    support.adjust_path()
 
 # Local imports (XXX should become a package)
 import pytree
 
 
-class TestNodes(unittest.TestCase):
+class TestNodes(support.TestCase):
 
     """Unit tests for nodes (Base, Leaf, Node)."""
 
@@ -117,7 +119,7 @@ class TestNodes(unittest.TestCase):
         pass
 
 
-class TestPatterns(unittest.TestCase):
+class TestPatterns(support.TestCase):
 
     """Unit tests for tree matching patterns."""
 
@@ -233,7 +235,5 @@ class TestPatterns(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    import sys
-    if not sys.argv[1:]:
-        sys.argv.append("-v")
-    unittest.main()
+    import __main__
+    support.run_all_tests(__main__)

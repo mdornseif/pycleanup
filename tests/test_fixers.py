@@ -2,6 +2,11 @@
 """ Test suite for the fixer modules """
 # Author: Collin Winter
 
+# Testing imports
+import support
+if __name__ == '__main__':
+    support.adjust_path()
+
 # Python imports
 from StringIO import StringIO
 import re
@@ -45,7 +50,7 @@ class Options:
 
         self.verbose = False
 
-class FixerTestCase(unittest.TestCase):
+class FixerTestCase(support.TestCase):
     def setUp(self):
         options = Options(fix=[self.fixer], print_function=False)
         self.refactor = refactor.RefactoringTool(options)
@@ -1120,7 +1125,5 @@ class Test_input(FixerTestCase):
 
 
 if __name__ == "__main__":
-    import sys
-    if not sys.argv[1:]:
-        sys.argv.append("-v")
-    unittest.main()
+    import __main__
+    support.run_all_tests(__main__)
