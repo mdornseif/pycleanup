@@ -10,19 +10,20 @@ tests.py       - unit tests for pytree.py
 patcomp.py     - pattern compiler
 pytree.py      - parse tree nodes (not specific to Python, despite the name!)
 pygram.py      - code specific to the Python grammar
-tokenize.py    - modified version of stdlib tokenize.py (1)
 example.py     - example input for play.py and fix_*.py
 Grammar.txt    - Python grammar input (a copy of Python 2.5's Grammar/Grammar)
 Grammar.pickle - pickled grammar tables (generated file, not in subversion)
 PatternGrammar.txt    - grammar for the pattern language used by patcomp.py
 PatternGrammar.pickle - pickled pattern grammar tables (generated file)
-pgen2/         - Parser generator and driver (2)
+pgen2/         - Parser generator and driver (1) (2)
 fixes/         - Individual transformations
+
 
 Notes:
 
 (1) I modified tokenize.py to yield a NL pseudo-token for backslash
     continuations, so the original source can be reproduced exactly.
+    The modified version can be found at pgen2/tokenize.py.
 (2) I developed pgen2 while I was at Elemental Security.  I modified
     it while at Google to suit the needs of this refactoring tool.
 
