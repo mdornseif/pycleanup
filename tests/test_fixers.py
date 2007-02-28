@@ -9,23 +9,12 @@ if __name__ == '__main__':
 
 # Python imports
 from StringIO import StringIO
-import re
 import unittest
 import logging
 
 # Local imports
 import pytree
 import refactor
-
-skip_whitespace = re.compile(r"""\S""")
-
-def reformat(string):
-    indent = re.search(skip_whitespace, string).start()
-    if indent == 0:
-        code = string
-    else:
-        code = "\n".join(line[indent-1:] for line in string.split("\n")[1:])
-    return code + "\n\n"
 
 # We wrap the RefactoringTool's fixer objects so we can intercept
 #  the call to set_filename() and so modify the fixers' logging objects.
@@ -61,8 +50,8 @@ class FixerTestCase(support.TestCase):
         self.refactor.fixers = [Fixer(f, sh) for f in self.refactor.fixers]
 
     def check(self, before, after):
-        before = reformat(before)
-        after = reformat(after)
+        before = support.reformat(before)
+        after = support.reformat(after)
         refactored = self.refactor_stream("<string>", StringIO(before))
         self.failUnlessEqual(after, refactored)
 
