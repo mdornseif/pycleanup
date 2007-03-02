@@ -1,7 +1,11 @@
 #!/usr/bin/env python2.5
 """ Test suite for Grammar.txt. This is the place to add tests for
 changes to 2to3's grammar, such as those merging the grammars for
-Python 2 and 3. """
+Python 2 and 3.
+
+In addition to specific tests for parts of the grammar we've changed,
+TestGrammarFiles also attempts to process the test_grammar.py files
+from Python 2 and Python 3. """
 # Author: Collin Winter
 
 # Testing imports
@@ -17,8 +21,8 @@ import pytree
 from pgen2 import driver
 from pgen2.parse import ParseError
 
-
-grammar_path = os.path.join(os.path.dirname(__file__), "..", "Grammar.txt")
+test_dir = os.path.dirname(__file__)
+grammar_path = os.path.join(test_dir, "..", "Grammar.txt")
 grammar = driver.load_grammar(grammar_path)
 driver = driver.Driver(grammar, convert=pytree.convert)
 
@@ -122,6 +126,16 @@ class TestSetLiteral(GrammarTest):
         
     def test_4(self):
         self.validate("""x = {2, 3, 4,}""")
+        
+
+class TestGrammarFiles(GrammarTest):
+    def test_python2(self):
+        f = os.path.join(test_dir, "data", "py2_test_grammar.py")
+        driver.parse_file(f)
+        
+    def test_python3(self):
+        f = os.path.join(test_dir, "data", "py3_test_grammar.py")
+        driver.parse_file(f)
 
 
 if __name__ == "__main__":
