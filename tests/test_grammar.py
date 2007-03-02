@@ -33,6 +33,35 @@ class GrammarTest(support.TestCase):
             pass
 
 
+class TestRaiseChanges(GrammarTest):
+    def test_2x_style_1(self):
+        self.validate("raise")
+
+    def test_2x_style_2(self):
+        self.validate("raise E, V")
+
+    def test_2x_style_3(self):
+        self.validate("raise E, V, T")
+
+    def test_2x_style_invalid_1(self):
+        self.invalid_syntax("raise E, V, T, Z")
+
+    def test_3x_style(self):
+        self.validate("raise E1 from E2")
+        
+    def test_3x_style_invalid_1(self):
+        self.invalid_syntax("raise E, V from E1")
+        
+    def test_3x_style_invalid_2(self):
+        self.invalid_syntax("raise E from E1, E2")
+        
+    def test_3x_style_invalid_3(self):
+        self.invalid_syntax("raise from E1, E2")
+        
+    def test_3x_style_invalid_4(self):
+        self.invalid_syntax("raise E from")
+
+
 # Adapated from Python 3's Lib/test/test_grammar.py:GrammarTests.testFuncdef
 class TestFunctionAnnotations(GrammarTest):
     def test_1(self):
