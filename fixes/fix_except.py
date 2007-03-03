@@ -30,8 +30,7 @@ from fixes import basefix
 from fixes.macros import Assign, Attr, Name
 
 def find_excepts(nodes):
-    for i in range(len(nodes)):
-        n = nodes[i]
+    for i, n in enumerate(nodes):
         if isinstance(n, pytree.Node):
             if n.children[0].value == 'except':
                 yield (n, nodes[i+2])
