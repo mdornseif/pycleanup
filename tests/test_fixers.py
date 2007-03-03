@@ -496,8 +496,8 @@ class Test_except(FixerTestCase):
             def foo():
                 try:
                     pass
-                except Exception as xxx_todo_changeme:
-                    (f, e) = xxx_todo_changeme.message
+                except Exception as xxx_todo_changeme12:
+                    (f, e) = xxx_todo_changeme12.message
                     pass
                 except ImportError as e:
                     pass"""
@@ -527,8 +527,8 @@ class Test_except(FixerTestCase):
         a = """
             try:
                 pass
-            except Exception as xxx_todo_changeme1:
-                (a, b) = xxx_todo_changeme1.message
+            except Exception as xxx_todo_changeme13:
+                (a, b) = xxx_todo_changeme13.message
                 pass"""
         self.check(b, a)
 
@@ -542,8 +542,8 @@ class Test_except(FixerTestCase):
         a = """
             try:
                 pass
-            except Exception as xxx_todo_changeme2:
-                d[5] = xxx_todo_changeme2
+            except Exception as xxx_todo_changeme14:
+                d[5] = xxx_todo_changeme14
                 pass"""
         self.check(b, a)
 
@@ -557,8 +557,8 @@ class Test_except(FixerTestCase):
         a = """
             try:
                 pass
-            except Exception as xxx_todo_changeme3:
-                a.foo = xxx_todo_changeme3
+            except Exception as xxx_todo_changeme15:
+                a.foo = xxx_todo_changeme15
                 pass"""
         self.check(b, a)
 
@@ -572,8 +572,8 @@ class Test_except(FixerTestCase):
         a = """
             try:
                 pass
-            except Exception as xxx_todo_changeme4:
-                a().foo = xxx_todo_changeme4
+            except Exception as xxx_todo_changeme16:
+                a().foo = xxx_todo_changeme16
                 pass"""
         self.check(b, a)
 
@@ -1110,6 +1110,123 @@ class Test_input(FixerTestCase):
     def test_3(self):
         b = """x = input('prompt')"""
         a = """x = eval(input('prompt'))"""
+        self.check(b, a)
+        
+        
+class Test_arg_tuples(FixerTestCase):
+    fixer = "arg_tuples"
+    
+    def test_unchanged_1(self):
+        s = """def foo(): pass"""
+        self.check(s, s)
+    
+    def test_unchanged_2(self):
+        s = """def foo(a, b, c): pass"""
+        self.check(s, s)
+    
+    def test_unchanged_3(self):
+        s = """def foo(a=3, b=4, c=5): pass"""
+        self.check(s, s)
+        
+    def test_1(self):
+        b = """
+            def foo(((a, b), c)):
+                x = 5"""
+                
+        a = """
+            def foo(xxx_todo_changeme):
+                ((a, b), c) = xxx_todo_changeme
+                x = 5"""
+        self.check(b, a)
+        
+    def test_2(self):
+        b = """
+            def foo(((a, b), c), d):
+                x = 5"""
+                
+        a = """
+            def foo(xxx_todo_changeme1, d):
+                ((a, b), c) = xxx_todo_changeme1
+                x = 5"""
+        self.check(b, a)
+        
+    def test_3(self):
+        b = """
+            def foo(((a, b), c), d) -> e:
+                x = 5"""
+                
+        a = """
+            def foo(xxx_todo_changeme2, d) -> e:
+                ((a, b), c) = xxx_todo_changeme2
+                x = 5"""
+        self.check(b, a)
+        
+    def test_semicolon(self):
+        b = """
+            def foo(((a, b), c)): x = 5; y = 7"""
+                
+        a = """
+            def foo(xxx_todo_changeme10): ((a, b), c) = xxx_todo_changeme10; x = 5; y = 7"""
+        self.check(b, a)
+        
+    def test_keywords(self):
+        b = """
+            def foo(((a, b), c), d, e=5) -> z:
+                x = 5"""
+                
+        a = """
+            def foo(xxx_todo_changeme5, d, e=5) -> z:
+                ((a, b), c) = xxx_todo_changeme5
+                x = 5"""
+        self.check(b, a)
+        
+    def test_varargs(self):
+        b = """
+            def foo(((a, b), c), d, *vargs, **kwargs) -> z:
+                x = 5"""
+                
+        a = """
+            def foo(xxx_todo_changeme11, d, *vargs, **kwargs) -> z:
+                ((a, b), c) = xxx_todo_changeme11
+                x = 5"""
+        self.check(b, a)
+        
+    def test_multi_1(self):
+        b = """
+            def foo(((a, b), c), (d, e, f)) -> z:
+                x = 5"""
+                
+        a = """
+            def foo(xxx_todo_changeme6, xxx_todo_changeme7) -> z:
+                ((a, b), c) = xxx_todo_changeme6
+                (d, e, f) = xxx_todo_changeme7
+                x = 5"""
+        self.check(b, a)
+        
+    def test_multi_2(self):
+        b = """
+            def foo(x, ((a, b), c), d, (e, f, g), y) -> z:
+                x = 5"""
+                
+        a = """
+            def foo(x, xxx_todo_changeme8, d, xxx_todo_changeme9, y) -> z:
+                ((a, b), c) = xxx_todo_changeme8
+                (e, f, g) = xxx_todo_changeme9
+                x = 5"""
+        self.check(b, a)
+        
+    def test_docstring(self):
+        b = """
+            def foo(((a, b), c), (d, e, f)) -> z:
+                "foo foo foo foo"
+                x = 5"""
+                
+        a = """
+            def foo(xxx_todo_changeme3, xxx_todo_changeme4) -> z:
+                "foo foo foo foo"
+                ((a, b), c) = xxx_todo_changeme3
+                (d, e, f) = xxx_todo_changeme4
+                x = 5"""
         self.check(b, a)
 
 
