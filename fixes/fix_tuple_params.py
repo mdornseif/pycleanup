@@ -21,7 +21,7 @@ def is_docstring(stmt):
     return isinstance(stmt, pytree.Node) and \
            stmt.children[0].type == token.STRING
 
-class FixArgTuples(basefix.BaseFix):
+class FixTupleParams(basefix.BaseFix):
     PATTERN = """funcdef< 'def' any parameters< '(' args=any ')' >
                                                 ['->' any] ':' suite=any+ >"""
 

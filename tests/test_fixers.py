@@ -496,8 +496,8 @@ class Test_except(FixerTestCase):
             def foo():
                 try:
                     pass
-                except Exception as xxx_todo_changeme12:
-                    (f, e) = xxx_todo_changeme12.message
+                except Exception as xxx_todo_changeme:
+                    (f, e) = xxx_todo_changeme.message
                     pass
                 except ImportError as e:
                     pass"""
@@ -527,8 +527,8 @@ class Test_except(FixerTestCase):
         a = """
             try:
                 pass
-            except Exception as xxx_todo_changeme13:
-                (a, b) = xxx_todo_changeme13.message
+            except Exception as xxx_todo_changeme1:
+                (a, b) = xxx_todo_changeme1.message
                 pass"""
         self.check(b, a)
 
@@ -542,8 +542,8 @@ class Test_except(FixerTestCase):
         a = """
             try:
                 pass
-            except Exception as xxx_todo_changeme14:
-                d[5] = xxx_todo_changeme14
+            except Exception as xxx_todo_changeme2:
+                d[5] = xxx_todo_changeme2
                 pass"""
         self.check(b, a)
 
@@ -557,8 +557,8 @@ class Test_except(FixerTestCase):
         a = """
             try:
                 pass
-            except Exception as xxx_todo_changeme15:
-                a.foo = xxx_todo_changeme15
+            except Exception as xxx_todo_changeme3:
+                a.foo = xxx_todo_changeme3
                 pass"""
         self.check(b, a)
 
@@ -572,8 +572,8 @@ class Test_except(FixerTestCase):
         a = """
             try:
                 pass
-            except Exception as xxx_todo_changeme16:
-                a().foo = xxx_todo_changeme16
+            except Exception as xxx_todo_changeme4:
+                a().foo = xxx_todo_changeme4
                 pass"""
         self.check(b, a)
 
@@ -1113,8 +1113,8 @@ class Test_input(FixerTestCase):
         self.check(b, a)
         
         
-class Test_arg_tuples(FixerTestCase):
-    fixer = "arg_tuples"
+class Test_tuple_params(FixerTestCase):
+    fixer = "tuple_params"
     
     def test_unchanged_1(self):
         s = """def foo(): pass"""
@@ -1134,8 +1134,8 @@ class Test_arg_tuples(FixerTestCase):
                 x = 5"""
                 
         a = """
-            def foo(xxx_todo_changeme):
-                ((a, b), c) = xxx_todo_changeme
+            def foo(xxx_todo_changeme5):
+                ((a, b), c) = xxx_todo_changeme5
                 x = 5"""
         self.check(b, a)
         
@@ -1145,8 +1145,8 @@ class Test_arg_tuples(FixerTestCase):
                 x = 5"""
                 
         a = """
-            def foo(xxx_todo_changeme1, d):
-                ((a, b), c) = xxx_todo_changeme1
+            def foo(xxx_todo_changeme6, d):
+                ((a, b), c) = xxx_todo_changeme6
                 x = 5"""
         self.check(b, a)
         
@@ -1156,8 +1156,8 @@ class Test_arg_tuples(FixerTestCase):
                 x = 5"""
                 
         a = """
-            def foo(xxx_todo_changeme2, d) -> e:
-                ((a, b), c) = xxx_todo_changeme2
+            def foo(xxx_todo_changeme7, d) -> e:
+                ((a, b), c) = xxx_todo_changeme7
                 x = 5"""
         self.check(b, a)
         
@@ -1166,7 +1166,7 @@ class Test_arg_tuples(FixerTestCase):
             def foo(((a, b), c)): x = 5; y = 7"""
                 
         a = """
-            def foo(xxx_todo_changeme10): ((a, b), c) = xxx_todo_changeme10; x = 5; y = 7"""
+            def foo(xxx_todo_changeme15): ((a, b), c) = xxx_todo_changeme15; x = 5; y = 7"""
         self.check(b, a)
         
     def test_keywords(self):
@@ -1175,8 +1175,8 @@ class Test_arg_tuples(FixerTestCase):
                 x = 5"""
                 
         a = """
-            def foo(xxx_todo_changeme5, d, e=5) -> z:
-                ((a, b), c) = xxx_todo_changeme5
+            def foo(xxx_todo_changeme10, d, e=5) -> z:
+                ((a, b), c) = xxx_todo_changeme10
                 x = 5"""
         self.check(b, a)
         
@@ -1186,8 +1186,8 @@ class Test_arg_tuples(FixerTestCase):
                 x = 5"""
                 
         a = """
-            def foo(xxx_todo_changeme11, d, *vargs, **kwargs) -> z:
-                ((a, b), c) = xxx_todo_changeme11
+            def foo(xxx_todo_changeme16, d, *vargs, **kwargs) -> z:
+                ((a, b), c) = xxx_todo_changeme16
                 x = 5"""
         self.check(b, a)
         
@@ -1197,9 +1197,9 @@ class Test_arg_tuples(FixerTestCase):
                 x = 5"""
                 
         a = """
-            def foo(xxx_todo_changeme6, xxx_todo_changeme7) -> z:
-                ((a, b), c) = xxx_todo_changeme6
-                (d, e, f) = xxx_todo_changeme7
+            def foo(xxx_todo_changeme11, xxx_todo_changeme12) -> z:
+                ((a, b), c) = xxx_todo_changeme11
+                (d, e, f) = xxx_todo_changeme12
                 x = 5"""
         self.check(b, a)
         
@@ -1209,9 +1209,9 @@ class Test_arg_tuples(FixerTestCase):
                 x = 5"""
                 
         a = """
-            def foo(x, xxx_todo_changeme8, d, xxx_todo_changeme9, y) -> z:
-                ((a, b), c) = xxx_todo_changeme8
-                (e, f, g) = xxx_todo_changeme9
+            def foo(x, xxx_todo_changeme13, d, xxx_todo_changeme14, y) -> z:
+                ((a, b), c) = xxx_todo_changeme13
+                (e, f, g) = xxx_todo_changeme14
                 x = 5"""
         self.check(b, a)
         
@@ -1222,10 +1222,10 @@ class Test_arg_tuples(FixerTestCase):
                 x = 5"""
                 
         a = """
-            def foo(xxx_todo_changeme3, xxx_todo_changeme4) -> z:
+            def foo(xxx_todo_changeme8, xxx_todo_changeme9) -> z:
                 "foo foo foo foo"
-                ((a, b), c) = xxx_todo_changeme3
-                (d, e, f) = xxx_todo_changeme4
+                ((a, b), c) = xxx_todo_changeme8
+                (d, e, f) = xxx_todo_changeme9
                 x = 5"""
         self.check(b, a)
 
