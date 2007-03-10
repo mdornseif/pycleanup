@@ -6,7 +6,6 @@ Files:
 
 README         - this file
 test.py        - runs all unittests for 2to3
-play.py        - program to exercise the idempotency of pytree nodes
 patcomp.py     - pattern compiler
 pytree.py      - parse tree nodes (not specific to Python, despite the name!)
 pygram.py      - code specific to the Python grammar
