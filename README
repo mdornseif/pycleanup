@@ -75,17 +75,23 @@ Limitations
 General Limitations
 -------------------
 
-In general, fixers that convert a function or method call will not detect
-something like ::
+* In general, fixers that convert a function or method call will not detect
+  something like ::
 
-    a = apply
-    a(f, *args)
+      a = apply
+      a(f, *args)
     
-or ::
+  or ::
 
-    m = d.has_key
-    if m(5):
-        ...
+      m = d.has_key
+      if m(5):
+          ...
+        
+* Fixers that look for attribute references will not detect when getattr() or
+  setattr() are used to access those attributes.
+  
+* The contents of eval() calls and "exec" statements will not be checked by
+  2to3.
 
         
 Caveats for Specific Fixers
