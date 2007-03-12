@@ -8,6 +8,12 @@ import re
 
 TestCase = unittest.TestCase
 
+# Python 2.3's TestSuite is not iter()-able
+if sys.version_info < (2, 4):
+    def TestSuite_iter(self):
+        return iter(self._tests)
+    unittest.TestSuite.__iter__ = TestSuite_iter
+
 def run_all_tests(test_mod=None, tests=None):
     if tests is None:
         tests = unittest.TestLoader().loadTestsFromModule(test_mod)
@@ -25,5 +31,5 @@ def reformat(string):
     if indent == 0:
         code = string
     else:
-        code = "\n".join(line[indent-1:] for line in string.split("\n")[1:])
+        code = "\n".join([line[indent-1:] for line in string.split("\n")[1:]])
     return code + "\n\n"

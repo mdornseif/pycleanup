@@ -16,7 +16,7 @@ from pgen2 import driver
 
 import pytree
 
-logging.basicConfig(level=logging.WARN)
+logging.basicConfig()
 
 def main():
     gr = driver.load_grammar("Grammar.txt")

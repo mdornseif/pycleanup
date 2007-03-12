@@ -28,7 +28,13 @@ import fixes
 import fixes.macros
 import pygram
 
-logging.basicConfig(format='%(name)s: %(message)s', level=logging.INFO)
+if sys.version_info < (2, 4):
+    hdlr = logging.StreamHandler()
+    fmt = logging.Formatter('%(name)s: %(message)s')
+    hdlr.setFormatter(fmt)
+    logging.root.addHandler(hdlr)
+else:
+    logging.basicConfig(format='%(name)s: %(message)s', level=logging.INFO)
 
 
 def main(args=None):
@@ -122,7 +128,7 @@ class RefactoringTool(object):
                 self.log_error("Can't find transformation %s", fix_name)
                 continue
             parts = fix_name.split("_")
-            class_name = "Fix" + "".join(p.title() for p in parts)
+            class_name = "Fix" + "".join([p.title() for p in parts])
             try:
                 fix_class = getattr(mod, class_name)
             except AttributeError:

@@ -164,7 +164,7 @@ class Node(Base):
 
     def clone(self):
         """Returns a cloned (deep) copy of self."""
-        return Node(self.type, (ch.clone() for ch in self.children))
+        return Node(self.type, [ch.clone() for ch in self.children])
 
     def post_order(self):
         """Returns a post-order iterator for the tree."""

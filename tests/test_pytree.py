@@ -18,6 +18,13 @@ if __name__ == '__main__':
 # Local imports (XXX should become a package)
 import pytree
 
+try:
+    sorted
+except:
+    def sorted(lst):
+        l = list(lst)
+        l.sort()
+        return l
 
 class TestNodes(support.TestCase):
 

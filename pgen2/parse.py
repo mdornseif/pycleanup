@@ -10,6 +10,12 @@ how this parsing engine works.
 
 """
 
+# Get a usable 'set' constructor
+try:
+    set()
+except:
+    from sets import Set as set
+
 # Local imports
 from pgen2 import token
 

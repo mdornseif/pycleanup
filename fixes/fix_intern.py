@@ -35,7 +35,7 @@ class FixIntern(basefix.BaseFix):
             newarglist = pytree.Node(syms.arglist, [obj.clone()])
         after = results["after"]
         if after:
-            after = tuple(n.clone() for n in after)
+            after = tuple([n.clone() for n in after])
         new = pytree.Node(syms.power,
                           Attr(Name("sys"), Name("intern")) +
                           (pytree.Node(syms.trailer,

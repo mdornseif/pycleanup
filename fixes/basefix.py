@@ -7,11 +7,15 @@
 import logging
 import itertools
 
+# Get a usable 'set' constructor
+try:
+    set()
+except:
+    from sets import Set as set
+
 # Local imports
 import patcomp
 import pygram
-
-# For new_name()
 
 class BaseFix(object):
 
