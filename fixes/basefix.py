@@ -12,7 +12,6 @@ import patcomp
 import pygram
 
 # For new_name()
-numbers = itertools.count(1)
 
 class BaseFix(object):
 
@@ -29,6 +28,7 @@ class BaseFix(object):
     options = None  # Options object passed to initializer
     filename = None # The filename (set by set_filename)
     logger = None   # A logger (set by set_filename)
+    numbers = itertools.count(1) # For new_name()
     used_names = set() # A set of all used NAMEs
 
     # Shortcut for access to Python grammar symbols
@@ -92,7 +92,7 @@ class BaseFix(object):
         """
         name = template
         while name in self.used_names:
-            name = template + str(numbers.next())
+            name = template + str(self.numbers.next())
         self.used_names.add(name)
         return name
 
@@ -110,3 +110,23 @@ class BaseFix(object):
         self.logger.warning(msg % (lineno, for_output))
         if reason:
             self.logger.warning(reason)
+
+    def start_tree(self, tree, filename):
+        """Some fixers need to maintain tree-wide state.
+        This method is called once, at the start of tree fix-up.
+        
+        tree - the root node of the tree to be processed.
+        filename - the name of the file the tree came from.
+        """
+        self.used_names = tree.used_names
+        self.set_filename(filename)
+        self.numbers = itertools.count(1)
+
+    def finish_tree(self, tree, filename):
+        """Some fixers need to maintain tree-wide state.
+        This method is called once, at the conclusion of tree fix-up.
+        
+        tree - the root node of the tree to be processed.
+        filename - the name of the file the tree came from.
+        """
+        pass

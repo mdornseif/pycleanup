@@ -17,7 +17,7 @@ import pytree
 import refactor
 
 # We wrap the RefactoringTool's fixer objects so we can intercept
-#  the call to set_filename() and so modify the fixers' logging objects.
+#  the call to start_tree() and so modify the fixers' logging objects.
 # This allows us to make sure that certain code chunks produce certain
 #  warnings.
 class Fixer(object):
@@ -27,9 +27,9 @@ class Fixer(object):
 
     def __getattr__(self, attr):
         return getattr(self.fixer, attr)
-
-    def set_filename(self, filename):
-        self.fixer.set_filename(filename)
+        
+    def start_tree(self, tree, filename):
+        self.fixer.start_tree(tree, filename)
         self.fixer.logger.addHandler(self.handler)
 
 class Options:
@@ -527,8 +527,8 @@ class Test_except(FixerTestCase):
         a = """
             try:
                 pass
-            except Exception as xxx_todo_changeme1:
-                (a, b) = xxx_todo_changeme1.message
+            except Exception as xxx_todo_changeme:
+                (a, b) = xxx_todo_changeme.message
                 pass"""
         self.check(b, a)
 
@@ -542,8 +542,8 @@ class Test_except(FixerTestCase):
         a = """
             try:
                 pass
-            except Exception as xxx_todo_changeme2:
-                d[5] = xxx_todo_changeme2
+            except Exception as xxx_todo_changeme:
+                d[5] = xxx_todo_changeme
                 pass"""
         self.check(b, a)
 
@@ -557,8 +557,8 @@ class Test_except(FixerTestCase):
         a = """
             try:
                 pass
-            except Exception as xxx_todo_changeme3:
-                a.foo = xxx_todo_changeme3
+            except Exception as xxx_todo_changeme:
+                a.foo = xxx_todo_changeme
                 pass"""
         self.check(b, a)
 
@@ -572,8 +572,8 @@ class Test_except(FixerTestCase):
         a = """
             try:
                 pass
-            except Exception as xxx_todo_changeme4:
-                a().foo = xxx_todo_changeme4
+            except Exception as xxx_todo_changeme:
+                a().foo = xxx_todo_changeme
                 pass"""
         self.check(b, a)
 
@@ -1134,8 +1134,8 @@ class Test_tuple_params(FixerTestCase):
                 x = 5"""
                 
         a = """
-            def foo(xxx_todo_changeme5):
-                ((a, b), c) = xxx_todo_changeme5
+            def foo(xxx_todo_changeme):
+                ((a, b), c) = xxx_todo_changeme
                 x = 5"""
         self.check(b, a)
         
@@ -1145,8 +1145,8 @@ class Test_tuple_params(FixerTestCase):
                 x = 5"""
                 
         a = """
-            def foo(xxx_todo_changeme6, d):
-                ((a, b), c) = xxx_todo_changeme6
+            def foo(xxx_todo_changeme, d):
+                ((a, b), c) = xxx_todo_changeme
                 x = 5"""
         self.check(b, a)
         
@@ -1156,8 +1156,8 @@ class Test_tuple_params(FixerTestCase):
                 x = 5"""
                 
         a = """
-            def foo(xxx_todo_changeme7, d) -> e:
-                ((a, b), c) = xxx_todo_changeme7
+            def foo(xxx_todo_changeme, d) -> e:
+                ((a, b), c) = xxx_todo_changeme
                 x = 5"""
         self.check(b, a)
         
@@ -1166,7 +1166,7 @@ class Test_tuple_params(FixerTestCase):
             def foo(((a, b), c)): x = 5; y = 7"""
                 
         a = """
-            def foo(xxx_todo_changeme15): ((a, b), c) = xxx_todo_changeme15; x = 5; y = 7"""
+            def foo(xxx_todo_changeme): ((a, b), c) = xxx_todo_changeme; x = 5; y = 7"""
         self.check(b, a)
         
     def test_keywords(self):
@@ -1175,8 +1175,8 @@ class Test_tuple_params(FixerTestCase):
                 x = 5"""
                 
         a = """
-            def foo(xxx_todo_changeme10, d, e=5) -> z:
-                ((a, b), c) = xxx_todo_changeme10
+            def foo(xxx_todo_changeme, d, e=5) -> z:
+                ((a, b), c) = xxx_todo_changeme
                 x = 5"""
         self.check(b, a)
         
@@ -1186,8 +1186,8 @@ class Test_tuple_params(FixerTestCase):
                 x = 5"""
                 
         a = """
-            def foo(xxx_todo_changeme16, d, *vargs, **kwargs) -> z:
-                ((a, b), c) = xxx_todo_changeme16
+            def foo(xxx_todo_changeme, d, *vargs, **kwargs) -> z:
+                ((a, b), c) = xxx_todo_changeme
                 x = 5"""
         self.check(b, a)
         
@@ -1197,9 +1197,9 @@ class Test_tuple_params(FixerTestCase):
                 x = 5"""
                 
         a = """
-            def foo(xxx_todo_changeme11, xxx_todo_changeme12) -> z:
-                ((a, b), c) = xxx_todo_changeme11
-                (d, e, f) = xxx_todo_changeme12
+            def foo(xxx_todo_changeme, xxx_todo_changeme1) -> z:
+                ((a, b), c) = xxx_todo_changeme
+                (d, e, f) = xxx_todo_changeme1
                 x = 5"""
         self.check(b, a)
         
@@ -1209,9 +1209,9 @@ class Test_tuple_params(FixerTestCase):
                 x = 5"""
                 
         a = """
-            def foo(x, xxx_todo_changeme13, d, xxx_todo_changeme14, y) -> z:
-                ((a, b), c) = xxx_todo_changeme13
-                (e, f, g) = xxx_todo_changeme14
+            def foo(x, xxx_todo_changeme, d, xxx_todo_changeme1, y) -> z:
+                ((a, b), c) = xxx_todo_changeme
+                (e, f, g) = xxx_todo_changeme1
                 x = 5"""
         self.check(b, a)
         
@@ -1222,10 +1222,10 @@ class Test_tuple_params(FixerTestCase):
                 x = 5"""
                 
         a = """
-            def foo(xxx_todo_changeme8, xxx_todo_changeme9) -> z:
+            def foo(xxx_todo_changeme, xxx_todo_changeme1) -> z:
                 "foo foo foo foo"
-                ((a, b), c) = xxx_todo_changeme8
-                (d, e, f) = xxx_todo_changeme9
+                ((a, b), c) = xxx_todo_changeme
+                (d, e, f) = xxx_todo_changeme1
                 x = 5"""
         self.check(b, a)
 

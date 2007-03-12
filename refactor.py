@@ -216,8 +216,7 @@ class RefactoringTool(object):
     def refactor_tree(self, tree, filename):
         """Refactors a parse tree (modifying the tree in place)."""
         for fixer in self.fixers:
-            fixer.set_filename(filename)
-            fixer.used_names = tree.used_names
+            fixer.start_tree(tree, filename)
         changes = 0
         for node in tree.post_order():
             for fixer in self.fixers:
@@ -226,6 +225,8 @@ class RefactoringTool(object):
                     if new is not None and new != node:
                         node.replace(new)
                         changes += 1
+        for fixer in self.fixers:
+            fixer.finish_tree(tree, filename)
         return changes
 
     def write_file(self, new_text, filename, old_text=None):
