@@ -1,8 +1,13 @@
+Abstract
+========
+
 A refactoring tool for converting Python 2.x code to 3.0.
 
 This is a work in progress!
 
-Files:
+
+Files
+=====
 
 README         - this file
 refactor.py    - main program; use this to 
@@ -11,23 +16,87 @@ patcomp.py     - pattern compiler
 pytree.py      - parse tree nodes (not specific to Python, despite the name!)
 pygram.py      - code specific to the Python grammar
 example.py     - example input for play.py and fix_*.py
-find_pattern.py - script to help determining the PATTERN for a new fix
+find_pattern.py - script to help determine the PATTERN for a new fix
 Grammar.txt    - Python grammar input (a copy of Python 2.5's Grammar/Grammar)
 Grammar.pickle - pickled grammar tables (generated file, not in subversion)
 PatternGrammar.txt    - grammar for the pattern language used by patcomp.py
 PatternGrammar.pickle - pickled pattern grammar tables (generated file)
-pgen2/         - Parser generator and driver (1) (2)
+pgen2/         - Parser generator and driver ([1]_, [2]_)
 fixes/         - Individual transformations
 tests/         - Test files for pytree, fixers, grammar, etc
 
 
-Notes:
+Limitations
+===========
 
-(1) I modified tokenize.py to yield a NL pseudo-token for backslash
-    continuations, so the original source can be reproduced exactly.
-    The modified version can be found at pgen2/tokenize.py.
-(2) I developed pgen2 while I was at Elemental Security.  I modified
-    it while at Google to suit the needs of this refactoring tool.
+General Limitations
+-------------------
+
+In general, fixers that convert a function or method call will not detect
+something like ::
+
+    a = apply
+    a(f, *args)
+    
+or ::
+
+    m = d.has_key
+    if m(5):
+        ...
+
+        
+Caveats for Specific Fixers
+---------------------------
+
+fix_except
+''''''''''
+
+"except" statements like ::
+
+    except Exception, (a, b):
+        ...
+
+are not fixed up. The ability to treat exceptions as sequences is being
+removed in Python 3, so there is no straightforward, automatic way to
+adjust these statements.
+
+This is seen frequently when dealing with OSError.
+
+
+fix_has_key
+'''''''''''
+
+While the primary target of this fixer is dict.has_key(), the
+fixer will change any has_key() method call, regardless of what class it
+belongs to. Anyone using non-dictionary classes with has_key() methods is
+advised to pay close attention when using this fixer.
+
+
+fix_raise
+'''''''''
+
+"raise E, V" will be incorrectly translated if V is an exception instance.
+The correct Python 3 idiom is ::
+   
+    raise E from V
+        
+but since we can't detect instance-hood by syntax alone and since any client
+code would have to be changed as well, we don't automate this.
+
+
+Notes
+=====
+
+.. [#1] I modified tokenize.py to yield a NL pseudo-token for backslash
+        continuations, so the original source can be reproduced exactly.
+        The modified version can be found at pgen2/tokenize.py.
+
+.. [#2] I developed pgen2 while I was at Elemental Security.  I modified
+        it while at Google to suit the needs of this refactoring tool.
+
+
+Licensing
+=========
 
 The original pgen2 module is copyrighted by Elemental Security.  All
 new code I wrote specifically for this tool is copyrighted by Google.
