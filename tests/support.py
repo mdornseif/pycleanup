@@ -18,7 +18,7 @@ def adjust_path():
     parent_dir = os.path.split(sys.path[0])[0]
     sys.path = [parent_dir] + sys.path
 
-    
+
 skip_whitespace = re.compile(r"""\S""")
 def reformat(string):
     indent = re.search(skip_whitespace, string).start()
