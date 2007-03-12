@@ -334,8 +334,10 @@ def generate_tokens(readline):
                    (initial == '.' and token != '.'):      # ordinary number
                     yield (NUMBER, token, spos, epos, line)
                 elif initial in '\r\n':
-                    yield (NL if parenlev > 0 else NEWLINE,
-                           token, spos, epos, line)
+                    newline = NEWLINE
+                    if parenlev > 0:
+                        newline = NL
+                    yield (newline, token, spos, epos, line)
                 elif initial == '#':
                     assert not token.endswith("\n")
                     yield (COMMENT, token, spos, epos, line)
