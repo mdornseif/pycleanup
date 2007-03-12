@@ -5,11 +5,13 @@ This is a work in progress!
 Files:
 
 README         - this file
+refactor.py    - main program; use this to 
 test.py        - runs all unittests for 2to3
 patcomp.py     - pattern compiler
 pytree.py      - parse tree nodes (not specific to Python, despite the name!)
 pygram.py      - code specific to the Python grammar
 example.py     - example input for play.py and fix_*.py
+find_pattern.py - script to help determining the PATTERN for a new fix
 Grammar.txt    - Python grammar input (a copy of Python 2.5's Grammar/Grammar)
 Grammar.pickle - pickled grammar tables (generated file, not in subversion)
 PatternGrammar.txt    - grammar for the pattern language used by patcomp.py
@@ -27,7 +29,10 @@ Notes:
 (2) I developed pgen2 while I was at Elemental Security.  I modified
     it while at Google to suit the needs of this refactoring tool.
 
-All new code I wrote here is copyrighted by Google, licensed to the
-PSF under a contributor agreement.
+The original pgen2 module is copyrighted by Elemental Security.  All
+new code I wrote specifically for this tool is copyrighted by Google.
+New code by others (notably Collin Winter) is copyrighted by the
+respective authors.  All code (whether by me or by others) is licensed
+to the PSF under a contributor agreement.
 
 --Guido van Rossum
