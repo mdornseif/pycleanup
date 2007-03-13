@@ -9,8 +9,8 @@ import itertools
 
 # Get a usable 'set' constructor
 try:
-    set()
-except:
+    set
+except NameError:
     from sets import Set as set
 
 # Local imports

@@ -20,7 +20,7 @@ import pytree
 
 try:
     sorted
-except:
+except NameError:
     def sorted(lst):
         l = list(lst)
         l.sort()
