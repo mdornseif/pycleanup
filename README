@@ -88,7 +88,7 @@ General Limitations
           ...
         
 * Fixers that look for attribute references will not detect when getattr() or
-  setattr() are used to access those attributes.
+  setattr() is used to access those attributes.
   
 * The contents of eval() calls and "exec" statements will not be checked by
   2to3.
