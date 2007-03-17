@@ -29,6 +29,7 @@ class Base(object):
     type = None    # int: token number (< 256) or symbol number (>= 256)
     parent = None  # Parent node pointer, or None
     children = ()  # Tuple of subnodes
+    was_changed = False
 
     def __new__(cls, *args, **kwds):
         """Constructor that prevents Base from being instantiated."""
@@ -111,6 +112,7 @@ class Base(object):
             else:
                 l_children.append(ch)
         assert found, (self.children, self, new)
+        self.changed()
         self.parent.children = tuple(l_children)
         if new is not None:
             new.parent = self.parent
@@ -124,6 +126,11 @@ class Base(object):
                 return
             node = node.children[0]
         return node.lineno
+        
+    def changed(self):
+        if self.parent:
+            self.parent.changed()
+        self.was_changed = True
 
 
 class Node(Base):

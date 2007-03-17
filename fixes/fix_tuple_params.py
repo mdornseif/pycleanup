@@ -84,3 +84,4 @@ class FixTupleParams(basefix.BaseFix):
         for i in range(after+1, after+len(new_lines)+1):
             children[i].set_prefix(indent)
         suite[0].children = tuple(children)
+        suite[0].changed()

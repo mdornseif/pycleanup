@@ -117,13 +117,45 @@ class TestNodes(support.TestCase):
         l3 = pytree.Leaf(100, "bar")
         n1 = pytree.Node(1000, [l1, l2, l3])
         self.assertEqual(n1.children, (l1, l2, l3))
+        self.failIf(n1.was_changed)
         l2new = pytree.Leaf(100, "-")
         l2.replace(l2new)
         self.assertEqual(n1.children, (l1, l2new, l3))
+        self.failUnless(n1.was_changed)
 
     def testConvert(self):
         # XXX
         pass
+        
+    def testChangedLeaf(self):
+        l1 = pytree.Leaf(100, "f")
+        self.failIf(l1.was_changed)
+        
+        l1.changed()
+        self.failUnless(l1.was_changed)
+        
+    def testChangedNode(self):
+        l1 = pytree.Leaf(100, "f")
+        n1 = pytree.Node(1000, [l1])
+        self.failIf(n1.was_changed)
+        
+        n1.changed()
+        self.failUnless(n1.was_changed)
+        
+    def testChangedRecursive(self):
+        l1 = pytree.Leaf(100, "foo")
+        l2 = pytree.Leaf(100, "+")
+        l3 = pytree.Leaf(100, "bar")
+        n1 = pytree.Node(1000, [l1, l2, l3])
+        n2 = pytree.Node(1000, [n1])
+        self.failIf(l1.was_changed)
+        self.failIf(n1.was_changed)
+        self.failIf(n2.was_changed)
+        
+        n1.changed()
+        self.failUnless(n1.was_changed)
+        self.failUnless(n2.was_changed)
+        self.failIf(l1.was_changed)
 
 
 class TestPatterns(support.TestCase):

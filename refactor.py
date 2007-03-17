@@ -231,6 +231,8 @@ class RefactoringTool(object):
                     if new is not None and new != node:
                         node.replace(new)
                         changes += 1
+                    elif tree.was_changed:
+                        changes += 1
         for fixer in self.fixers:
             fixer.finish_tree(tree, filename)
         return changes
