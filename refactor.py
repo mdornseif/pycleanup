@@ -160,7 +160,9 @@ class RefactoringTool(object):
     def refactor_args(self, args):
         """Refactors files and directories from an argument list."""
         for arg in args:
-            if os.path.isdir(arg):
+            if arg == "-":
+                self.refactor_stdin()
+            elif os.path.isdir(arg):
                 self.refactor_dir(arg)
             else:
                 self.refactor_file(arg)
@@ -218,6 +220,33 @@ class RefactoringTool(object):
                 self.write_file(str(tree), filename)
             elif self.options.verbose:
                 self.log_message("No changes in %s", filename)
+
+    def refactor_stdin(self):
+        if self.options.write:
+            self.log_error("Can't write changes back to stdin")
+            return
+        input = sys.stdin.read()
+        if self.options.doctests_only:
+            if self.options.verbose:
+                self.log_message("Refactoring doctests in stdin")
+            output = self.refactor_docstring(input, "<stdin>")
+            if output != input:
+                self.write_file(output, "<stdin>", input)
+            elif self.options.verbose:
+                self.log_message("No doctest changes in stdin")
+        else:
+            if self.options.verbose:
+                self.log_message("Refactoring stdin")
+            try:
+                tree = self.driver.parse_string(input)
+            except Exception, err:
+                self.log_error("Can't parse stdin: %s: %s",
+                               err.__class__.__name__, err)
+                return
+            if self.refactor_tree(tree, "<stdin>"):
+                self.write_file(str(tree), "<stdin>", input)
+            elif self.options.verbose:
+                self.log_message("No changes in stdin")
 
     def refactor_tree(self, tree, filename):
         """Refactors a parse tree (modifying the tree in place)."""
