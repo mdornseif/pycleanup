@@ -230,7 +230,7 @@ class Leaf(Base):
 
         This reproduces the input source exactly.
         """
-        return self.prefix + self.value
+        return self.prefix + str(self.value)
 
     def _eq(self, other):
         """Compares two nodes for equality."""
