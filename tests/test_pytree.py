@@ -49,6 +49,13 @@ class TestNodes(support.TestCase):
         self.assertEqual(str(l1), "foo")
         l2 = pytree.Leaf(100, "foo", context=(" ", (10, 1)))
         self.assertEqual(str(l2), " foo")
+        
+    def testLeafStrNumericValue(self):
+        # Make sure that the Leaf's value is stringified. Failing to
+        #  do this can cause a TypeError in certain situations.
+        l1 = pytree.Leaf(2, 5)
+        l1.set_prefix("foo_")
+        self.assertEqual(str(l1), "foo_5")
 
     def testLeafEq(self):
         l1 = pytree.Leaf(100, "foo")
