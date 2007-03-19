@@ -30,7 +30,7 @@ class Fixer(object):
         
     def start_tree(self, tree, filename):
         self.fixer.start_tree(tree, filename)
-        self.fixer.logger.addHandler(self.handler)
+        self.fixer.logger.handlers[:] = [self.handler]
 
 class Options:
     def __init__(self, **kwargs):
