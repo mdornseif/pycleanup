@@ -8,6 +8,7 @@
 # Local imports
 import pytree
 from pgen2 import token
+from pygram import python_symbols as syms
 from fixes import basefix
 from fixes.macros import Name, Call
 
@@ -52,7 +53,6 @@ class FixNext(basefix.BaseFix):
         self.delayed = []
     
     def transform(self, node):
-        syms = self.syms
         results = self.match(node)
         assert results
         
@@ -73,7 +73,7 @@ class FixNext(basefix.BaseFix):
             # We don't do this transformation if we're assignment to "x.next".
             # Unfortunately, it doesn't seem possible to do this in PATTERN,
             #  so it's being done here.
-            if is_assign_target(syms, node):
+            if is_assign_target(node):
                 head = results["head"]
                 if "".join([str(n) for n in head]).strip() == '__builtin__':
                     self.warning(node, bind_warning)
@@ -83,7 +83,7 @@ class FixNext(basefix.BaseFix):
             self.warning(node, bind_warning)
             self.shadowed_next = True
         elif mod:
-            n = find_binding(syms, 'next', mod)
+            n = find_binding('next', mod)
             if n:
                 self.warning(n, bind_warning)
                 self.shadowed_next = True
@@ -97,14 +97,14 @@ class FixNext(basefix.BaseFix):
 
 ### The following functions are to find module-level bindings
 
-def find_binding(syms, name, file_input):
+def find_binding(name, file_input):
     for child in file_input.children:
         if child.type == syms.for_stmt:
             if find(name, child.children[1]):
                 return child
         elif child.type == syms.funcdef and child.children[1].value == name:
             return child
-        elif is_import_binding(syms, child, name):
+        elif is_import_binding(child, name):
             return child
         elif child.type == syms.simple_stmt:
             if child.children[0].type == syms.expr_stmt:
@@ -122,7 +122,7 @@ def find(name, node):
             return node
     return None
 
-def is_import_binding(syms, node, name):
+def is_import_binding(node, name):
     if node.type == syms.simple_stmt:
         i = node.children[0]
         if i.type == syms.import_name:
@@ -158,8 +158,8 @@ except NameError:
                 return True
         return False
 
-def is_assign_target(syms, node):
-    assign = find_assign(syms, node)    
+def is_assign_target(node):
+    assign = find_assign(node)    
     if assign is None:
         return False
             
@@ -170,12 +170,12 @@ def is_assign_target(syms, node):
             return True
     return False
     
-def find_assign(syms, node):
+def find_assign(node):
     if node.type == syms.expr_stmt:
         return node
     if node.type == syms.simple_stmt or node.parent is None:
         return None
-    return find_assign(syms, node.parent)
+    return find_assign(node.parent)
 
 def is_subtree(root, node):
     if root == node:
