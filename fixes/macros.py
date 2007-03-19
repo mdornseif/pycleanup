@@ -54,6 +54,15 @@ def Newline():
     """A newline literal"""
     return Leaf(token.NEWLINE, "\n")
 
+def Number(n):
+    return Leaf(token.NUMBER, n)
+
+def Subscript(index_node):
+    """A numeric or string subscript"""
+    return Node(syms.trailer, [Leaf(token.LBRACE, '['),
+                               index_node,
+                               Leaf(token.RBRACE, ']')])
+
 def is_tuple(node):
     """Does the node represent a tuple literal?"""
     
