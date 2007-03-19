@@ -65,8 +65,8 @@ A quick run-through of 2to3's current fixers:
 
 * **fix_throw** - fix generator.throw() calls to be 3.0-compliant (PEP 3109).
 
-* **fix_tuple_params** - remove tuple parameters from function and method
-  declarations (PEP 3113).
+* **fix_tuple_params** - remove tuple parameters from function, method and
+  lambda declarations (PEP 3113).
   
 * **fix_xrange** - "xrange()" -> "range()".
 

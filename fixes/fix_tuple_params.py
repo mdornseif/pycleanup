@@ -8,27 +8,37 @@ def func(((a, b), c), d):
 def func(x, d):
     ((a, b), c) = x
     ...
+
+It will also support lambdas:
+  
+    lambda (x, y): x + y -> lambda: t: t[0] + t[1]
 """
 # Author: Collin Winter
 
 # Local imports
 import pytree
 from pgen2 import token
+from pygram import python_symbols as syms
 from fixes import basefix
-from fixes.macros import Assign, Name, Newline
+from fixes.macros import Assign, Name, Newline, Number, Subscript
 
 def is_docstring(stmt):
     return isinstance(stmt, pytree.Node) and \
            stmt.children[0].type == token.STRING
 
 class FixTupleParams(basefix.BaseFix):
-    PATTERN = """funcdef< 'def' any parameters< '(' args=any ')' >
-                                                ['->' any] ':' suite=any+ >"""
+    PATTERN = """
+              funcdef< 'def' any parameters< '(' args=any ')' >
+                       ['->' any] ':' suite=any+ >
+              |
+              lambda=lambdef< 'lambda' args=vfpdef< any+ > ':' body=any >"""
 
     def transform(self, node):
-        syms = self.syms
         results = self.match(node)
         assert results
+        
+        if "lambda" in results:
+            return self.transform_lambda(node)
         
         new_lines = []
         suite = results["suite"]
@@ -85,3 +95,54 @@ class FixTupleParams(basefix.BaseFix):
             children[i].set_prefix(indent)
         suite[0].children = tuple(children)
         suite[0].changed()
+        
+    def transform_lambda(self, node):
+        results = self.match(node)
+        assert results
+        args = results["args"]
+        body = results["body"]
+
+        params = find_params(args)
+        to_index = map_to_index(params)
+        tup_name = self.new_name(tuple_name(params))
+        
+        new_param = Name(tup_name)
+        new_param.set_prefix(args.get_prefix())
+        args.replace(new_param.clone())
+        for n in body.post_order():
+            if n.type == token.NAME and n.value in to_index:
+                subscripts = [c.clone() for c in to_index[n.value]]
+                new = pytree.Node(syms.power,
+                                  [new_param.clone()] + subscripts)
+                new.set_prefix(n.get_prefix())
+                n.replace(new)
+
+
+### Helper functions for transform_lambda()
+
+def find_params(node):
+    if node.type == syms.vfpdef:
+        return find_params(node.children[1])
+    elif node.type == token.NAME:
+        return node.value
+    return [find_params(c) for c in node.children if c.type != token.COMMA]
+
+def map_to_index(param_list, prefix=[], d=None):
+    if d is None:
+        d = {}
+    for i, obj in enumerate(param_list):
+        trailer = [Subscript(Number(i))]
+        if isinstance(obj, list):
+            map_to_index(obj, trailer, d=d)
+        else:
+            d[obj] = prefix + trailer
+    return d
+
+def tuple_name(param_list):
+    l = []
+    for obj in param_list:
+        if isinstance(obj, list):
+            l.append(tuple_name(obj))
+        else:
+            l.append(obj)
+    return "_".join(l)

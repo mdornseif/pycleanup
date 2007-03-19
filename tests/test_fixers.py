@@ -1229,6 +1229,35 @@ class Test_tuple_params(FixerTestCase):
                 x = 5"""
         self.check(b, a)
         
+    def test_lambda_no_change(self):
+        s = """lambda x: x + 5"""
+        self.check(s, s)
+        
+    def test_lambda_simple(self):
+        b = """lambda (x, y): x + f(y)"""
+        a = """lambda x_y: x_y[0] + f(x_y[1])"""
+        self.check(b, a)
+        
+    def test_lambda_simple_multi_use(self):
+        b = """lambda (x, y): x + x + f(x) + x"""
+        a = """lambda x_y: x_y[0] + x_y[0] + f(x_y[0]) + x_y[0]"""
+        self.check(b, a)
+        
+    def test_lambda_simple_reverse(self):
+        b = """lambda (x, y): y + x"""
+        a = """lambda x_y: x_y[1] + x_y[0]"""
+        self.check(b, a)
+        
+    def test_lambda_nested(self):
+        b = """lambda (x, (y, z)): x + y + z"""
+        a = """lambda x_y_z: x_y_z[0] + x_y_z[1][0] + x_y_z[1][1]"""
+        self.check(b, a)
+        
+    def test_lambda_nested_multi_use(self):
+        b = """lambda (x, (y, z)): x + y + f(y)"""
+        a = """lambda x_y_z: x_y_z[0] + x_y_z[1][0] + f(x_y_z[1][0])"""
+        self.check(b, a)
+        
 class Test_next(FixerTestCase):
     fixer = "next"
     
