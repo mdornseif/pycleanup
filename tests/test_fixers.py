@@ -1430,6 +1430,17 @@ class Test_next(FixerTestCase):
             """
         self.warns(s, s, "Calls to builtin next() possibly shadowed")
     
+    def test_builtin_assign_in_list(self):
+        s = """
+            def foo():
+                [a, __builtin__.next] = foo
+            
+            class A:
+                def next(self, a, b):
+                    pass
+            """
+        self.warns(s, s, "Calls to builtin next() possibly shadowed")
+    
     def test_assign_to_next(self):
         s = """
             def foo():
@@ -1445,6 +1456,17 @@ class Test_next(FixerTestCase):
         s = """
             def foo():
                 (a, A.next) = foo
+            
+            class A:
+                def next(self, a, b):
+                    pass
+            """
+        self.check(s, s)
+    
+    def test_assign_to_next_in_list(self):
+        s = """
+            def foo():
+                [a, A.next] = foo
             
             class A:
                 def next(self, a, b):
