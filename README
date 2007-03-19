@@ -50,6 +50,8 @@ A quick run-through of 2to3's current fixers:
 
 * **fix_ne** - convert the "<>" operator to "!=".
 
+* **fix_next** - fixer for it.next() -> next(it), per PEP 3114.
+
 * **fix_print** - convert "print" statements to print() function calls.
 
 * **fix_raise** - convert "raise" statements to Python 3 syntax.
