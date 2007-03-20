@@ -1638,6 +1638,58 @@ class Test_next(FixerTestCase):
         b = """f(g().next + 5)"""
         a = """f(g().__next__ + 5)"""
         self.check(b, a)
+        
+class Test_nonzero(FixerTestCase):
+    fixer = "nonzero"
+        
+    def test_1(self):
+        b = """
+            class A:
+                def __nonzero__(self):
+                    pass
+            """
+        a = """
+            class A:
+                def __bool__(self):
+                    pass
+            """
+        self.check(b, a)
+        
+    def test_2(self):
+        b = """
+            class A(object):
+                def __nonzero__(self):
+                    pass
+            """
+        a = """
+            class A(object):
+                def __bool__(self):
+                    pass
+            """
+        self.check(b, a)
+        
+    def test_unchanged_1(self):
+        s = """
+            class A(object):
+                def __bool__(self):
+                    pass
+            """
+        self.check(s, s)
+        
+    def test_unchanged_2(self):
+        s = """
+            class A(object):
+                def __nonzero__(self, a):
+                    pass
+            """
+        self.check(s, s)
+        
+    def test_unchanged_func(self):
+        s = """
+            def __nonzero__(self):
+                pass
+            """
+        self.check(s, s)
 
 
 if __name__ == "__main__":
