@@ -5,6 +5,7 @@ import unittest
 import sys
 import os.path
 import re
+from textwrap import dedent
 
 TestCase = unittest.TestCase
 
@@ -24,12 +25,5 @@ def adjust_path():
     parent_dir = os.path.split(sys.path[0])[0]
     sys.path = [parent_dir] + sys.path
 
-
-skip_whitespace = re.compile(r"""\S""")
 def reformat(string):
-    indent = re.search(skip_whitespace, string).start()
-    if indent == 0:
-        code = string
-    else:
-        code = "\n".join([line[indent-1:] for line in string.split("\n")[1:]])
-    return code + "\n\n"
+    return dedent(string) + "\n\n"
