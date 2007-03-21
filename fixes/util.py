@@ -62,6 +62,10 @@ def Subscript(index_node):
     return Node(syms.trailer, [Leaf(token.LBRACE, '['),
                                index_node,
                                Leaf(token.RBRACE, ']')])
+                               
+def String(string, prefix=None):
+    """A string leaf"""
+    return Leaf(token.STRING, string, prefix=prefix)
 
 def is_tuple(node):
     """Does the node represent a tuple literal?"""

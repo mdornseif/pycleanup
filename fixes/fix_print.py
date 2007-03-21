@@ -14,7 +14,7 @@ Change:
 import pytree
 from pgen2 import token
 from fixes import basefix
-from fixes.util import Name, Call, Comma
+from fixes.util import Name, Call, Comma, String
 
 
 class FixPrint(basefix.BaseFix):
@@ -56,11 +56,9 @@ class FixPrint(basefix.BaseFix):
             l_args[0].set_prefix("")
         if sep is not None or end is not None or file is not None:
             if sep is not None:
-                self.add_kwarg(l_args, "sep",
-                               pytree.Leaf(token.STRING, repr(sep)))
+                self.add_kwarg(l_args, "sep", String(repr(sep)))
             if end is not None:
-                self.add_kwarg(l_args, "end",
-                               pytree.Leaf(token.STRING, repr(end)))
+                self.add_kwarg(l_args, "end", String(repr(end)))
             if file is not None:
                 self.add_kwarg(l_args, "file", file)
         n_stmt = Call(Name("print"), l_args)
