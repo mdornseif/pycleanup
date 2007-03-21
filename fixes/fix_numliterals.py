@@ -21,7 +21,8 @@ class FixNumliterals(basefix.BaseFix):
         return (node.type == token.NUMBER and
                 (node.value.startswith("0") or
                  'E' in node.value or
-                 'J' in node.value))
+                 'J' in node.value or
+                 node.value[-1] in "Ll"))
 
     def transform(self, node):
         val = node.value

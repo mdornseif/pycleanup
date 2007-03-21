@@ -47,7 +47,7 @@ Ignore = Whitespace + any(r'\\\r?\n' + Whitespace) + maybe(Comment)
 Name = r'[a-zA-Z_]\w*'
 
 Hexnumber = r'0[xX][\da-fA-F]*[lL]?'
-Octnumber = r'0[0-7]*[lL]?'
+Octnumber = r'0[o]?[0-7]*[lL]?'
 Decnumber = r'[1-9]\d*[lL]?'
 Intnumber = group(Hexnumber, Octnumber, Decnumber)
 Exponent = r'[eE][-+]?\d+'
