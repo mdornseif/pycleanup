@@ -1,10 +1,7 @@
 # Copyright 2006 Google, Inc. All Rights Reserved.
 # Licensed to PSF under a Contributor Agreement.
 
-"""Fixer that turns <> into !=.
-
-This is so simple that we don't need the pattern compiler.
-"""
+"""Fixer that turns <> into !=."""
 
 # Local imports
 import pytree
@@ -13,6 +10,7 @@ from fixes import basefix
 
 
 class FixNe(basefix.BaseFix):
+    # This is so simple that we don't need the pattern compiler.
 
     def match(self, node):
         # Override

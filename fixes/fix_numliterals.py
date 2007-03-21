@@ -1,7 +1,5 @@
 """Fixer that turns 1L into 1, 0755 into 0o755,
 0XABC into 0xABC, 1E5 into 1e5, 1J into 1j.
-
-This is so simple that we don't need the pattern compiler.
 """
 # Copyright 2007 Georg Brandl.
 # Licensed to PSF under a Contributor Agreement.
@@ -14,6 +12,7 @@ from fixes.util import Number
 
 
 class FixNumliterals(basefix.BaseFix):
+    # This is so simple that we don't need the pattern compiler.
 
     def match(self, node):
         # Override
