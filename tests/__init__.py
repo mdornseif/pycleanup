@@ -12,7 +12,7 @@ import support
 
 all_tests = unittest.TestSuite()
 
-tests_dir = os.path.join(os.getcwd(), 'tests')
+tests_dir = os.path.join(os.path.dirname(__file__), '..', 'tests')
 tests = [t[0:-3] for t in os.listdir(tests_dir)
                         if t.startswith('test_') and t.endswith('.py')]
 
