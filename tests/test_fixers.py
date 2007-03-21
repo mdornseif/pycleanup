@@ -1690,6 +1690,98 @@ class Test_nonzero(FixerTestCase):
                 pass
             """
         self.check(s, s)
+        
+class Test_numliterals(FixerTestCase):
+    fixer = "numliterals"
+    
+    def test_complex_bare_int(self):
+        b = """4J"""
+        a = """4j"""
+        self.check(b, a)
+    
+    def test_complex_bare_float(self):
+        b = """4.4J"""
+        a = """4.4j"""
+        self.check(b, a)
+    
+    def test_complex_int(self):
+        b = """5 + 4J"""
+        a = """5 + 4j"""
+        self.check(b, a)
+    
+    def test_complex_float(self):
+        b = """5.4 + 4.9J"""
+        a = """5.4 + 4.9j"""
+        self.check(b, a)
+    
+    def test_exp_1(self):
+        b = """5E10"""
+        a = """5e10"""
+        self.check(b, a)
+    
+    def test_exp_2(self):
+        b = """5.0E10"""
+        a = """5.0e10"""
+        self.check(b, a)
+        
+    def test_octal_1(self):
+        b = """0755"""
+        a = """0o755"""
+        self.check(b, a)
+        
+    def test_hex_1(self):
+        b = """0XABC"""
+        a = """0xABC"""
+        self.check(b, a)
+
+    def test_long_int_1(self):
+        b = """a = 12L"""
+        a = """a = 12"""
+        self.check(b, a)
+
+    def test_long_int_2(self):
+        b = """a = 12l"""
+        a = """a = 12"""
+        self.check(b, a)
+
+    def test_long_hex(self):
+        b = """b = 0x12l"""
+        a = """b = 0x12"""
+        self.check(b, a)
+        
+    def test_unchanged_int(self):
+        s = """5"""
+        self.check(s, s)
+        
+    def test_unchanged_float(self):
+        s = """5.0"""
+        self.check(s, s)
+        
+    def test_unchanged_octal(self):
+        s = """0o755"""
+        self.check(s, s)
+        
+    def test_unchanged_hex(self):
+        s = """0xABC"""
+        self.check(s, s)
+    
+    def test_unchanged_exp(self):
+        s = """5.0e10"""
+        self.check(s, s)
+    
+    def test_unchanged_complex_int(self):
+        s = """5 + 4j"""
+        self.check(s, s)
+    
+    def test_unchanged_complex_float(self):
+        s = """5.4 + 4.9j"""
+        self.check(s, s)
+    
+    def test_unchanged_complex_bare(self):
+        s = """4j"""
+        self.check(s, s)
+        s = """4.4j"""
+        self.check(s, s)
 
 
 if __name__ == "__main__":
