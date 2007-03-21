@@ -137,7 +137,7 @@ class Node(Base):
 
     """Concrete implementation for interior nodes."""
 
-    def __init__(self, type, children, context=None):
+    def __init__(self, type, children, context=None, prefix=None):
         """Initializer.
 
         Takes a type constant (a symbol number >= 256), a sequence of
@@ -151,6 +151,8 @@ class Node(Base):
         for ch in self.children:
             assert ch.parent is None, repr(ch)
             ch.parent = self
+        if prefix is not None:
+            self.set_prefix(prefix)
 
     def __repr__(self):
         """Returns a canonical string representation."""
@@ -207,7 +209,7 @@ class Leaf(Base):
     lineno = 0   # Line where this token starts in the input
     column = 0   # Column where this token tarts in the input
 
-    def __init__(self, type, value, context=None):
+    def __init__(self, type, value, context=None, prefix=None):
         """Initializer.
 
         Takes a type constant (a token number < 256), a string value,
@@ -218,6 +220,8 @@ class Leaf(Base):
             self.prefix, (self.lineno, self.column) = context
         self.type = type
         self.value = value
+        if prefix is not None:
+            self.prefix = prefix
 
     def __repr__(self):
         """Returns a canonical string representation."""

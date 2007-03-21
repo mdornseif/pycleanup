@@ -163,6 +163,22 @@ class TestNodes(support.TestCase):
         self.failUnless(n1.was_changed)
         self.failUnless(n2.was_changed)
         self.failIf(l1.was_changed)
+        
+    def testLeafConstructorPrefix(self):
+        for prefix in ("xyz_", ""):
+            l1 = pytree.Leaf(100, "self", prefix=prefix)
+            self.failUnless(str(l1), prefix + "self")
+            self.assertEqual(l1.get_prefix(), prefix)
+        
+    def testNodeConstructorPrefix(self):
+        for prefix in ("xyz_", ""):
+            l1 = pytree.Leaf(100, "self")
+            l2 = pytree.Leaf(100, "foo", prefix="_")
+            n1 = pytree.Node(1000, [l1, l2], prefix=prefix)
+            self.failUnless(str(n1), prefix + "self_foo")
+            self.assertEqual(n1.get_prefix(), prefix)
+            self.assertEqual(l1.get_prefix(), prefix)
+            self.assertEqual(l2.get_prefix(), "_")
 
 
 class TestPatterns(support.TestCase):
