@@ -69,18 +69,20 @@ def String(string, prefix=None):
 
 def is_tuple(node):
     """Does the node represent a tuple literal?"""
-    return _is_seq_literal(node, "(", ")")
+    return (isinstance(node, Node)
+            and len(node.children) == 3
+            and isinstance(node.children[0], Leaf)
+            and isinstance(node.children[1], Node)
+            and isinstance(node.children[2], Leaf)
+            and node.children[0].value == "("
+            and node.children[2].value == ")") 
 
 def is_list(node):
     """Does the node represent a list literal?"""
-    return _is_seq_literal(node, "[", "]")
-           
-def _is_seq_literal(node, first, last):
-    """Abstract common parts of is_list, is_tuple"""
     return (isinstance(node, Node)
-           and len(node.children) > 1
-           and isinstance(node.children[0], Leaf)
-           and isinstance(node.children[-1], Leaf)
-           and node.children[0].value == first
-           and node.children[-1].value == last)
-    
+            and len(node.children) > 1
+            and isinstance(node.children[0], Leaf)
+            and isinstance(node.children[-1], Leaf)
+            and node.children[0].value == "["
+            and node.children[-1].value == "]") 
+       
