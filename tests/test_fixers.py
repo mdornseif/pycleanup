@@ -497,7 +497,7 @@ class Test_except(FixerTestCase):
                 try:
                     pass
                 except Exception as xxx_todo_changeme:
-                    (f, e) = xxx_todo_changeme.message
+                    (f, e) = xxx_todo_changeme.args
                     pass
                 except ImportError as e:
                     pass"""
@@ -521,14 +521,14 @@ class Test_except(FixerTestCase):
         b = """
             try:
                 pass
-            except Exception, (a, b):
+            except Exception, [a, b]:
                 pass"""
 
         a = """
             try:
                 pass
             except Exception as xxx_todo_changeme:
-                (a, b) = xxx_todo_changeme.message
+                [a, b] = xxx_todo_changeme.args
                 pass"""
         self.check(b, a)
 

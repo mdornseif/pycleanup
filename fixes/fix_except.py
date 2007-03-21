@@ -17,9 +17,7 @@ The following cases will be converted:
 - "except E, T:" where T is a tuple or list literal:
     
         except E as t:
-            T = t.message
-    
-    This transformation is still under consideration.
+            T = t.args
 """
 # Author: Collin Winter
 
@@ -27,7 +25,7 @@ The following cases will be converted:
 import pytree
 from pgen2 import token
 from fixes import basefix
-from fixes.util import Assign, Attr, Name
+from fixes.util import Assign, Attr, Name, is_tuple, is_list
 
 def find_excepts(nodes):
     for i, n in enumerate(nodes):
@@ -74,10 +72,10 @@ class FixExcept(basefix.BaseFix):
                         if isinstance(stmt, pytree.Node):
                             break
 
-                    # The assignment is different if old_N is a tuple
-                    # In that case, the assignment is old_N = new_N.message
-                    if str(N).strip()[0] == '(':
-                        assign = Assign(target, Attr(new_N, Name('message')))
+                    # The assignment is different if old_N is a tuple or list
+                    # In that case, the assignment is old_N = new_N.args
+                    if is_tuple(N) or is_list(N):
+                        assign = Assign(target, Attr(new_N, Name('args')))
                     else:
                         assign = Assign(target, new_N)
 
