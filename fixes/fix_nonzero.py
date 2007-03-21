@@ -4,9 +4,8 @@
 # Local imports
 import pytree
 from pgen2 import token
-from pygram import python_symbols as syms
 from fixes import basefix
-from fixes.util import Name
+from fixes.util import Name, syms
 
 class FixNonzero(basefix.BaseFix):
     PATTERN = """
@@ -22,6 +21,5 @@ class FixNonzero(basefix.BaseFix):
         assert results
 
         name = results["name"]
-        new = Name("__bool__")
-        new.set_prefix(name.get_prefix())
+        new = Name("__bool__", prefix=name.get_prefix())
         name.replace(new)

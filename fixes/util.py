@@ -25,9 +25,11 @@ def Assign(target, source):
 
     return Node(syms.atom, target + (ass_leaf.clone(),) + source)
 
-def Name(name):
+def Name(name, prefix=""):
     """Return a NAME leaf"""
-    return Leaf(token.NAME, name)
+    l = Leaf(token.NAME, name)
+    l.set_prefix(prefix)
+    return l
 
 def Attr(obj, attr):
     """A node tuple for obj.attr"""

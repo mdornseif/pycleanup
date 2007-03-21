@@ -66,8 +66,7 @@ class FixNext(basefix.BaseFix):
             node.replace(n)
             self.delayed.append(n)
         elif name:
-            n = Name("__next__")
-            n.set_prefix(name.get_prefix())
+            n = Name("__next__", prefix=name.get_prefix())
             name.replace(n)
         elif attr:
             # We don't do this transformation if we're assignment to "x.next".

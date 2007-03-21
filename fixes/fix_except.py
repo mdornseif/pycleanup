@@ -60,8 +60,7 @@ class FixExcept(basefix.BaseFix):
                 comma.replace(as_leaf.clone())
                 if N.type != token.NAME:
                     # Generate a new N for the except clause
-                    new_N = Name(self.new_name())
-                    new_N.set_prefix(" ")
+                    new_N = Name(self.new_name(), prefix=" ")
                     target = N.clone()
                     target.set_prefix("")
                     N.replace(new_N)
