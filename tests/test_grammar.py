@@ -126,7 +126,12 @@ class TestSetLiteral(GrammarTest):
         
     def test_4(self):
         self.validate("""x = {2, 3, 4,}""")
-        
+
+
+class TestNumericLiterals(GrammarTest):
+    def test_new_octal_notation(self):
+        self.validate("""0o7777777777777""")
+
 
 class TestGrammarFiles(GrammarTest):
     def test_python2(self):
