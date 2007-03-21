@@ -54,6 +54,8 @@ A quick run-through of 2to3's current fixers:
 
 * **fix_nonzero** - convert __nonzero__() methods to __bool__() methods.
 
+* **fix_numliterals** - tweak certain numeric literals to be 3.0-compliant.
+
 * **fix_print** - convert "print" statements to print() function calls.
 
 * **fix_raise** - convert "raise" statements to Python 3 syntax (PEP 3109).
