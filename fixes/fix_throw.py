@@ -56,7 +56,5 @@ class FixThrow(basefix.BaseFix):
             call_wtb = list(with_tb + (ArgList([tb]),))
             
             throw_args.replace(pytree.Node(syms.power, call_wtb))
-            # No return
         else:
             throw_args.replace(Call(exc, args))
-            # No return
