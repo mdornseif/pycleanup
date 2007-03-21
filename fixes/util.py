@@ -25,11 +25,9 @@ def Assign(target, source):
 
     return Node(syms.atom, target + (ass_leaf.clone(),) + source)
 
-def Name(name, prefix=""):
+def Name(name, prefix=None):
     """Return a NAME leaf"""
-    l = Leaf(token.NAME, name)
-    l.set_prefix(prefix)
-    return l
+    return Leaf(token.NAME, name, prefix=prefix)
 
 def Attr(obj, attr):
     """A node tuple for obj.attr"""
@@ -56,8 +54,8 @@ def Newline():
     """A newline literal"""
     return Leaf(token.NEWLINE, "\n")
 
-def Number(n):
-    return Leaf(token.NUMBER, n)
+def Number(n, prefix=None):
+    return Leaf(token.NUMBER, n, prefix=prefix)
 
 def Subscript(index_node):
     """A numeric or string subscript"""
