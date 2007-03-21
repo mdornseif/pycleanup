@@ -3,11 +3,14 @@
 
 This is so simple that we don't need the pattern compiler.
 """
+# Copyright 2007 Georg Brandl.
+# Licensed to PSF under a Contributor Agreement.
 
 # Local imports
 import pytree
 from pgen2 import token
 from fixes import basefix
+from fixes.util import Number
 
 
 class FixNumliterals(basefix.BaseFix):
@@ -33,6 +36,4 @@ class FixNumliterals(basefix.BaseFix):
         elif val.startswith('0') and val.isdigit() and len(set(val)) > 1:
             val = "0o" + val[1:]
 
-        new = pytree.Leaf(token.NUMBER, val)
-        new.set_prefix(node.get_prefix())
-        return new
+        return Number(val, prefix=node.get_prefix())
