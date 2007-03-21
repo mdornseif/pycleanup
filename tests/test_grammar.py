@@ -35,6 +35,8 @@ class GrammarTest(support.TestCase):
             self.validate(code)
         except ParseError:
             pass
+        else:
+            raise AssertionError("Syntax shouldn't have been valid")
 
 
 class TestRaiseChanges(GrammarTest):
@@ -133,13 +135,11 @@ class TestNumericLiterals(GrammarTest):
         self.validate("""0o7777777777777""")
         self.invalid_syntax("""0o""")
         self.invalid_syntax("""0o7324528887""")
-        self.invalid_syntax("""o7324527""")
         
     def test_new_binary_notation(self):
         self.validate("""0b101010""")
         self.invalid_syntax("""0b""")
         self.invalid_syntax("""0b0101021""")
-        self.invalid_syntax("""b010101""")
 
 
 class TestGrammarFiles(GrammarTest):
