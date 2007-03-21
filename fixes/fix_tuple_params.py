@@ -18,9 +18,8 @@ It will also support lambdas:
 # Local imports
 import pytree
 from pgen2 import token
-from pygram import python_symbols as syms
 from fixes import basefix
-from fixes.util import Assign, Name, Newline, Number, Subscript
+from fixes.util import Assign, Name, Newline, Number, Subscript, syms
 
 def is_docstring(stmt):
     return isinstance(stmt, pytree.Node) and \
