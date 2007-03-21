@@ -10,7 +10,7 @@ import pytree
 from pgen2 import token
 from pygram import python_symbols as syms
 from fixes import basefix
-from fixes.macros import Name, Call
+from fixes.util import Name, Call
 
 bind_warning = "Calls to builtin next() possibly shadowed by global binding"
 

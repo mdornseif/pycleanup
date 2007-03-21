@@ -13,7 +13,7 @@ exec code in ns1, ns2 -> exec(code, ns1, ns2)
 import pytree
 from pgen2 import token
 from fixes import basefix
-from fixes.macros import Comma, Name, Call
+from fixes.util import Comma, Name, Call
 
 
 class FixExec(basefix.BaseFix):

@@ -6,7 +6,7 @@ import pytree
 import patcomp
 from pgen2 import token
 from fixes import basefix
-from fixes import macros
+from fixes.util import Call, Name
 
 class FixInput(basefix.BaseFix):
 
@@ -20,6 +20,6 @@ class FixInput(basefix.BaseFix):
     def transform(self, node):
         new = node.clone()
         new.set_prefix("")
-        new = macros.Call(macros.Name("eval"), [new])
+        new = Call(Name("eval"), [new])
         new.set_prefix(node.get_prefix())
         return new

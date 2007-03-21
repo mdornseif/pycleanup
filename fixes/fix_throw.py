@@ -11,7 +11,7 @@ g.throw("foo"[, V[, T]]) will warn about string exceptions."""
 import pytree
 from pgen2 import token
 from fixes import basefix
-from fixes.macros import Name, Call, ArgList, Attr, is_tuple
+from fixes.util import Name, Call, ArgList, Attr, is_tuple
 
 class FixThrow(basefix.BaseFix):
 

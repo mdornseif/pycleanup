@@ -5,7 +5,7 @@
 import pytree
 from pgen2 import token
 from fixes import basefix
-from fixes import macros
+from fixes.util import Name
 
 class FixRawInput(basefix.BaseFix):
 
@@ -20,6 +20,6 @@ class FixRawInput(basefix.BaseFix):
         results = self.match(node)
         args = results["args"]
         new = pytree.Node(self.syms.power,
-                          [macros.Name("input"), args.clone()])
+                          [Name("input"), args.clone()])
         new.set_prefix(node.get_prefix())
         return new

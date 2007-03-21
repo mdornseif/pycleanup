@@ -26,7 +26,7 @@ import pytree
 import patcomp
 from pgen2 import token
 from fixes import basefix
-from fixes import macros
+from fixes.util import Name, Call, lparen_leaf, rparen_leaf
 
 class FixDict(basefix.BaseFix):
 
@@ -54,14 +54,14 @@ class FixDict(basefix.BaseFix):
     special = not tail and self.in_special_context(node, isiter)
     args = head + [pytree.Node(syms.trailer,
                                [pytree.Leaf(token.DOT, '.'),
-                                macros.Name(method)]),
+                                Name(method)]),
                    pytree.Node(syms.trailer,
-                               [macros.lparen_leaf.clone(),
-                                macros.rparen_leaf.clone()])]
+                               [lparen_leaf.clone(),
+                                rparen_leaf.clone()])]
     new = pytree.Node(syms.power, args)
     if not special:
       new.set_prefix("")
-      new = macros.Call(macros.Name(isiter and "iter" or "list"), [new])
+      new = Call(Name(isiter and "iter" or "list"), [new])
     if tail:
       new = pytree.Node(syms.power, [new] + tail)
     new.set_prefix(node.get_prefix())

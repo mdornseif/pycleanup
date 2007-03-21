@@ -1,4 +1,4 @@
-"""Abstract away often-used node construction routines."""
+"""Utility functions, node construction macros, etc."""
 # Author: Collin Winter
 
 # Local imports

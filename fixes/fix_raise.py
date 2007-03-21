@@ -25,7 +25,7 @@ CAVEATS:
 import pytree
 from pgen2 import token
 from fixes import basefix
-from fixes.macros import Name, Call, Attr, ArgList, is_tuple
+from fixes.util import Name, Call, Attr, ArgList, is_tuple
 
 class FixRaise(basefix.BaseFix):
 

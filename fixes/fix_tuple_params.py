@@ -20,7 +20,7 @@ import pytree
 from pgen2 import token
 from pygram import python_symbols as syms
 from fixes import basefix
-from fixes.macros import Assign, Name, Newline, Number, Subscript
+from fixes.util import Assign, Name, Newline, Number, Subscript
 
 def is_docstring(stmt):
     return isinstance(stmt, pytree.Node) and \

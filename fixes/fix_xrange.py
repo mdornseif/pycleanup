@@ -6,7 +6,7 @@
 import pytree
 from pgen2 import token
 from fixes import basefix
-from fixes import macros
+from fixes.util import Name
 
 class FixXrange(basefix.BaseFix):
 
@@ -21,6 +21,6 @@ class FixXrange(basefix.BaseFix):
         results = self.match(node)
         args = results["args"]
         new = pytree.Node(self.syms.power,
-                          [macros.Name("range"), args.clone()])
+                          [Name("range"), args.clone()])
         new.set_prefix(node.get_prefix())
         return new

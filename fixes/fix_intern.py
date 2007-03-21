@@ -9,7 +9,7 @@ intern(s) -> sys.intern(s)"""
 import pytree
 from pgen2 import token
 from fixes import basefix
-from fixes.macros import Name, Attr
+from fixes.util import Name, Attr
 
 
 class FixIntern(basefix.BaseFix):

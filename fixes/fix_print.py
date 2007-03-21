@@ -14,7 +14,7 @@ Change:
 import pytree
 from pgen2 import token
 from fixes import basefix
-from fixes.macros import Name, Call, Comma
+from fixes.util import Name, Call, Comma
 
 
 class FixPrint(basefix.BaseFix):

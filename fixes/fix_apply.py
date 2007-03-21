@@ -9,7 +9,7 @@ This converts apply(func, v, k) into (func)(*v, **k)."""
 import pytree
 from pgen2 import token
 from fixes import basefix
-from fixes.macros import Call, Comma
+from fixes.util import Call, Comma
 
 class FixApply(basefix.BaseFix):
 

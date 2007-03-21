@@ -6,7 +6,7 @@ import pytree
 from pgen2 import token
 from pygram import python_symbols as syms
 from fixes import basefix
-from fixes.macros import Name
+from fixes.util import Name
 
 class FixNonzero(basefix.BaseFix):
     PATTERN = """
