@@ -14,10 +14,6 @@ from fixes import basefix
 
 class FixNe(basefix.BaseFix):
 
-    def compile_pattern(self):
-        # Override
-        pass
-
     def match(self, node):
         # Override
         return node.type == token.NOTEQUAL and node.value == "<>"

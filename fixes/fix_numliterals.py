@@ -12,10 +12,6 @@ from fixes import basefix
 
 class FixNumliterals(basefix.BaseFix):
 
-    def compile_pattern(self):
-        # Override
-        pass
-
     def match(self, node):
         # Override
         return (node.type == token.NUMBER and

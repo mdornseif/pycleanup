@@ -14,7 +14,7 @@ except NameError:
     from sets import Set as set
 
 # Local imports
-import patcomp
+from patcomp import PatternCompiler
 import pygram
 
 class BaseFix(object):
@@ -27,7 +27,7 @@ class BaseFix(object):
     FixHasKey.
     """
 
-    PATTERN = None  # Subclass *must* override with a string literal
+    PATTERN = None  # Most subclasses should override with a string literal
     pattern = None  # Compiled pattern, set by compile_pattern()
     options = None  # Options object passed to initializer
     filename = None # The filename (set by set_filename)
@@ -53,7 +53,8 @@ class BaseFix(object):
         Subclass may override if it doesn't want to use
         self.{pattern,PATTERN} in .match().
         """
-        self.pattern = patcomp.PatternCompiler().compile_pattern(self.PATTERN)
+        if self.PATTERN is not None:
+            self.pattern = PatternCompiler().compile_pattern(self.PATTERN)
 
     def set_filename(self, filename):
         """Set the filename, and a logger derived from it.
