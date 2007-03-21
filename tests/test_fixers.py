@@ -4,8 +4,6 @@
 
 # Testing imports
 import support
-if __name__ == '__main__':
-    support.adjust_path()
 
 # Python imports
 from StringIO import StringIO

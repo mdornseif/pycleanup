@@ -10,8 +10,6 @@ from Python 2 and Python 3. """
 
 # Testing imports
 import support
-if __name__ == '__main__':
-    support.adjust_path()
 
 # Python imports
 import os.path

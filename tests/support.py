@@ -20,10 +20,7 @@ def run_all_tests(test_mod=None, tests=None):
         tests = unittest.TestLoader().loadTestsFromModule(test_mod)
     unittest.TextTestRunner(verbosity=2).run(tests)
 
-
-def adjust_path():
-    parent_dir = os.path.split(sys.path[0])[0]
-    sys.path = [parent_dir] + sys.path
-
 def reformat(string):
     return dedent(string) + "\n\n"
+
+sys.path.insert(0, os.path.dirname(__file__))
