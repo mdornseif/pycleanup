@@ -131,6 +131,9 @@ class TestSetLiteral(GrammarTest):
 class TestNumericLiterals(GrammarTest):
     def test_new_octal_notation(self):
         self.validate("""0o7777777777777""")
+        self.invalid_syntax("""0o""")
+        self.invalid_syntax("""0o7324528887""")
+        self.invalid_syntax("""o7324527""")
         
     def test_new_binary_notation(self):
         self.validate("""0b101010""")
