@@ -73,7 +73,7 @@ class FixerTestCase(support.TestCase):
 class Test_ne(FixerTestCase):
     fixer = "ne"
 
-    def test_1(self):
+    def test_basic(self):
         b = """if x <> y:
             pass"""
 
@@ -81,7 +81,7 @@ class Test_ne(FixerTestCase):
             pass"""
         self.check(b, a)
 
-    def test_2(self):
+    def test_no_spaces(self):
         b = """if x<>y:
             pass"""
 
@@ -89,7 +89,7 @@ class Test_ne(FixerTestCase):
             pass"""
         self.check(b, a)
 
-    def test_3(self):
+    def test_chained(self):
         b = """if x<>y<>z:
             pass"""
 
@@ -190,46 +190,46 @@ class Test_apply(FixerTestCase):
 
     # Test that complex functions are parenthesized
 
-    def test_7(self):
+    def test_complex_1(self):
         b = """x = apply(f+g, args)"""
         a = """x = (f+g)(*args)"""
         self.check(b, a)
 
-    def test_8(self):
+    def test_complex_2(self):
         b = """x = apply(f*g, args)"""
         a = """x = (f*g)(*args)"""
         self.check(b, a)
 
-    def test_9(self):
+    def test_complex_3(self):
         b = """x = apply(f**g, args)"""
         a = """x = (f**g)(*args)"""
         self.check(b, a)
 
     # But dotted names etc. not
 
-    def test_10(self):
+    def test_dotted_name(self):
         b = """x = apply(f.g, args)"""
         a = """x = f.g(*args)"""
         self.check(b, a)
 
-    def test_11(self):
+    def test_subscript(self):
         b = """x = apply(f[x], args)"""
         a = """x = f[x](*args)"""
         self.check(b, a)
 
-    def test_12(self):
+    def test_call(self):
         b = """x = apply(f(), args)"""
         a = """x = f()(*args)"""
         self.check(b, a)
 
     # Extreme case
-    def test_13(self):
+    def test_extreme(self):
         b = """x = apply(a.b.c.d.e.f, args, kwds)"""
         a = """x = a.b.c.d.e.f(*args, **kwds)"""
         self.check(b, a)
 
     # XXX Comments in weird places still get lost
-    def test_14(self):
+    def test_weird_comments(self):
         b = """apply(   # foo
           f, # bar
           args)"""
@@ -238,50 +238,41 @@ class Test_apply(FixerTestCase):
 
     # These should *not* be touched
 
-    def test_15(self):
-        b = """apply()"""
-        a = """apply()"""
-        self.check(b, a)
+    def test_unchanged_1(self):
+        s = """apply()"""
+        self.check(s, s)
 
-    def test_16(self):
-        b = """apply(f)"""
-        a = """apply(f)"""
-        self.check(b, a)
+    def test_unchanged_2(self):
+        s = """apply(f)"""
+        self.check(s, s)
 
-    def test_17(self):
-        b = """apply(f,)"""
-        a = """apply(f,)"""
-        self.check(b, a)
+    def test_unchanged_3(self):
+        s = """apply(f,)"""
+        self.check(s, s)
 
-    def test_18(self):
-        b = """apply(f, args, kwds, extras)"""
-        a = """apply(f, args, kwds, extras)"""
-        self.check(b, a)
+    def test_unchanged_4(self):
+        s = """apply(f, args, kwds, extras)"""
+        self.check(s, s)
 
-    def test_19(self):
-        b = """apply(f, *args, **kwds)"""
-        a = """apply(f, *args, **kwds)"""
-        self.check(b, a)
+    def test_unchanged_5(self):
+        s = """apply(f, *args, **kwds)"""
+        self.check(s, s)
 
-    def test_20(self):
-        b = """apply(f, *args)"""
-        a = """apply(f, *args)"""
-        self.check(b, a)
+    def test_unchanged_6(self):
+        s = """apply(f, *args)"""
+        self.check(s, s)
 
-    def test_21(self):
-        b = """apply(func=f, args=args, kwds=kwds)"""
-        a = """apply(func=f, args=args, kwds=kwds)"""
-        self.check(b, a)
+    def test_unchanged_7(self):
+        s = """apply(func=f, args=args, kwds=kwds)"""
+        self.check(s, s)
 
-    def test_22(self):
-        b = """apply(f, args=args, kwds=kwds)"""
-        a = """apply(f, args=args, kwds=kwds)"""
-        self.check(b, a)
+    def test_unchanged_8(self):
+        s = """apply(f, args=args, kwds=kwds)"""
+        self.check(s, s)
 
-    def test_23(self):
-        b = """apply(f, args, kwds=kwds)"""
-        a = """apply(f, args, kwds=kwds)"""
-        self.check(b, a)
+    def test_unchanged_9(self):
+        s = """apply(f, args, kwds=kwds)"""
+        self.check(s, s)
 
 
 class Test_intern(FixerTestCase):
@@ -311,25 +302,21 @@ class Test_intern(FixerTestCase):
 
     # These should not be refactored
 
-    def test_5(self):
-        b = """intern(a=1)"""
-        a = """intern(a=1)"""
-        self.check(b, a)
+    def test_unchanged_1(self):
+        s = """intern(a=1)"""
+        self.check(s, s)
 
-    def test_6(self):
-        b = """intern(f, g)"""
-        a = """intern(f, g)"""
-        self.check(b, a)
+    def test_unchanged_2(self):
+        s = """intern(f, g)"""
+        self.check(s, s)
 
-    def test_7(self):
-        b = """intern(*h)"""
-        a = """intern(*h)"""
-        self.check(b, a)
+    def test_unchanged_3(self):
+        s = """intern(*h)"""
+        self.check(s, s)
 
-    def test_8(self):
-        b = """intern(**i)"""
-        a = """intern(**i)"""
-        self.check(b, a)
+    def test_unchanged_4(self):
+        s = """intern(**i)"""
+        self.check(s, s)
 
 class Test_print(FixerTestCase):
     fixer = "print"
@@ -351,43 +338,39 @@ class Test_print(FixerTestCase):
 
     # trailing commas
 
-    def test_4(self):
+    def test_trailing_comma_1(self):
         b = """print 1, 2, 3,"""
         a = """print(1, 2, 3, end=' ')"""
         self.check(b, a)
 
-    def test_5(self):
+    def test_trailing_comma_2(self):
         b = """print 1, 2,"""
         a = """print(1, 2, end=' ')"""
         self.check(b, a)
 
-    def test_6(self):
+    def test_trailing_comma_3(self):
         b = """print 1,"""
         a = """print(1, end=' ')"""
         self.check(b, a)
 
     # >> stuff
 
-    # no trailing comma
-    def test_7(self):
+    def test_vargs_without_trailing_comma(self):
         b = """print >>sys.stderr, 1, 2, 3"""
         a = """print(1, 2, 3, file=sys.stderr)"""
         self.check(b, a)
 
-    # trailing comma
-    def test_8(self):
+    def test_with_trailing_comma(self):
         b = """print >>sys.stderr, 1, 2,"""
         a = """print(1, 2, end=' ', file=sys.stderr)"""
         self.check(b, a)
 
-    # no trailing comma
-    def test_9(self):
+    def test_no_trailing_comma(self):
         b = """print >>sys.stderr, 1+1"""
         a = """print(1+1, file=sys.stderr)"""
         self.check(b, a)
 
-    # spaces before sys.stderr
-    def test_10(self):
+    def test_spaces_before_file(self):
         b = """print >>  sys.stderr"""
         a = """print(file=sys.stderr)"""
         self.check(b, a)
@@ -396,83 +379,79 @@ class Test_print(FixerTestCase):
 class Test_exec(FixerTestCase):
     fixer = "exec"
 
-    def test_1(self):
+    def test_basic(self):
         b = """exec code"""
         a = """exec(code)"""
         self.check(b, a)
 
-    def test_2(self):
+    def test_with_globals(self):
         b = """exec code in ns"""
         a = """exec(code, ns)"""
         self.check(b, a)
 
-    def test_3(self):
+    def test_with_globals_locals(self):
         b = """exec code in ns1, ns2"""
         a = """exec(code, ns1, ns2)"""
         self.check(b, a)
 
-    def test_4(self):
+    def test_complex_1(self):
         b = """exec (a.b()) in ns"""
         a = """exec((a.b()), ns)"""
         self.check(b, a)
 
-    def test_5(self):
+    def test_complex_2(self):
         b = """exec a.b() + c in ns"""
         a = """exec(a.b() + c, ns)"""
         self.check(b, a)
 
     # These should not be touched
 
-    def test_6(self):
-        b = """exec(code)"""
-        a = """exec(code)"""
-        self.check(b, a)
+    def test_unchanged_1(self):
+        s = """exec(code)"""
+        self.check(s, s)
 
-    def test_7(self):
-        b = """exec (code)"""
-        a = """exec (code)"""
-        self.check(b, a)
+    def test_unchanged_2(self):
+        s = """exec (code)"""
+        self.check(s, s)
 
-    def test_8(self):
-        b = """exec(code, ns)"""
-        a = """exec(code, ns)"""
-        self.check(b, a)
+    def test_unchanged_3(self):
+        s = """exec(code, ns)"""
+        self.check(s, s)
 
-    def test_9(self):
-        b = """exec(code, ns1, ns2)"""
-        a = """exec(code, ns1, ns2)"""
-        self.check(b, a)
+    def test_unchanged_4(self):
+        s = """exec(code, ns1, ns2)"""
+        self.check(s, s)
 
 
 class Test_repr(FixerTestCase):
     fixer = "repr"
 
-    def test_1(self):
+    def test_simple_1(self):
         b = """x = `1 + 2`"""
         a = """x = repr(1 + 2)"""
         self.check(b, a)
 
-    def test_2(self):
+    def test_simple_2(self):
         b = """y = `x`"""
         a = """y = repr(x)"""
         self.check(b, a)
 
-    def test_3(self):
+    def test_complex(self):
         b = """z = `y`.__repr__()"""
         a = """z = repr(y).__repr__()"""
         self.check(b, a)
 
-    def test_4(self):
+    def test_tuple(self):
         b = """x = `1, 2, 3`"""
         a = """x = repr((1, 2, 3))"""
         self.check(b, a)
 
-    def test_5(self):
+    def test_nested(self):
         b = """x = `1 + `2``"""
         a = """x = repr(1 + repr(2))"""
         self.check(b, a)
 
-    def test_6(self):
+    def test_nested_tuples(self):
         b = """x = `1, 2 + `3, 4``"""
         a = """x = repr((1, 2 + repr((3, 4))))"""
         self.check(b, a)
@@ -480,7 +459,7 @@ class Test_repr(FixerTestCase):
 class Test_except(FixerTestCase):
     fixer = "except"
 
-    def test_1(self):
+    def test_tuple_unpack(self):
         b = """
             def foo():
                 try:
@@ -501,7 +480,7 @@ class Test_except(FixerTestCase):
                     pass"""
         self.check(b, a)
 
-    def test_2(self):
+    def test_multi_class(self):
         b = """
             try:
                 pass
@@ -515,7 +494,7 @@ class Test_except(FixerTestCase):
                 pass"""
         self.check(b, a)
 
-    def test_3(self):
+    def test_list_unpack(self):
         b = """
             try:
                 pass
@@ -530,7 +509,7 @@ class Test_except(FixerTestCase):
                 pass"""
         self.check(b, a)
 
-    def test_4(self):
+    def test_weird_target_1(self):
         b = """
             try:
                 pass
@@ -545,7 +524,7 @@ class Test_except(FixerTestCase):
                 pass"""
         self.check(b, a)
 
-    def test_5(self):
+    def test_weird_target_2(self):
         b = """
             try:
                 pass
@@ -560,7 +539,7 @@ class Test_except(FixerTestCase):
                 pass"""
         self.check(b, a)
 
-    def test_6(self):
+    def test_weird_target_3(self):
         b = """
             try:
                 pass
@@ -577,7 +556,7 @@ class Test_except(FixerTestCase):
 
     # These should not be touched:
 
-    def test_7(self):
+    def test_unchanged_1(self):
         b = """
             try:
                 pass
@@ -591,7 +570,7 @@ class Test_except(FixerTestCase):
                 pass"""
         self.check(b, a)
 
-    def test_8(self):
+    def test_unchanged_2(self):
         b = """
             try:
                 pass
@@ -605,7 +584,7 @@ class Test_except(FixerTestCase):
                 pass"""
         self.check(b, a)
 
-    def test_9(self):
+    def test_unchanged_3(self):
         b = """
             try:
                 pass
@@ -623,47 +602,47 @@ class Test_except(FixerTestCase):
 class Test_raise(FixerTestCase):
     fixer = "raise"
 
-    def test_1(self):
+    def test_basic(self):
         b = """raise Exception, 5"""
         a = """raise Exception(5)"""
         self.check(b, a)
 
-    def test_2(self):
+    def test_prefix(self):
         b = """raise Exception,5"""
         a = """raise Exception(5)"""
         self.check(b, a)
 
-    def test_3(self):
+    def test_tuple_value(self):
         b = """raise Exception, (5, 6, 7)"""
         a = """raise Exception(5, 6, 7)"""
         self.check(b, a)
         
-    def test_4(self):
+    def test_tuple_detection(self):
         b = """raise E, (5, 6) % (a, b)"""
         a = """raise E((5, 6) % (a, b))"""
         self.check(b, a)
         
-    def test_5(self):
+    def test_tuple_exc_1(self):
         b = """raise (((E1, E2), E3), E4), V"""
         a = """raise E1(V)"""
         self.check(b, a)
         
-    def test_6(self):
+    def test_tuple_exc_2(self):
         b = """raise (E1, (E2, E3), E4), V"""
         a = """raise E1(V)"""
         self.check(b, a)
         
     # These should produce a warning
     
-    def test_warn_1(self):
+    def test_string_exc(self):
         s = """raise 'foo'"""
         self.warns(s, s, "Python 3 does not support string exceptions")
     
-    def test_warn_2(self):
+    def test_string_exc_val(self):
         s = """raise "foo", 5"""
         self.warns(s, s, "Python 3 does not support string exceptions")
     
-    def test_warn_3(self):
+    def test_string_exc_val_tb(self):
         s = """raise "foo", 5, 6"""
         self.warns(s, s, "Python 3 does not support string exceptions")
 
