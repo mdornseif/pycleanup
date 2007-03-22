@@ -11,18 +11,11 @@ import os.path
 # Local imports
 import pytree
 from fixes import util
-from pgen2 import driver
-from pgen2.parse import ParseError
-
-test_dir = os.path.dirname(__file__)
-grammar_path = os.path.join(test_dir, "..", "Grammar.txt")
-grammar = driver.load_grammar(grammar_path)
-driver = driver.Driver(grammar, convert=pytree.convert)
 
 def parse(code):
     # The topmost node is file_input, which we don't care about.
     # The next-topmost node is a *_stmt node, which we also don't care about
-    tree = driver.parse_string(support.reformat(code), debug=True)
+    tree = support.parse_string(code)
     node = tree.children[0].children[0]
     node.parent = None
     return node

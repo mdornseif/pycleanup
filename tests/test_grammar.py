@@ -10,23 +10,17 @@ from Python 2 and Python 3. """
 
 # Testing imports
 import support
+from support import driver, test_dir
 
 # Python imports
 import os.path
 
 # Local imports
-import pytree
-from pgen2 import driver
 from pgen2.parse import ParseError
-
-test_dir = os.path.dirname(__file__)
-grammar_path = os.path.join(test_dir, "..", "Grammar.txt")
-grammar = driver.load_grammar(grammar_path)
-driver = driver.Driver(grammar, convert=pytree.convert)
 
 class GrammarTest(support.TestCase):
     def validate(self, code):
-        driver.parse_string(support.reformat(code), debug=True)
+        support.parse_string(code)
         
     def invalid_syntax(self, code):
         try:

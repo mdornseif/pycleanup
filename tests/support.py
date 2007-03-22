@@ -1,13 +1,26 @@
 """Support code for test_*.py files"""
 # Author: Collin Winter
 
+# Python imports
 import unittest
 import sys
 import os.path
 import re
 from textwrap import dedent
 
-TestCase = unittest.TestCase
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+
+# Local imports
+import pytree
+from pgen2 import driver
+
+test_dir = os.path.dirname(__file__)
+grammar_path = os.path.join(test_dir, "..", "Grammar.txt")
+grammar = driver.load_grammar(grammar_path)
+driver = driver.Driver(grammar, convert=pytree.convert)
+
+def parse_string(string):
+    return driver.parse_string(reformat(string), debug=True)
 
 # Python 2.3's TestSuite is not iter()-able
 if sys.version_info < (2, 4):
@@ -23,4 +36,4 @@ def run_all_tests(test_mod=None, tests=None):
 def reformat(string):
     return dedent(string) + "\n\n"
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+TestCase = unittest.TestCase
