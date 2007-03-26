@@ -125,6 +125,9 @@ def find_binding(name, node):
                 return child
             elif _find(name, child.children[-1]):
                 return child
+        elif child.type in (syms.if_stmt, syms.while_stmt):
+            if _find(name, child.children[-1]):
+                return child
         elif child.type in _def_syms and child.children[1].value == name:
             return child
         elif _is_import_binding(child, name):

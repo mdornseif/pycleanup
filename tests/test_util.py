@@ -177,6 +177,14 @@ class Test_find_binding(support.TestCase):
         self.failUnless(self.find_binding("a", "for c, (a, b) in r: pass"))
         self.failUnless(self.find_binding("a", "for c in r: a = c"))
         
+    def test_if(self):
+        self.failUnless(self.find_binding("a", "if b in r: a = c"))
+        self.failIf(self.find_binding("a", "if a in r: d = e"))
+        
+    def test_while(self):
+        self.failUnless(self.find_binding("a", "while b in r: a = c"))
+        self.failIf(self.find_binding("a", "while a in r: d = e"))
+        
 
 if __name__ == "__main__":
     import __main__
