@@ -10,7 +10,7 @@ import pytree
 from pgen2 import token
 from pygram import python_symbols as syms
 from fixes import basefix
-from fixes.util import Name, Call
+from fixes.util import Name, Call, find_binding, any
 
 bind_warning = "Calls to builtin next() possibly shadowed by global binding"
 
@@ -69,7 +69,7 @@ class FixNext(basefix.BaseFix):
             n = Name("__next__", prefix=name.get_prefix())
             name.replace(n)
         elif attr:
-            # We don't do this transformation if we're assignment to "x.next".
+            # We don't do this transformation if we're assigning to "x.next".
             # Unfortunately, it doesn't seem possible to do this in PATTERN,
             #  so it's being done here.
             if is_assign_target(node):
@@ -94,68 +94,8 @@ class FixNext(basefix.BaseFix):
                 node.shadowed_next = True
 
 
-### The following functions are to find module-level bindings
-
-def find_binding(name, file_input):
-    for child in file_input.children:
-        if child.type == syms.for_stmt:
-            if find(name, child.children[1]):
-                return child
-        elif child.type == syms.funcdef and child.children[1].value == name:
-            return child
-        elif is_import_binding(child, name):
-            return child
-        elif child.type == syms.simple_stmt:
-            if child.children[0].type == syms.expr_stmt:
-                n = find(name, child.children[0].children[0])
-                if n:
-                    return n
-
-def find(name, node):
-    nodes = [node]
-    while nodes:
-        node = nodes.pop()
-        if isinstance(node, pytree.Node):
-            nodes.extend(node.children)
-        elif node.type == token.NAME and node.value == name:
-            return node
-    return None
-
-def is_import_binding(node, name):
-    if node.type == syms.simple_stmt:
-        i = node.children[0]
-        if i.type == syms.import_name:
-            imp = i.children[1]
-            if imp.type == syms.dotted_as_names:
-                for child in imp.children:
-                    if child.type == syms.dotted_as_name:
-                        if child.children[2].value == name:
-                            return i
-            elif imp.type == syms.dotted_as_name:
-                last = imp.children[-1]
-                if last.type == token.NAME and last.value == name:
-                    return i
-        elif i.type == syms.import_from:
-            n = i.children[3]
-            if n.type == syms.import_as_names:
-                if find(name, n):
-                    return i
-            elif n.type == token.NAME and n.value == name:
-                return i
-    return None
-
-
 ### The following functions help test if node is part of an assignment
 ###  target.
-
-try:
-    any
-except NameError:
-    def any(l):
-        for o in l:
-            if o:
-                return True
-        return False
 
 def is_assign_target(node):
     assign = find_assign(node)    

@@ -112,3 +112,66 @@ try:
     set = set
 except NameError:
     from sets import Set as set
+
+###########################################################
+### The following functions are to find bindings in a suite
+###########################################################
+
+_def_syms = set([syms.classdef, syms.funcdef])
+def find_binding(name, node):
+    for child in node.children:
+        if child.type == syms.for_stmt:
+            if _find(name, child.children[1]):
+                return child
+            elif _find(name, child.children[-1]):
+                return child
+        elif child.type in _def_syms and child.children[1].value == name:
+            return child
+        elif _is_import_binding(child, name):
+            return child
+        elif child.type == syms.simple_stmt:
+            if child.children[0].type == syms.expr_stmt:
+                n = _find(name, child.children[0].children[0])
+                if n:
+                    return n
+
+_block_syms = set([syms.funcdef, syms.classdef, syms.trailer])
+def _find(name, node):
+    nodes = [node]
+    while nodes:
+        node = nodes.pop()
+        if node.type > 256 and node.type not in _block_syms:
+            nodes.extend(node.children)
+        elif node.type == token.NAME and node.value == name:
+            return node
+    return None
+
+def _is_import_binding(node, name):
+    if node.type == syms.simple_stmt:
+        i = node.children[0]
+        if i.type == syms.import_name:
+            imp = i.children[1]
+            if imp.type == syms.dotted_as_names:
+                for child in imp.children:
+                    if child.type == syms.dotted_as_name:
+                        if child.children[2].value == name:
+                            return i
+                    elif child.type == token.NAME and child.value == name:
+                        return i
+            elif imp.type == syms.dotted_as_name:
+                last = imp.children[-1]
+                if last.type == token.NAME and last.value == name:
+                    return i
+            elif imp.type == token.NAME and imp.value == name:
+                return i
+        elif i.type == syms.import_from:
+            n = i.children[3]
+            if n.type == syms.import_as_names and _find(name, n):
+                return i
+            elif n.type == syms.import_as_name:
+                child = n.children[2]
+                if child.type == token.NAME and child.value == name:
+                    return i
+            elif n.type == token.NAME and n.value == name:
+                return i
+    return None
