@@ -131,6 +131,15 @@ class TestNumericLiterals(GrammarTest):
         self.validate("""0b101010""")
         self.invalid_syntax("""0b0101021""")
 
+        
+class TestClassDef(GrammarTest):
+    def test_new_syntax(self):
+        self.validate("class B(t=7): pass")
+        self.validate("class B(t, *args): pass")
+        self.validate("class B(t, **kwargs): pass")
+        self.validate("class B(t, *args, **kwargs): pass")
+        self.validate("class B(t, y=9, *args, **kwargs): pass")
+
 
 class TestGrammarFiles(GrammarTest):
     def test_python2(self):
