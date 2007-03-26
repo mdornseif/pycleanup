@@ -8,7 +8,7 @@
 import pytree
 from pgen2 import token
 from fixes import basefix
-from fixes.util import Number
+from fixes.util import Number, set
 
 
 class FixNumliterals(basefix.BaseFix):
