@@ -101,7 +101,7 @@ class Test_find_binding(support.TestCase):
         self.failUnless(self.find_binding("a", "(c, (d, a), b) = foo()"))
         self.failUnless(self.find_binding("a", "(a, b) = foo().foo.foo[6][foo]"))
         self.failIf(self.find_binding("a", "(foo, b) = (b, a)"))
-        self.failIf(self.find_binding("a", "(foo, b, c) = (a, b, c)"))
+        self.failIf(self.find_binding("a", "(foo, (b, c)) = (a, b, c)"))
 
     def test_list_assignment(self):
         self.failUnless(self.find_binding("a", "[a] = b"))
@@ -109,7 +109,7 @@ class Test_find_binding(support.TestCase):
         self.failUnless(self.find_binding("a", "[c, [d, a], b] = foo()"))
         self.failUnless(self.find_binding("a", "[a, b] = foo().foo.foo[a][foo]"))
         self.failIf(self.find_binding("a", "[foo, b] = (b, a)"))
-        self.failIf(self.find_binding("a", "[foo, b, c] = (a, b, c)"))
+        self.failIf(self.find_binding("a", "[foo, [b, c]] = (a, b, c)"))
         
     def test_invalid_assignments(self):
         self.failIf(self.find_binding("a", "foo.a = 5"))
@@ -157,6 +157,12 @@ class Test_find_binding(support.TestCase):
         self.failIf(self.find_binding("a", "def d(a): pass"))
         self.failIf(self.find_binding("a", "def d(): a = 7"))
         
+        s = """
+            def d():
+                def a():
+                    pass"""
+        self.failIf(self.find_binding("a", s))
+        
     def test_class_def(self):
         self.failUnless(self.find_binding("a", "class a: pass"))
         self.failUnless(self.find_binding("a", "class a(): pass"))
@@ -169,6 +175,12 @@ class Test_find_binding(support.TestCase):
         self.failIf(self.find_binding("a", "class d(b, **a): pass"))
         self.failIf(self.find_binding("a", "class d: a = 7"))
         
+        s = """
+            class d():
+                class a():
+                    pass"""
+        self.failIf(self.find_binding("a", s))
+        
     def test_for(self):
         self.failUnless(self.find_binding("a", "for a in r: pass"))
         self.failUnless(self.find_binding("a", "for a, b in r: pass"))
@@ -176,14 +188,266 @@ class Test_find_binding(support.TestCase):
         self.failUnless(self.find_binding("a", "for c, (a,) in r: pass"))
         self.failUnless(self.find_binding("a", "for c, (a, b) in r: pass"))
         self.failUnless(self.find_binding("a", "for c in r: a = c"))
+        self.failIf(self.find_binding("a", "for c in a: pass"))
+        
+    def test_for_nested(self):
+        s = """
+            for b in r:
+                for a in b:
+                    pass"""
+        self.failUnless(self.find_binding("a", s))
+        
+        s = """
+            for b in r:
+                for a, c in b:
+                    pass"""
+        self.failUnless(self.find_binding("a", s))
+        
+        s = """
+            for b in r:
+                for (a, c) in b:
+                    pass"""
+        self.failUnless(self.find_binding("a", s))
+        
+        s = """
+            for b in r:
+                for (a,) in b:
+                    pass"""
+        self.failUnless(self.find_binding("a", s))
+        
+        s = """
+            for b in r:
+                for c, (a, d) in b:
+                    pass"""
+        self.failUnless(self.find_binding("a", s))
+        
+        s = """
+            for b in r:
+                for c in b:
+                    a = 7"""
+        self.failUnless(self.find_binding("a", s))
+        
+        s = """
+            for b in r:
+                for c in b:
+                    d = a"""
+        self.failIf(self.find_binding("a", s))
+        
+        s = """
+            for b in r:
+                for c in a:
+                    d = 7"""
+        self.failIf(self.find_binding("a", s))
         
     def test_if(self):
         self.failUnless(self.find_binding("a", "if b in r: a = c"))
         self.failIf(self.find_binding("a", "if a in r: d = e"))
+    
+    def test_if_nested(self):
+        s = """
+            if b in r:
+                if c in d:
+                    a = c"""
+        self.failUnless(self.find_binding("a", s))
+        
+        s = """
+            if b in r:
+                if c in d:
+                    c = a"""
+        self.failIf(self.find_binding("a", s))
         
     def test_while(self):
         self.failUnless(self.find_binding("a", "while b in r: a = c"))
         self.failIf(self.find_binding("a", "while a in r: d = e"))
+    
+    def test_while_nested(self):
+        s = """
+            while b in r:
+                while c in d:
+                    a = c"""
+        self.failUnless(self.find_binding("a", s))
+        
+        s = """
+            while b in r:
+                while c in d:
+                    c = a"""
+        self.failIf(self.find_binding("a", s))
+        
+    def test_try_except(self):
+        s = """
+            try:
+                a = 6
+            except:
+                b = 8"""
+        self.failUnless(self.find_binding("a", s))
+        
+        s = """
+            try:
+                b = 8
+            except:
+                a = 6"""
+        self.failUnless(self.find_binding("a", s))
+        
+        s = """
+            try:
+                b = 8
+            except KeyError:
+                pass
+            except:
+                a = 6"""
+        self.failUnless(self.find_binding("a", s))
+        
+        s = """
+            try:
+                b = 8
+            except:
+                b = 6"""
+        self.failIf(self.find_binding("a", s))
+        
+    def test_try_except_nested(self):
+        s = """
+            try:
+                try:
+                    a = 6
+                except:
+                    pass
+            except:
+                b = 8"""
+        self.failUnless(self.find_binding("a", s))
+        
+        s = """
+            try:
+                b = 8
+            except:
+                try:
+                    a = 6
+                except:
+                    pass"""
+        self.failUnless(self.find_binding("a", s))
+        
+        s = """
+            try:
+                b = 8
+            except:
+                try:
+                    pass
+                except:
+                    a = 6"""
+        self.failUnless(self.find_binding("a", s))
+        
+        s = """
+            try:
+                try:
+                    b = 8
+                except KeyError:
+                    pass
+                except:
+                    a = 6
+            except:
+                pass"""
+        self.failUnless(self.find_binding("a", s))
+        
+        s = """
+            try:
+                pass
+            except:
+                try:
+                    b = 8
+                except KeyError:
+                    pass
+                except:
+                    a = 6"""
+        self.failUnless(self.find_binding("a", s))
+        
+        s = """
+            try:
+                b = 8
+            except:
+                b = 6"""
+        self.failIf(self.find_binding("a", s))
+        
+        s = """
+            try:
+                try:
+                    b = 8
+                except:
+                    c = d
+            except:
+                try:
+                    b = 6
+                except:
+                    t = 8
+                except:
+                    o = y"""
+        self.failIf(self.find_binding("a", s))
+        
+    def test_try_except_finally(self):
+        s = """
+            try:
+                c = 6
+            except:
+                b = 8
+            finally:
+                a = 9"""
+        self.failUnless(self.find_binding("a", s))
+        
+        s = """
+            try:
+                b = 8
+            finally:
+                a = 6"""
+        self.failUnless(self.find_binding("a", s))
+        
+        s = """
+            try:
+                b = 8
+            finally:
+                b = 6"""
+        self.failIf(self.find_binding("a", s))
+        
+        s = """
+            try:
+                b = 8
+            except:
+                b = 9
+            finally:
+                b = 6"""
+        self.failIf(self.find_binding("a", s))
+        
+    def test_try_except_finally_nested(self):
+        s = """
+            try:
+                c = 6
+            except:
+                b = 8
+            finally:
+                try:
+                    a = 9
+                except:
+                    b = 9
+                finally:
+                    c = 9"""
+        self.failUnless(self.find_binding("a", s))
+        
+        s = """
+            try:
+                b = 8
+            finally:
+                try:
+                    pass
+                finally:
+                    a = 6"""
+        self.failUnless(self.find_binding("a", s))
+        
+        s = """
+            try:
+                b = 8
+            finally:
+                try:
+                    b = 6
+                finally:
+                    b = 7"""
+        self.failIf(self.find_binding("a", s))
         
 
 if __name__ == "__main__":

@@ -117,17 +117,38 @@ except NameError:
 ### The following functions are to find bindings in a suite
 ###########################################################
 
+def make_suite(node):
+    if node.type == syms.suite:
+        return node
+    node = node.clone()
+    parent, node.parent = node.parent, None
+    suite = Node(syms.suite, [node])
+    suite.parent = parent
+    return suite
+
 _def_syms = set([syms.classdef, syms.funcdef])
 def find_binding(name, node):
     for child in node.children:
         if child.type == syms.for_stmt:
             if _find(name, child.children[1]):
                 return child
-            elif _find(name, child.children[-1]):
-                return child
+            n = find_binding(name, make_suite(child.children[-1]))
+            if n:
+                return n
         elif child.type in (syms.if_stmt, syms.while_stmt):
-            if _find(name, child.children[-1]):
-                return child
+            n = find_binding(name, make_suite(child.children[-1]))
+            if n:
+                return n
+        elif child.type == syms.try_stmt:
+            n = find_binding(name, make_suite(child.children[2]))
+            if n:
+                return n
+            for i, kid in enumerate(child.children[3:]):
+                if kid.type == token.COLON and kid.value == ":":
+                    # i+3 is the colon, i+4 is the suite
+                    n = find_binding(name, make_suite(child.children[i+4]))
+                    if n:
+                        return n
         elif child.type in _def_syms and child.children[1].value == name:
             return child
         elif _is_import_binding(child, name):
