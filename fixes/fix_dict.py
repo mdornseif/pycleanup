@@ -26,7 +26,7 @@ import pytree
 import patcomp
 from pgen2 import token
 from fixes import basefix
-from fixes.util import Name, Call, lparen_leaf, rparen_leaf
+from fixes.util import Name, Call, LParen, RParen
 
 class FixDict(basefix.BaseFix):
 
@@ -55,9 +55,7 @@ class FixDict(basefix.BaseFix):
     args = head + [pytree.Node(syms.trailer,
                                [pytree.Leaf(token.DOT, '.'),
                                 Name(method)]),
-                   pytree.Node(syms.trailer,
-                               [lparen_leaf.clone(),
-                                rparen_leaf.clone()])]
+                   pytree.Node(syms.trailer, [LParen(), RParen()])]
     new = pytree.Node(syms.power, args)
     if not special:
       new.set_prefix("")

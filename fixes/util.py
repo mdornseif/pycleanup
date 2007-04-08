@@ -11,13 +11,15 @@ from pygram import python_symbols as syms
 ass_leaf = Leaf(token.EQUAL, "=")
 ass_leaf.set_prefix(" ")
 
-comma_leaf = Leaf(token.COMMA, ",")
-lparen_leaf = Leaf(token.LPAR, "(")
-rparen_leaf = Leaf(token.RPAR, ")")
-
 ###########################################################
 ### Common node-construction "macros"
 ###########################################################
+
+def LParen():
+    return Leaf(token.LPAR, "(")
+    
+def RParen():
+    return Leaf(token.RPAR, ")")
 
 def Assign(target, source):
     """Build an assignment statement"""
@@ -41,9 +43,9 @@ def Attr(obj, attr):
 
 def Comma():
     """A comma leaf"""
-    return comma_leaf.clone()
+    return Leaf(token.COMMA, ",")
 
-def ArgList(args, lparen=lparen_leaf, rparen=rparen_leaf):
+def ArgList(args, lparen=LParen(), rparen=RParen()):
     """A parenthesised argument list, used by Call()"""
     return Node(syms.trailer,
                 [lparen.clone(),
