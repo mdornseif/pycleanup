@@ -177,6 +177,36 @@ class TestNodes(support.TestCase):
             self.assertEqual(n1.get_prefix(), prefix)
             self.assertEqual(l1.get_prefix(), prefix)
             self.assertEqual(l2.get_prefix(), "_")
+            
+    def testRemove(self):
+        l1 = pytree.Leaf(100, "foo")
+        n1 = pytree.Node(1000, [l1])
+        n2 = pytree.Node(1000, [n1])
+        
+        n1.remove()
+        self.failIf(n2 in n2.children)
+        self.assertEqual(l1.parent, n1)
+        self.assertEqual(n1.parent, None)
+        self.assertEqual(n2.parent, None)
+        self.failIf(n1.was_changed)
+        self.failUnless(n2.was_changed)
+        
+        l1.remove()
+        self.failIf(l1 in n1.children)
+        self.assertEqual(l1.parent, None)
+        self.assertEqual(n1.parent, None)
+        self.assertEqual(n2.parent, None)
+        self.failUnless(n1.was_changed)
+        self.failUnless(n2.was_changed)
+            
+    def testRemoveParentless(self):
+        n1 = pytree.Node(1000, [])
+        n1.remove()
+        self.assertEqual(n1.parent, None)
+        
+        l1 = pytree.Leaf(100, "foo")
+        l1.remove()
+        self.assertEqual(l1.parent, None)
 
 
 class TestPatterns(support.TestCase):

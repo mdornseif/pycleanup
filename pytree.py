@@ -131,6 +131,18 @@ class Base(object):
         if self.parent:
             self.parent.changed()
         self.was_changed = True
+        
+    def remove(self):
+        """Remove the node from the tree."""
+        if self.parent:
+            children = list(self.parent.children)
+            for i, node in enumerate(self.parent.children):
+                if node is self:
+                    self.parent.changed()
+                    del children[i]
+                    self.parent.children = tuple(children)
+                    self.parent = None
+                    break
 
 
 class Node(Base):
