@@ -180,18 +180,20 @@ class TestNodes(support.TestCase):
             
     def testRemove(self):
         l1 = pytree.Leaf(100, "foo")
-        n1 = pytree.Node(1000, [l1])
+        l2 = pytree.Leaf(100, "foo")
+        n1 = pytree.Node(1000, [l1, l2])
         n2 = pytree.Node(1000, [n1])
-        
-        n1.remove()
-        self.failIf(n2 in n2.children)
+
+        self.assertEqual(n1.remove(), 0)
+        self.failIf(n1 in n2.children)
         self.assertEqual(l1.parent, n1)
         self.assertEqual(n1.parent, None)
         self.assertEqual(n2.parent, None)
         self.failIf(n1.was_changed)
         self.failUnless(n2.was_changed)
-        
-        l1.remove()
+
+        self.assertEqual(l2.remove(), 1)
+        self.assertEqual(l1.remove(), 0)
         self.failIf(l1 in n1.children)
         self.assertEqual(l1.parent, None)
         self.assertEqual(n1.parent, None)
