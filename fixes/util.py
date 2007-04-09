@@ -23,13 +23,13 @@ def RParen():
 
 def Assign(target, source):
     """Build an assignment statement"""
-    if not isinstance(target, tuple):
-        target = (target,)
-    if not isinstance(source, tuple):
+    if not isinstance(target, list):
+        target = [target]
+    if not isinstance(source, list):
         source.set_prefix(" ")
-        source = (source,)
+        source = [source]
 
-    return Node(syms.atom, target + (ass_leaf.clone(),) + source)
+    return Node(syms.atom, target + [ass_leaf.clone()] + source)
 
 def Name(name, prefix=None):
     """Return a NAME leaf"""
@@ -37,9 +37,8 @@ def Name(name, prefix=None):
 
 def Attr(obj, attr):
     """A node tuple for obj.attr"""
-    return (obj,
-            Node(syms.trailer, [Leaf(token.DOT, '.'),
-                                attr]))
+    return [obj,
+            Node(syms.trailer, [Leaf(token.DOT, '.'), attr])]
 
 def Comma():
     """A comma leaf"""
@@ -157,9 +156,8 @@ def find_binding(name, node):
             return child
         elif child.type == syms.simple_stmt:
             if child.children[0].type == syms.expr_stmt:
-                n = _find(name, child.children[0].children[0])
-                if n:
-                    return n
+                if _find(name, child.children[0].children[0]):
+                    return child.children[0]
 
 _block_syms = set([syms.funcdef, syms.classdef, syms.trailer])
 def _find(name, node):

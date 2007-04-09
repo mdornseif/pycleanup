@@ -75,14 +75,14 @@ class TestNodes(support.TestCase):
         l2 = pytree.Leaf(200, "bar")
         n1 = pytree.Node(1000, [l1, l2])
         self.assertEqual(n1.type, 1000)
-        self.assertEqual(n1.children, (l1, l2))
+        self.assertEqual(n1.children, [l1, l2])
 
     def testNodeRepr(self):
         l1 = pytree.Leaf(100, "foo")
         l2 = pytree.Leaf(100, "bar", context=(" ", (1, 0)))
         n1 = pytree.Node(1000, [l1, l2])
         self.assertEqual(repr(n1),
-                         "Node(1000, (%s, %s))" % (repr(l1), repr(l2)))
+                         "Node(1000, [%s, %s])" % (repr(l1), repr(l2)))
 
     def testNodeStr(self):
         l1 = pytree.Leaf(100, "foo")
@@ -121,7 +121,7 @@ class TestNodes(support.TestCase):
         l2 = pytree.Leaf(100, "+")
         l3 = pytree.Leaf(100, "bar")
         n1 = pytree.Node(1000, [l1, l2, l3])
-        self.assertEqual(n1.children, (l1, l2, l3))
+        self.assertEqual(n1.children, [l1, l2, l3])
         self.failIf(n1.was_changed)
         l2new = pytree.Leaf(100, "-")
         l2.replace(l2new)
@@ -271,12 +271,12 @@ class TestPatterns(support.TestCase):
         self.assertEqual(sorted(r.keys()), ["pl", "pn", "pw"])
         self.assertEqual(r["pl"], l1)
         self.assertEqual(r["pn"], n2)
-        self.assertEqual(r["pw"], (n2,))
+        self.assertEqual(r["pw"], [n2])
         # But this is equivalent
-        self.assertEqual(r, {"pl": l1, "pn": n2, "pw": (n2,)})
+        self.assertEqual(r, {"pl": l1, "pn": n2, "pw": [n2]})
         r = {}
         self.assertEqual(pw.match_seq([l1, l3], r), True)
-        self.assertEqual(r, {"pl": l3, "pw": (l1, l3)})
+        self.assertEqual(r, {"pl": l3, "pw": [l1, l3]})
         self.assert_(r["pl"] is l3)
         r = {}
 
@@ -306,7 +306,7 @@ class TestPatterns(support.TestCase):
         c, r = matches[0]
         self.assertEqual(c, 1)
         self.assertEqual(str(r["pr"]), "abcdef")
-        self.assertEqual(r["pw"], (la, lb, lc, ld, le, lf))
+        self.assertEqual(r["pw"], [la, lb, lc, ld, le, lf])
         for c in "abcdef":
             self.assertEqual(r["p" + c], pytree.Leaf(1, c))
 
@@ -318,10 +318,10 @@ class TestPatterns(support.TestCase):
         l1 = pytree.Leaf(7, "(")
         l2 = pytree.Leaf(3, "x")
         l3 = pytree.Leaf(8, ")")
-        node = pytree.Node(331, (l1, l2, l3))
+        node = pytree.Node(331, [l1, l2, l3])
         r = {}
         self.assert_(pattern.match(node, r))
-        self.assertEqual(r["args"], (l2,))
+        self.assertEqual(r["args"], [l2])
 
 
 if __name__ == "__main__":

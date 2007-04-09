@@ -159,7 +159,7 @@ class Node(Base):
         """
         assert type >= 256, type
         self.type = type
-        self.children = tuple(children)
+        self.children = list(children)
         for ch in self.children:
             assert ch.parent is None, repr(ch)
             ch.parent = self
@@ -435,7 +435,7 @@ class NodePattern(BasePattern):
             assert content is None, repr(content)
         if content is not None:
             assert not isinstance(content, basestring), repr(content)
-            content = tuple(content)
+            content = list(content)
             for i, item in enumerate(content):
                 assert isinstance(item, BasePattern), (i, item)
                 if isinstance(item, WildcardPattern):
@@ -548,7 +548,7 @@ class WildcardPattern(BasePattern):
                 if results is not None:
                     results.update(r)
                     if self.name:
-                        results[self.name] = tuple(nodes)
+                        results[self.name] = list(nodes)
                 return True
         return False
 

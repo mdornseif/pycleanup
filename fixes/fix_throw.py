@@ -52,9 +52,7 @@ class FixThrow(basefix.BaseFix):
             tb.set_prefix("")
             
             e = Call(exc, args)
-            with_tb = Attr(e, Name('with_traceback'))
-            call_wtb = list(with_tb + (ArgList([tb]),))
-            
-            throw_args.replace(pytree.Node(syms.power, call_wtb))
+            with_tb = Attr(e, Name('with_traceback')) + [ArgList([tb])]
+            throw_args.replace(pytree.Node(syms.power, with_tb))
         else:
             throw_args.replace(Call(exc, args))

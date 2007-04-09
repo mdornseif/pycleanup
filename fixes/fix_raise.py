@@ -73,10 +73,8 @@ class FixRaise(basefix.BaseFix):
             tb.set_prefix("")
             
             e = Call(exc, args)
-            with_tb = Attr(e, Name('with_traceback'))
-            call_wtb = list(with_tb + (ArgList([tb]),))            
-
-            new = pytree.Node(syms.simple_stmt, [Name("raise")] + call_wtb)
+            with_tb = Attr(e, Name('with_traceback')) + [ArgList([tb])]
+            new = pytree.Node(syms.simple_stmt, [Name("raise")] + with_tb)
             new.set_prefix(node.get_prefix())
             return new
         else:

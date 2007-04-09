@@ -71,7 +71,7 @@ class Test_Attr(MacroTestCase):
         from fixes.util import Attr, Name
         
         attr = Attr(Name("a"), Name("b"))
-        self.assertEqual(type(attr), tuple)
+        self.assertEqual(type(attr), list)
 
         
 class Test_Name(MacroTestCase):
