@@ -209,6 +209,25 @@ class Node(Base):
         if not self.children:
             return ""
         return self.children[0].get_prefix()
+        
+    def set_child(self, i, child):
+        """Equivalent to 'node.children[i] = child'. This method also sets the
+        child's parent attribute appropriately."""
+        child.parent = self
+        self.children[i].parent = None
+        self.children[i] = child
+        
+    def insert_child(self, i, child):
+        """Equivalent to 'node.children.insert(i, child)'. This method also
+        sets the child's parent attribute appropriately."""
+        child.parent = self
+        self.children.insert(i, child)
+        
+    def append_child(self, child):
+        """Equivalent to 'node.children.append(child)'. This method also
+        sets the child's parent attribute appropriately."""
+        child.parent = self
+        self.children.append(child)
 
 
 class Leaf(Base):

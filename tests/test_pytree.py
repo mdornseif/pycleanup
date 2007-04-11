@@ -209,6 +209,59 @@ class TestNodes(support.TestCase):
         l1 = pytree.Leaf(100, "foo")
         l1.remove()
         self.assertEqual(l1.parent, None)
+        
+    def testNodeSetChild(self):
+        l1 = pytree.Leaf(100, "foo")
+        n1 = pytree.Node(1000, [l1])
+        
+        l2 = pytree.Leaf(100, "bar")
+        n1.set_child(0, l2)
+        self.assertEqual(l1.parent, None)
+        self.assertEqual(l2.parent, n1)
+        self.assertEqual(n1.children, [l2])
+        
+        n2 = pytree.Node(1000, [l1])
+        n2.set_child(0, n1)
+        self.assertEqual(l1.parent, None)
+        self.assertEqual(n1.parent, n2)
+        self.assertEqual(n2.parent, None)
+        self.assertEqual(n2.children, [n1])
+        
+        self.assertRaises(IndexError, n1.set_child, 4, l2)
+        # I don't care what it raises, so long as it's an exception
+        self.assertRaises(Exception, n1.set_child, 0, list)
+        
+    def testNodeInsertChild(self):
+        l1 = pytree.Leaf(100, "foo")
+        n1 = pytree.Node(1000, [l1])
+        
+        l2 = pytree.Leaf(100, "bar")
+        n1.insert_child(0, l2)
+        self.assertEqual(l2.parent, n1)
+        self.assertEqual(n1.children, [l2, l1])
+        
+        l3 = pytree.Leaf(100, "abc")
+        n1.insert_child(2, l3)
+        self.assertEqual(n1.children, [l2, l1, l3])
+        
+        # I don't care what it raises, so long as it's an exception
+        self.assertRaises(Exception, n1.insert_child, 0, list)
+        
+    def testNodeAppendChild(self):
+        n1 = pytree.Node(1000, [])
+        
+        l1 = pytree.Leaf(100, "foo")
+        n1.append_child(l1)
+        self.assertEqual(l1.parent, n1)
+        self.assertEqual(n1.children, [l1])
+        
+        l2 = pytree.Leaf(100, "bar")
+        n1.append_child(l2)
+        self.assertEqual(l2.parent, n1)
+        self.assertEqual(n1.children, [l1, l2])
+        
+        # I don't care what it raises, so long as it's an exception
+        self.assertRaises(Exception, n1.append_child, list)
 
 
 class TestPatterns(support.TestCase):
