@@ -15,6 +15,10 @@ ass_leaf.set_prefix(" ")
 ### Common node-construction "macros"
 ###########################################################
 
+def KeywordArg(keyword, value):
+    return Node(syms.argument,
+                [keyword, Leaf(token.EQUAL, '='), value])
+
 def LParen():
     return Leaf(token.LPAR, "(")
     
