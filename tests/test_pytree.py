@@ -185,7 +185,7 @@ class TestNodes(support.TestCase):
         n2 = pytree.Node(1000, [n1])
 
         self.assertEqual(n1.remove(), 0)
-        self.failIf(n1 in n2.children)
+        self.assertEqual(n2.children, [])
         self.assertEqual(l1.parent, n1)
         self.assertEqual(n1.parent, None)
         self.assertEqual(n2.parent, None)
@@ -194,7 +194,7 @@ class TestNodes(support.TestCase):
 
         self.assertEqual(l2.remove(), 1)
         self.assertEqual(l1.remove(), 0)
-        self.failIf(l1 in n1.children)
+        self.assertEqual(n1.children, [])
         self.assertEqual(l1.parent, None)
         self.assertEqual(n1.parent, None)
         self.assertEqual(n2.parent, None)
