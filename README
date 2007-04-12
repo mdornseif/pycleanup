@@ -162,8 +162,16 @@ Licensing
 
 The original pgen2 module is copyrighted by Elemental Security.  All
 new code I wrote specifically for this tool is copyrighted by Google.
-New code by others (notably Collin Winter) is copyrighted by the
-respective authors.  All code (whether by me or by others) is licensed
-to the PSF under a contributor agreement.
+New code by others is copyrighted by the respective authors.  All code
+(whether by me or by others) is licensed to the PSF under a contributor
+agreement.
 
 --Guido van Rossum
+
+
+All code I wrote specifically for this tool before 9 April 2007 is
+copyrighted by me. All new code I wrote specifically for this tool after
+9 April 2007 is copyrighted by Google. Regardless, my contributions are
+licensed to the PSF under a contributor agreement.
+
+--Collin Winter
