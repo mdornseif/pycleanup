@@ -28,9 +28,9 @@ def main():
     fn = "example.py"
     tree = dr.parse_file(fn, debug=True)
     if not diff(fn, tree):
-      print "No diffs."
+        print "No diffs."
     if not sys.argv[1:]:
-      return # Pass a dummy argument to run the complete test suite below
+        return # Pass a dummy argument to run the complete test suite below
 
     problems = []
 
