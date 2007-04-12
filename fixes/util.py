@@ -117,6 +117,12 @@ try:
     set = set
 except NameError:
     from sets import Set as set
+    
+try:
+    reversed = reversed
+except NameError:
+    def reversed(l):
+        return l[::-1]
 
 ###########################################################
 ### The following functions are to find bindings in a suite
