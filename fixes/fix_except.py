@@ -25,7 +25,7 @@ The following cases will be converted:
 import pytree
 from pgen2 import token
 from fixes import basefix
-from fixes.util import Assign, Attr, Name, is_tuple, is_list
+from fixes.util import Assign, Attr, Name, is_tuple, is_list, reversed
 
 def find_excepts(nodes):
     for i, n in enumerate(nodes):
@@ -76,9 +76,10 @@ class FixExcept(basefix.BaseFix):
                     else:
                         assign = Assign(target, new_N)
 
-                    assign.parent = e_suite
-                    suite_stmts = suite_stmts[:i] + [assign] + suite_stmts
-                    e_suite.children = suite_stmts
+                    #XXX(cwinter) stopgap until children becomes a smart list
+                    for child in reversed(suite_stmts[:i]):
+                        e_suite.insert_child(0, child)
+                    e_suite.insert_child(i, assign)
 
         children = [c.clone() for c in node.children[:3]] + try_cleanup
         return pytree.Node(node.type, children)
