@@ -88,11 +88,9 @@ class FixTupleParams(basefix.BaseFix):
             new_lines[0].set_prefix(indent)
             after = start + 1
             
-        children = list(suite[0].children)    
-        children[after:after] = new_lines
+        suite[0].children[after:after] = new_lines
         for i in range(after+1, after+len(new_lines)+1):
-            children[i].set_prefix(indent)
-        suite[0].children = tuple(children)
+            suite[0].children[i].set_prefix(indent)
         suite[0].changed()
         
     def transform_lambda(self, node):
