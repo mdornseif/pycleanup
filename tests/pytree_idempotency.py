@@ -6,15 +6,18 @@
 
 __author__ = "Guido van Rossum <guido@python.org>"
 
+# Support imports (need to be imported first)
+import support
+
 # Python imports
 import os
 import sys
 import logging
 
+# Local imports
+import pytree
 import pgen2
 from pgen2 import driver
-
-import pytree
 
 logging.basicConfig()
 
