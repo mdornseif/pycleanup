@@ -150,6 +150,13 @@ Notes
         it while at Google to suit the needs of this refactoring tool.
 
 
+Development
+===========
+
+The HACKING file has a list of TODOs -- some simple, some complex -- that
+would make good introductions for anyone new to 2to3.
+
+
 Licensing
 =========
 
