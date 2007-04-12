@@ -2,7 +2,6 @@
 # Author: Collin Winter
 
 # Local imports
-from pgen2 import token
 from pytree import Leaf
 from fixes import basefix
 

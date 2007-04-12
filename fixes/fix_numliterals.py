@@ -5,7 +5,6 @@
 # Licensed to PSF under a Contributor Agreement.
 
 # Local imports
-import pytree
 from pgen2 import token
 from fixes import basefix
 from fixes.util import Number, set

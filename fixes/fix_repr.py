@@ -4,7 +4,6 @@
 """Fixer that transforms `xyzzy` into repr(xyzzy)."""
 
 # Local imports
-import pytree
 from fixes import basefix
 from fixes.util import Call, Name
 

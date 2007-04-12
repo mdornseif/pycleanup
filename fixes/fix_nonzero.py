@@ -2,8 +2,6 @@
 # Author: Collin Winter
 
 # Local imports
-import pytree
-from pgen2 import token
 from fixes import basefix
 from fixes.util import Name, syms
 

@@ -8,7 +8,6 @@ This also strips the trailing 'L' or 'l' from long loterals.
 
 # Local imports
 import pytree
-from pgen2 import token
 from fixes import basefix
 from fixes.util import Name, Number
 
