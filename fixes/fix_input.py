@@ -2,9 +2,6 @@
 # Author: Andre Roberge
 
 # Local imports
-import pytree
-import patcomp
-from pgen2 import token
 from fixes import basefix
 from fixes.util import Call, Name
 
