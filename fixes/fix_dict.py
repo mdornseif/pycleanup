@@ -29,65 +29,64 @@ from fixes import basefix
 from fixes.util import Name, Call, LParen, RParen
 
 class FixDict(basefix.BaseFix):
-
-  PATTERN = """
-  power< head=any+
+    PATTERN = """
+    power< head=any+
          trailer< '.' method=('keys'|'items'|'values'|
                               'iterkeys'|'iteritems'|'itervalues') >
          trailer< '(' ')' >
          tail=any*
-  >
-  """
+    >
+    """
 
-  def transform(self, node):
-    results = self.match(node)
-    head = results["head"]
-    method = results["method"][0].value # Extract method name
-    tail = results["tail"]
-    syms = self.syms
-    isiter = method.startswith("iter")
-    if isiter:
-      method = method[4:]
-    assert method in ("keys", "items", "values"), repr(method)
-    head = [n.clone() for n in head]
-    tail = [n.clone() for n in tail]
-    special = not tail and self.in_special_context(node, isiter)
-    args = head + [pytree.Node(syms.trailer,
-                               [pytree.Leaf(token.DOT, '.'),
-                                Name(method)]),
-                   pytree.Node(syms.trailer, [LParen(), RParen()])]
-    new = pytree.Node(syms.power, args)
-    if not special:
-      new.set_prefix("")
-      new = Call(Name(isiter and "iter" or "list"), [new])
-    if tail:
-      new = pytree.Node(syms.power, [new] + tail)
-    new.set_prefix(node.get_prefix())
-    return new
+    def transform(self, node):
+        results = self.match(node)
+        head = results["head"]
+        method = results["method"][0].value # Extract method name
+        tail = results["tail"]
+        syms = self.syms
+        isiter = method.startswith("iter")
+        if isiter:
+            method = method[4:]
+        assert method in ("keys", "items", "values"), repr(method)
+        head = [n.clone() for n in head]
+        tail = [n.clone() for n in tail]
+        special = not tail and self.in_special_context(node, isiter)
+        args = head + [pytree.Node(syms.trailer,
+                                   [pytree.Leaf(token.DOT, '.'),
+                                    Name(method)]),
+                       pytree.Node(syms.trailer, [LParen(), RParen()])]
+        new = pytree.Node(syms.power, args)
+        if not special:
+            new.set_prefix("")
+            new = Call(Name(isiter and "iter" or "list"), [new])
+        if tail:
+            new = pytree.Node(syms.power, [new] + tail)
+        new.set_prefix(node.get_prefix())
+        return new
 
-  P1 = "power< func=NAME trailer< '(' node=any ')' > any* >"
-  p1 = patcomp.PatternCompiler().compile_pattern(P1)
+    P1 = "power< func=NAME trailer< '(' node=any ')' > any* >"
+    p1 = patcomp.PatternCompiler().compile_pattern(P1)
 
-  P2 = """for_stmt< 'for' any 'in' node=any ':' any* >
-        | list_for< 'for' any 'in' node=any any* >
-        | gen_for< 'for' any 'in' node=any any* >
-       """
-  p2 = patcomp.PatternCompiler().compile_pattern(P2)
+    P2 = """for_stmt< 'for' any 'in' node=any ':' any* >
+            | list_for< 'for' any 'in' node=any any* >
+            | gen_for< 'for' any 'in' node=any any* >
+         """
+    p2 = patcomp.PatternCompiler().compile_pattern(P2)
 
-  def in_special_context(self, node, isiter):
-    if node.parent is None:
-      return False
-    results = {}
-    if  (node.parent.parent is not None and
-         self.p1.match(node.parent.parent, results) and
-         results["node"] is node):
-      if isiter:
-        # iter(d.iterkeys()) -> iter(d.keys()), etc.
-        return results["func"].value in ("iter", "list", "sorted")
-      else:
-        # list(d.keys()) -> list(d.keys()), etc.
-        return results["func"].value in ("list", "sorted")
-    if not isiter:
-      return False
-    # for ... in d.iterkeys() -> for ... in d.keys(), etc.
-    return self.p2.match(node.parent, results) and results["node"] is node
+    def in_special_context(self, node, isiter):
+        if node.parent is None:
+            return False
+        results = {}
+        if (node.parent.parent is not None and
+               self.p1.match(node.parent.parent, results) and
+               results["node"] is node):
+            if isiter:
+                # iter(d.iterkeys()) -> iter(d.keys()), etc.
+                return results["func"].value in ("iter", "list", "sorted")
+            else:
+                # list(d.keys()) -> list(d.keys()), etc.
+                return results["func"].value in ("list", "sorted")
+        if not isiter:
+            return False
+        # for ... in d.iterkeys() -> for ... in d.keys(), etc.
+        return self.p2.match(node.parent, results) and results["node"] is node
