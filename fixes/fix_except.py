@@ -33,10 +33,6 @@ def find_excepts(nodes):
             if n.children[0].value == 'except':
                 yield (n, nodes[i+2])
 
-### Common across all transforms
-as_leaf = pytree.Leaf(token.NAME, "as")
-as_leaf.set_prefix(" ")
-
 class FixExcept(basefix.BaseFix):
 
     PATTERN = """
@@ -55,7 +51,8 @@ class FixExcept(basefix.BaseFix):
         for except_clause, e_suite in find_excepts(try_cleanup):
             if len(except_clause.children) == 4:
                 (E, comma, N) = except_clause.children[1:4]
-                comma.replace(as_leaf.clone())
+                comma.replace(Name("as", prefix=" "))
+
                 if N.type != token.NAME:
                     # Generate a new N for the except clause
                     new_N = Name(self.new_name(), prefix=" ")
