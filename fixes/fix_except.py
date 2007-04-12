@@ -64,6 +64,7 @@ class FixExcept(basefix.BaseFix):
                     # Insert "old_N = new_N" as the first statement in
                     #  the except body. This loop skips leading whitespace
                     #  and indents
+                    #TODO(cwinter) suite-cleanup
                     suite_stmts = e_suite.children
                     for i, stmt in enumerate(suite_stmts):
                         if isinstance(stmt, pytree.Node):
@@ -76,10 +77,11 @@ class FixExcept(basefix.BaseFix):
                     else:
                         assign = Assign(target, new_N)
 
-                    #XXX(cwinter) stopgap until children becomes a smart list
+                    #TODO(cwinter) stopgap until children becomes a smart list
                     for child in reversed(suite_stmts[:i]):
                         e_suite.insert_child(0, child)
                     e_suite.insert_child(i, assign)
 
+        #TODO(cwinter) fix this when children becomes a smart list
         children = [c.clone() for c in node.children[:3]] + try_cleanup
         return pytree.Node(node.type, children)
