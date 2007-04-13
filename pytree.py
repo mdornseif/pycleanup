@@ -142,6 +142,21 @@ class Base(object):
                     del self.parent.children[i]
                     self.parent = None
                     return i
+                    
+    def get_next_sibling(self):
+        """Return the node immediately following the invocant in their
+        parent's children list. If the invocant does not have a next
+        sibling, return None."""
+        if self.parent is None:
+            return None
+        
+        # Can't use index(); we need to test by identity
+        for i, sibling in enumerate(self.parent.children):
+            if sibling is self:
+                try:
+                    return self.parent.children[i+1]
+                except IndexError:
+                    return None
 
 
 class Node(Base):

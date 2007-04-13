@@ -262,6 +262,24 @@ class TestNodes(support.TestCase):
         
         # I don't care what it raises, so long as it's an exception
         self.assertRaises(Exception, n1.append_child, list)
+        
+    def testNodeNextSibling(self):
+        n1 = pytree.Node(1000, [])
+        n2 = pytree.Node(1000, [])
+        p1 = pytree.Node(1000, [n1, n2])
+        
+        self.failUnless(n1.get_next_sibling() is n2)
+        self.assertEqual(n2.get_next_sibling(), None)
+        self.assertEqual(p1.get_next_sibling(), None)
+        
+    def testLeafNextSibling(self):
+        l1 = pytree.Leaf(100, "a")
+        l2 = pytree.Leaf(100, "b")
+        p1 = pytree.Node(1000, [l1, l2])
+        
+        self.failUnless(l1.get_next_sibling() is l2)
+        self.assertEqual(l2.get_next_sibling(), None)
+        self.assertEqual(p1.get_next_sibling(), None)
 
 
 class TestPatterns(support.TestCase):
