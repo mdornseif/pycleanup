@@ -99,6 +99,22 @@ class TestNodes(support.TestCase):
         self.assertEqual(n1.get_prefix(), " ")
         self.assertEqual(l1.get_prefix(), " ")
 
+    def testGetSuffix(self):
+        l1 = pytree.Leaf(100, "foo", prefix="a")
+        l2 = pytree.Leaf(100, "bar", prefix="b")
+        n1 = pytree.Node(1000, [l1, l2])
+        
+        self.assertEqual(l1.get_suffix(), l2.get_prefix())
+        self.assertEqual(l2.get_suffix(), "")
+        self.assertEqual(n1.get_suffix(), "")
+        
+        l3 = pytree.Leaf(100, "bar", prefix="c")
+        n2 = pytree.Node(1000, [n1, l3])
+
+        self.assertEqual(n1.get_suffix(), l3.get_prefix())
+        self.assertEqual(l3.get_suffix(), "")
+        self.assertEqual(n2.get_suffix(), "")
+
     def testNodeEq(self):
         n1 = pytree.Node(1000, ())
         n2 = pytree.Node(1000, [], context=(" ", (1, 0)))

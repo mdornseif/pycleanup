@@ -142,7 +142,7 @@ class Base(object):
                     del self.parent.children[i]
                     self.parent = None
                     return i
-                    
+
     def get_next_sibling(self):
         """Return the node immediately following the invocant in their
         parent's children list. If the invocant does not have a next
@@ -157,6 +157,14 @@ class Base(object):
                     return self.parent.children[i+1]
                 except IndexError:
                     return None
+                    
+    def get_suffix(self):
+        """Return the string immediately following the invocant node. This
+        is effectively equivalent to node.get_next_sibling().get_prefix()"""
+        next_sib = self.get_next_sibling()
+        if next_sib is None:
+            return ""
+        return next_sib.get_prefix()
 
 
 class Node(Base):
