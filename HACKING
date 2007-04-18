@@ -6,6 +6,11 @@ Tips/tricks/hints for writing new fixers:
     * If your fixer works by changing a node's children list or a leaf's
       value, be sure to call the node/leaf's changed() method. This to
       be sure refactor.py will recognize that the tree has changed.
+      
+    * If you're making changes to pgen2, tokenize or any other part of the
+      parsing system (sometimes even pytree), you might want to check out
+      the 'dummy' fixer. It doesn't make any changes to the file, so you
+      just see what the parser does.
 
 
 
