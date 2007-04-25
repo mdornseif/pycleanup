@@ -460,8 +460,9 @@ class NodePattern(BasePattern):
         """Initializer.  Takes optional type, content, and name.
 
         The type, if given, must be a symbol type (>= 256).  If the
-        type is None, the content must be None, and this matches *any*
-        single node (leaf or not).
+        type is None this matches *any* single node (leaf or not),
+        except if content is not None, in which it only matches
+        non-leaf nodes that also match the content pattern.
 
         The content, if not None, must be a sequence of Patterns that
         must match the node's children exactly.  If the content is
@@ -472,8 +473,6 @@ class NodePattern(BasePattern):
         """
         if type is not None:
             assert type >= 256, type
-        else:
-            assert content is None, repr(content)
         if content is not None:
             assert not isinstance(content, basestring), repr(content)
             content = list(content)

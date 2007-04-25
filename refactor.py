@@ -256,7 +256,8 @@ class RefactoringTool(object):
             for fixer in self.fixers:
                 if fixer.match(node):
                     new = fixer.transform(node)
-                    if new is not None and new != node:
+                    if new is not None and (new != node or
+                                            str(new) != str(node)):
                         node.replace(new)
                         changes += 1
                     elif tree.was_changed:

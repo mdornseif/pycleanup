@@ -65,6 +65,13 @@ def has_key_examples():
 def foo():
 	pass # body indented by tab
 
+def test_ws_comma():
+    yield 1,2 ,3
+    f(1,2 ,3)
+    `a ,b`
+    def f(a,b ,c): pass
+    { a:b,c:d , e : f }
+
 def apply_examples():
     x = apply(f, g + h)
     y = apply(f, g, h)
