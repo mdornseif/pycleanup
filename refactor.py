@@ -259,6 +259,7 @@ class RefactoringTool(object):
                     if new is not None and (new != node or
                                             str(new) != str(node)):
                         node.replace(new)
+                        node = new
                         changes += 1
                     elif tree.was_changed:
                         changes += 1
