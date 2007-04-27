@@ -14,20 +14,29 @@ from fixes.util import Name, Call, find_binding, any
 
 bind_warning = "Calls to builtin next() possibly shadowed by global binding"
 
+
 class DelayedStrNode(object):
+
     def __init__(self, type, base):
         self.parent = None
         self.shadowed_next = False
         self.base = base
         self.type = type
         self.value = ""
-        
+
     def __str__(self):
         b = "".join([str(n) for n in self.base])
         if self.shadowed_next:
             return "%s.__next__()" % b
         else:
             return "next(%s)" % b
+
+    def clone(self):
+        node = DelayedStrNode(self.type, self.base)
+        node.shadowed_next = self.shadowed_next
+        node.value = self.value
+        return node
+
 
 class FixNext(basefix.BaseFix):
     PATTERN = """
