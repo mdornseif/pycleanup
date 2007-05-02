@@ -30,6 +30,16 @@ None
 
 import sys
 
+def unicode_examples():
+    a = unicode(b)
+    a = u"xxx"
+    a = U"""xxx"""
+    a = ur'xxx'
+    a = UR'''xxx'''
+    a = Ur"xxx"
+    a = uR"""xxx"""
+    b = u"..." u'...'
+
 def ne_examples():
     if x <> y:
         pass
