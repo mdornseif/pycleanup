@@ -87,9 +87,9 @@ PlainToken = group(Number, Funny, String, Name)
 Token = Ignore + PlainToken
 
 # First (or only) line of ' or " string.
-ContStr = group(r"[uU]?[rR]?'[^\n'\\]*(?:\\.[^\n'\\]*)*" +
+ContStr = group(r"[uUbB]?[rR]?'[^\n'\\]*(?:\\.[^\n'\\]*)*" +
                 group("'", r'\\\r?\n'),
-                r'[uU]?[rR]?"[^\n"\\]*(?:\\.[^\n"\\]*)*' +
+                r'[uUbB]?[rR]?"[^\n"\\]*(?:\\.[^\n"\\]*)*' +
                 group('"', r'\\\r?\n'))
 PseudoExtras = group(r'\\\r?\n', Comment, Triple)
 PseudoToken = Whitespace + group(PseudoExtras, Number, Funny, ContStr, Name)
@@ -100,13 +100,21 @@ endprogs = {"'": re.compile(Single), '"': re.compile(Double),
             "'''": single3prog, '"""': double3prog,
             "r'''": single3prog, 'r"""': double3prog,
             "u'''": single3prog, 'u"""': double3prog,
+            "b'''": single3prog, 'b"""': double3prog,
             "ur'''": single3prog, 'ur"""': double3prog,
+            "br'''": single3prog, 'br"""': double3prog,
             "R'''": single3prog, 'R"""': double3prog,
             "U'''": single3prog, 'U"""': double3prog,
+            "B'''": single3prog, 'B"""': double3prog,
             "uR'''": single3prog, 'uR"""': double3prog,
             "Ur'''": single3prog, 'Ur"""': double3prog,
             "UR'''": single3prog, 'UR"""': double3prog,
-            'r': None, 'R': None, 'u': None, 'U': None}
+            "bR'''": single3prog, 'bR"""': double3prog,
+            "Br'''": single3prog, 'Br"""': double3prog,
+            "BR'''": single3prog, 'BR"""': double3prog,
+            'r': None, 'R': None,
+            'u': None, 'U': None,
+            'b': None, 'B': None}
 
 triple_quoted = {}
 for t in ("'''", '"""',
