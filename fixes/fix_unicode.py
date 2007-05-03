@@ -1,4 +1,4 @@
-"""Fixer that changes unicode to str and u"..." into "...".
+"""Fixer that changes unicode to str, unichr to chr, and u"..." into "...".
 
 """
 
@@ -9,13 +9,17 @@ from fixes import basefix
 
 class FixUnicode(basefix.BaseFix):
 
-  PATTERN = "STRING | NAME<'unicode'>"
+  PATTERN = "STRING | NAME<'unicode' | 'unichr'>"
 
   def transform(self, node):
     if node.type == token.NAME:
       if node.value == "unicode":
         new = node.clone()
         new.value = "str"
+        return new
+      if node.value == "unichr":
+        new = node.clone()
+        new.value = "chr"
         return new
       # XXX Warn when __unicode__ found?
     elif node.type == token.STRING:
