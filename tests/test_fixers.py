@@ -1783,6 +1783,14 @@ class Test_unicode(FixerTestCase):
         a = """R'''x'''"""
         self.check(b, a)
 
+class Test_callable(FixerTestCase):
+    fixer = "callable"
+
+    def test_callable_call(self):
+        b = """callable(x)"""
+        a = """hasattr(x, '__call__')"""
+        self.check(b, a)
+
 
 if __name__ == "__main__":
     import __main__
