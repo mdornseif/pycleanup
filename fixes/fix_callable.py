@@ -12,7 +12,9 @@ from fixes.util import Call, Name, String
 
 class FixCallable(basefix.BaseFix):
 
-    # XXX(nnorwitz): how should this code be handled:  callable(*args)
+    # XXX(nnorwitz): need to ignore: callable(*args)
+    # XXX(nnorwitz): or use of keywords, it could signify doing a callback,
+    # not using the builtin callable().
     PATTERN = """
       power< 'callable' trailer< '(' func=any ')' > >
     """
