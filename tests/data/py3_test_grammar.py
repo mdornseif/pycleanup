@@ -16,6 +16,7 @@ import sys
 # testing import *
 from sys import *
 
+@class_decorator
 class TokenTests(unittest.TestCase):
 
     def testBackslash(self):
