@@ -12,11 +12,16 @@ from fixes.util import Call, Name, String
 
 class FixCallable(basefix.BaseFix):
 
-    # XXX(nnorwitz): need to ignore: callable(*args)
-    # XXX(nnorwitz): or use of keywords, it could signify doing a callback,
-    # not using the builtin callable().
+    # Ignore callable(*args) or use of keywords.
+    # Either could be a hint that the builtin callable() is not being used.
     PATTERN = """
-      power< 'callable' trailer< '(' func=any ')' > >
+    power< 'callable'
+           trailer< lpar='('
+                    ( not(arglist | argument<any '=' any>) func=any
+                      | func=arglist<(not argument<any '=' any>) any ','> )
+                    rpar=')' >
+           after=any*
+    >
     """
 
     def transform(self, node):

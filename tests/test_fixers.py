@@ -1791,6 +1791,16 @@ class Test_callable(FixerTestCase):
         a = """hasattr(x, '__call__')"""
         self.check(b, a)
 
+    def test_callable_should_not_change(self):
+        a = """callable(*x)"""
+        self.check(a, a)
+
+        a = """callable(x, y)"""
+        self.check(a, a)
+
+        a = """callable(x, kw=y)"""
+        self.check(a, a)
+
 
 if __name__ == "__main__":
     import __main__
