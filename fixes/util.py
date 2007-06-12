@@ -21,7 +21,7 @@ def KeywordArg(keyword, value):
 
 def LParen():
     return Leaf(token.LPAR, "(")
-    
+
 def RParen():
     return Leaf(token.RPAR, ")")
 
@@ -71,11 +71,11 @@ def Subscript(index_node):
     return Node(syms.trailer, [Leaf(token.LBRACE, '['),
                                index_node,
                                Leaf(token.RBRACE, ']')])
-                               
+
 def String(string, prefix=None):
     """A string leaf"""
     return Leaf(token.STRING, string, prefix=prefix)
-    
+
 ###########################################################
 ### Determine whether a node represents a given literal
 ###########################################################
@@ -88,7 +88,7 @@ def is_tuple(node):
             and isinstance(node.children[1], Node)
             and isinstance(node.children[2], Leaf)
             and node.children[0].value == "("
-            and node.children[2].value == ")") 
+            and node.children[2].value == ")")
 
 def is_list(node):
     """Does the node represent a list literal?"""
@@ -103,7 +103,7 @@ def is_list(node):
 ### Common portability code. This allows fixers to do, eg,
 ###  "from fixes.util import set" and forget about it.
 ###########################################################
-       
+
 try:
     any = any
 except NameError:
@@ -117,7 +117,7 @@ try:
     set = set
 except NameError:
     from sets import Set as set
-    
+
 try:
     reversed = reversed
 except NameError:
