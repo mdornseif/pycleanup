@@ -1673,44 +1673,9 @@ class Test_nonzero(FixerTestCase):
 class Test_numliterals(FixerTestCase):
     fixer = "numliterals"
 
-    def test_complex_bare_int(self):
-        b = """4J"""
-        a = """4j"""
-        self.check(b, a)
-
-    def test_complex_bare_float(self):
-        b = """4.4J"""
-        a = """4.4j"""
-        self.check(b, a)
-
-    def test_complex_int(self):
-        b = """5 + 4J"""
-        a = """5 + 4j"""
-        self.check(b, a)
-
-    def test_complex_float(self):
-        b = """5.4 + 4.9J"""
-        a = """5.4 + 4.9j"""
-        self.check(b, a)
-
-    def test_exp_1(self):
-        b = """5E10"""
-        a = """5e10"""
-        self.check(b, a)
-
-    def test_exp_2(self):
-        b = """5.0E10"""
-        a = """5.0e10"""
-        self.check(b, a)
-
     def test_octal_1(self):
         b = """0755"""
         a = """0o755"""
-        self.check(b, a)
-
-    def test_hex_1(self):
-        b = """0XABC"""
-        a = """0xABC"""
         self.check(b, a)
 
     def test_long_int_1(self):
