@@ -23,19 +23,26 @@ class DelayedStrNode(object):
         self.base = base
         self.type = type
         self.value = ""
+        self.prefix = ""
 
     def __str__(self):
         b = "".join([str(n) for n in self.base])
         if self.shadowed_next:
-            return "%s.__next__()" % b
+            return self.prefix + "%s.__next__()" % b
         else:
-            return "next(%s)" % b
+            return self.prefix + "next(%s)" % b
 
     def clone(self):
         node = DelayedStrNode(self.type, self.base)
         node.shadowed_next = self.shadowed_next
         node.value = self.value
         return node
+
+    def set_prefix(self, prefix):
+        self.prefix = prefix
+
+    def get_prefix(self):
+        return self.prefix
 
 
 class FixNext(basefix.BaseFix):
