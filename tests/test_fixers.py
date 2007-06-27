@@ -65,9 +65,6 @@ class FixerTestCase(support.TestCase):
             tree = self.refactor.driver.parse_stream(stream)
         except Exception, err:
             raise
-            self.log_error("Can't parse %s: %s: %s",
-                           filename, err.__class__.__name__, err)
-            return
         self.refactor.refactor_tree(tree, stream_name)
         return str(tree)
 
@@ -1860,27 +1857,6 @@ class Test_callable(FixerTestCase):
 
         a = """callable(x, kw=y)"""
         self.check(a, a)
-
-class Test_all(FixerTestCase):
-    fixer = "all"
-
-    def test_examples_file(self):
-        # Just test that we can parse examples.py without failing
-        basedir = os.path.dirname(refactor.__file__)
-        example = os.path.join(basedir, "example.py")
-        self.refactor_stream("example.py", open(example))
-
-    def test_fixers(self):
-        # Just test that we can parse all the fixers without failing
-        basedir = os.path.dirname(refactor.__file__)
-        fixerdir = os.path.join(basedir, "fixes")
-        for filename in os.listdir(fixerdir):
-            if not filename.endswith(".py"):
-                print "Skipping %s" % filename
-                continue
-            print "Testing fixer %s..." % filename
-            fixer = os.path.join(fixerdir, filename)
-            self.refactor_stream(fixer, open(fixer))
 
 
 if __name__ == "__main__":
