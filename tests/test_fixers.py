@@ -1265,6 +1265,99 @@ class Test_next(FixerTestCase):
         a = """next(a()) + b"""
         self.check(b, a)
 
+    def test_6(self):
+        b = """c(      a().next() + b)"""
+        a = """c(      next(a()) + b)"""
+        self.check(b, a)
+
+    def test_prefix_preservation_1(self):
+        b = """
+            for a in b:
+                foo(a)
+                a.next()
+            """
+        a = """
+            for a in b:
+                foo(a)
+                next(a)
+            """
+        self.check(b, a)
+
+    def test_prefix_preservation_2(self):
+        b = """
+            for a in b:
+                foo(a) # abc
+                # def
+                a.next()
+            """
+        a = """
+            for a in b:
+                foo(a) # abc
+                # def
+                next(a)
+            """
+        self.check(b, a)
+
+    def test_prefix_preservation_3(self):
+        b = """
+            next = 5
+            for a in b:
+                foo(a)
+                a.next()
+            """
+        a = """
+            next = 5
+            for a in b:
+                foo(a)
+                a.__next__()
+            """
+        self.check(b, a)
+
+    def test_prefix_preservation_4(self):
+        b = """
+            next = 5
+            for a in b:
+                foo(a) # abc
+                # def
+                a.next()
+            """
+        a = """
+            next = 5
+            for a in b:
+                foo(a) # abc
+                # def
+                a.__next__()
+            """
+        self.check(b, a)
+
+    def test_prefix_preservation_5(self):
+        b = """
+            next = 5
+            for a in b:
+                foo(foo(a), # abc
+                    a.next())
+            """
+        a = """
+            next = 5
+            for a in b:
+                foo(foo(a), # abc
+                    a.__next__())
+            """
+        self.check(b, a)
+
+    def test_prefix_preservation_6(self):
+        b = """
+            for a in b:
+                foo(foo(a), # abc
+                    a.next())
+            """
+        a = """
+            for a in b:
+                foo(foo(a), # abc
+                    next(a))
+            """
+        self.check(b, a)
+
     def test_method_1(self):
         b = """
             class A:

@@ -26,16 +26,21 @@ class DelayedStrNode(object):
         self.prefix = ""
 
     def __str__(self):
-        b = "".join([str(n) for n in self.base])
         if self.shadowed_next:
+            b = "".join([str(n) for n in self.base])
             return self.prefix + "%s.__next__()" % b
         else:
-            return self.prefix + "next(%s)" % b
+            b_prefix = prefix = self.base[0].get_prefix()
+            self.base[0].set_prefix("")
+            b = "".join([str(n) for n in self.base])
+            self.base[0].set_prefix(b_prefix)
+            return self.prefix + prefix + "next(%s)" % b
 
     def clone(self):
         node = DelayedStrNode(self.type, self.base)
         node.shadowed_next = self.shadowed_next
         node.value = self.value
+        node.prefix = self.prefix
         return node
 
     def set_prefix(self, prefix):
@@ -62,21 +67,21 @@ class FixNext(basefix.BaseFix):
     |
     mod=file_input< any+ >
     """
-    
+
     def start_tree(self, tree, filename):
         super(FixNext, self).start_tree(tree, filename)
         self.shadowed_next = False
         self.delayed = []
-    
+
     def transform(self, node):
         results = self.match(node)
         assert results
-        
+
         base = results.get("base")
         attr = results.get("attr")
         name = results.get("name")
         mod = results.get("mod")
-        
+
         if base:
             n = DelayedStrNode(syms.power, base)
             node.replace(n)
