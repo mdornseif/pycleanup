@@ -1858,6 +1858,100 @@ class Test_callable(FixerTestCase):
         a = """callable(x, kw=y)"""
         self.check(a, a)
 
+class Test_filter(FixerTestCase):
+    fixer = "filter"
+
+    def test_filter_basic(self):
+        b = """x = filter(None, 'abc')"""
+        a = """x = list(filter(None, 'abc'))"""
+        self.check(b, a)
+
+        b = """x = filter(f, 'abc')"""
+        a = """x = list(filter(f, 'abc'))"""
+        self.check(b, a)
+
+        b = """x = filter(lambda x: x%2 == 0, range(10))"""
+        a = """x = [x for x in range(10) if x%2 == 0]"""
+        self.check(b, a)
+
+        # XXX This (rare) case is not supported
+##         b = """x = filter(f, 'abc')[0]"""
+##         a = """x = list(filter(f, 'abc'))[0]"""
+##         self.check(b, a)
+
+    def test_filter_nochange(self):
+        a = """iter(filter(f, 'abc'))"""
+        self.check(a, a)
+        a = """list(filter(f, 'abc'))"""
+        self.check(a, a)
+        a = """list(filter(f, 'abc'))[0]"""
+        self.check(a, a)
+        a = """tuple(filter(f, 'abc'))"""
+        self.check(a, a)
+        a = """sorted(filter(f, 'abc'))"""
+        self.check(a, a)
+        a = """sorted(filter(f, 'abc'), key=blah)"""
+        self.check(a, a)
+        a = """sorted(filter(f, 'abc'), key=blah)[0]"""
+        self.check(a, a)
+        a = """for i in filter(f, 'abc'): pass"""
+        self.check(a, a)
+        a = """[x for x in filter(f, 'abc')]"""
+        self.check(a, a)
+        a = """(x for x in filter(f, 'abc'))"""
+        self.check(a, a)
+
+class Test_map(FixerTestCase):
+    fixer = "map"
+
+    def test_map_basic(self):
+        b = """x = map(f, 'abc')"""
+        a = """x = list(map(f, 'abc'))"""
+        self.check(b, a)
+
+        b = """x = map(f, 'abc', 'def')"""
+        a = """x = list(map(f, 'abc', 'def'))"""
+        self.check(b, a)
+
+        b = """x = map(None, 'abc')"""
+        a = """x = list('abc')"""
+        self.check(b, a)
+
+        b = """x = map(None, 'abc', 'def')"""
+        a = """x = list(map(None, 'abc', 'def'))"""
+        self.check(b, a)
+
+        b = """x = map(lambda x: x+1, range(4))"""
+        a = """x = [x+1 for x in range(4)]"""
+        self.check(b, a)
+
+        # XXX This (rare) case is not supported
+##         b = """x = map(f, 'abc')[0]"""
+##         a = """x = list(map(f, 'abc'))[0]"""
+##         self.check(b, a)
+
+    def test_map_nochange(self):
+        a = """iter(map(f, 'abc'))"""
+        self.check(a, a)
+        a = """list(map(f, 'abc'))"""
+        self.check(a, a)
+        a = """list(map(f, 'abc'))[0]"""
+        self.check(a, a)
+        a = """tuple(map(f, 'abc'))"""
+        self.check(a, a)
+        a = """sorted(map(f, 'abc'))"""
+        self.check(a, a)
+        a = """sorted(map(f, 'abc'), key=blah)"""
+        self.check(a, a)
+        a = """sorted(map(f, 'abc'), key=blah)[0]"""
+        self.check(a, a)
+        a = """for i in map(f, 'abc'): pass"""
+        self.check(a, a)
+        a = """[x for x in map(f, 'abc')]"""
+        self.check(a, a)
+        a = """(x for x in map(f, 'abc'))"""
+        self.check(a, a)
+
 
 if __name__ == "__main__":
     import __main__

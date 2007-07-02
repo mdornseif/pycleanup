@@ -344,4 +344,17 @@ def raw_input_examples():
     a = raw_input()
     b = raw_input(a.rstrip())
 
+def filter_examples():
+    filter(os.unlink, filenames)
+    filter(None, "whatever")
+    filter(lambda x: not x, range(4))
+
+def map_examples():
+    map(None, foo.bar)
+    map(None, foo.bar,)
+    map(None, foo, bar)
+    map(f, foo.bar)
+    map(lambda x: x+1, range(10))
+    
+
 # This is the last line.

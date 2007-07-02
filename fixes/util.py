@@ -76,6 +76,30 @@ def String(string, prefix=None):
     """A string leaf"""
     return Leaf(token.STRING, string, prefix=prefix)
 
+def ListComp(xp, fp, it, test=None):
+    """A list comprehension of the form [xp for fp in it if test].
+
+    If test is None, the "if test" part is omitted.
+    """
+    xp.set_prefix("")
+    fp.set_prefix(" ")
+    it.set_prefix(" ")
+    for_leaf = Leaf(token.NAME, "for")
+    for_leaf.set_prefix(" ")
+    in_leaf = Leaf(token.NAME, "in")
+    in_leaf.set_prefix(" ")
+    inner_args = [for_leaf, fp, in_leaf, it]
+    if test:
+        test.set_prefix(" ")
+        if_leaf = Leaf(token.NAME, "if")
+        if_leaf.set_prefix(" ")
+        inner_args.append(Node(syms.list_if, [if_leaf, test]))
+    inner = Node(syms.listmaker, [xp, Node(syms.list_for, inner_args)])
+    return Node(syms.atom,
+                       [Leaf(token.LBRACE, "["),
+                        inner,
+                        Leaf(token.RBRACE, "]")])
+    
 ###########################################################
 ### Determine whether a node represents a given literal
 ###########################################################
