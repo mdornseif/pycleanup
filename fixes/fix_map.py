@@ -78,7 +78,7 @@ class FixMap(basefix.BaseFix):
 
     P1 = """
     power<
-        NAME< 'iter' | 'list' | 'tuple' | 'sorted' >
+        ( 'iter' | 'list' | 'tuple' | 'sorted' )
         trailer< '(' node=any ')' >
         any*
     >

@@ -1866,8 +1866,8 @@ class Test_filter(FixerTestCase):
         a = """x = list(filter(None, 'abc'))"""
         self.check(b, a)
 
-        b = """x = filter(f, 'abc')"""
-        a = """x = list(filter(f, 'abc'))"""
+        b = """x = len(filter(f, 'abc'))"""
+        a = """x = len(list(filter(f, 'abc')))"""
         self.check(b, a)
 
         b = """x = filter(lambda x: x%2 == 0, range(10))"""
@@ -1909,8 +1909,8 @@ class Test_map(FixerTestCase):
         a = """x = list(map(f, 'abc'))"""
         self.check(b, a)
 
-        b = """x = map(f, 'abc', 'def')"""
-        a = """x = list(map(f, 'abc', 'def'))"""
+        b = """x = len(map(f, 'abc', 'def'))"""
+        a = """x = len(list(map(f, 'abc', 'def')))"""
         self.check(b, a)
 
         b = """x = map(None, 'abc')"""
