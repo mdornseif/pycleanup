@@ -877,25 +877,19 @@ class Test_long(FixerTestCase):
         self.check(b, a)
 
 
-class Test_sysexcinfo(FixerTestCase):
-    fixer = "sysexcinfo"
+class Test_sysexcattrs(FixerTestCase):
+    fixer = "sysexcattrs"
 
     def test_1(self):
-        s = """sys.exc_info()"""
-        self.warns(s, s, "This function is going away")
+        s = """f = sys.exc_type"""
+        self.warns(s, s, "This attribute is going away")
 
     def test_2(self):
-        s = """if sys.exc_info()[1] == 1:
-                    pass"""
-
-        self.warns(s, s, "This function is going away")
+        s = """f = sys.exc_value"""
+        self.warns(s, s, "This attribute is going away")
 
     def test_3(self):
-        s = """f = sys.exc_info"""
-        self.warns(s, s, "This function is going away")
-
-    def test_4(self):
-        s = """f = sys.exc_type + ":" + sys.exc_value"""
+        s = """f = sys.exc_traceback"""
         self.warns(s, s, "This attribute is going away")
 
 

@@ -64,7 +64,7 @@ A quick run-through of 2to3's current fixers:
 
 * **fix_repr** - swap backticks for repr() calls.
 
-* **fix_sysexcinfo** - warn on usage of sys.value, sys.type and
+* **fix_sysexcattrs** - warn on usage of sys.value, sys.type and
   sys.traceback.
 
 * **fix_throw** - fix generator.throw() calls to be 3.0-compliant (PEP 3109).
