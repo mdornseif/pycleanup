@@ -103,5 +103,5 @@ class FixFilter(basefix.BaseFix):
         results = {}
         if self.p2.match(ppp, results) and results["node"] is node:
             return True
-        
+
         return False
