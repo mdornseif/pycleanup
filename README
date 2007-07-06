@@ -24,6 +24,7 @@ PatternGrammar.pickle - pickled pattern grammar tables (generated file)
 pgen2/         - Parser generator and driver ([1]_, [2]_)
 fixes/         - Individual transformations
 tests/         - Test files for pytree, fixers, grammar, etc
+examples/      - Fixers that while neat, we don't want run by refactor's -f all
 
 
 Capabilities
