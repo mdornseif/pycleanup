@@ -21,7 +21,7 @@ from pgen2.parse import ParseError
 class GrammarTest(support.TestCase):
     def validate(self, code):
         support.parse_string(code)
-        
+
     def invalid_syntax(self, code):
         try:
             self.validate(code)
@@ -46,16 +46,16 @@ class TestRaiseChanges(GrammarTest):
 
     def test_3x_style(self):
         self.validate("raise E1 from E2")
-        
+
     def test_3x_style_invalid_1(self):
         self.invalid_syntax("raise E, V from E1")
-        
+
     def test_3x_style_invalid_2(self):
         self.invalid_syntax("raise E from E1, E2")
-        
+
     def test_3x_style_invalid_3(self):
         self.invalid_syntax("raise from E1, E2")
-        
+
     def test_3x_style_invalid_4(self):
         self.invalid_syntax("raise E from")
 
@@ -64,25 +64,25 @@ class TestRaiseChanges(GrammarTest):
 class TestFunctionAnnotations(GrammarTest):
     def test_1(self):
         self.validate("""def f(x) -> list: pass""")
-        
+
     def test_2(self):
         self.validate("""def f(x:int): pass""")
-        
+
     def test_3(self):
         self.validate("""def f(*x:str): pass""")
-        
+
     def test_4(self):
         self.validate("""def f(**x:float): pass""")
-        
+
     def test_5(self):
         self.validate("""def f(x, y:1+2): pass""")
-        
+
     def test_6(self):
         self.validate("""def f(a, (b:1, c:2, d)): pass""")
-        
+
     def test_7(self):
         self.validate("""def f(a, (b:1, c:2, d), e:3=4, f=5, *g:6): pass""")
-    
+
     def test_8(self):
         s = """def f(a, (b:1, c:2, d), e:3=4, f=5,
                         *g:6, h:7, i=8, j:9=10, **k:11) -> 12: pass"""
@@ -95,15 +95,15 @@ class TestExcept(GrammarTest):
             try:
                 x
             except E as N:
-                y"""    
+                y"""
         self.validate(s)
-        
+
     def test_old(self):
         s = """
             try:
                 x
             except E, N:
-                y"""    
+                y"""
         self.validate(s)
 
 
@@ -111,13 +111,13 @@ class TestExcept(GrammarTest):
 class TestSetLiteral(GrammarTest):
     def test_1(self):
         self.validate("""x = {'one'}""")
-        
+
     def test_2(self):
         self.validate("""x = {'one', 1,}""")
-        
+
     def test_3(self):
         self.validate("""x = {'one', 'two', 'three'}""")
-        
+
     def test_4(self):
         self.validate("""x = {2, 3, 4,}""")
 
@@ -126,12 +126,12 @@ class TestNumericLiterals(GrammarTest):
     def test_new_octal_notation(self):
         self.validate("""0o7777777777777""")
         self.invalid_syntax("""0o7324528887""")
-        
+
     def test_new_binary_notation(self):
         self.validate("""0b101010""")
         self.invalid_syntax("""0b0101021""")
 
-        
+
 class TestClassDef(GrammarTest):
     def test_new_syntax(self):
         self.validate("class B(t=7): pass")
@@ -145,7 +145,7 @@ class TestGrammarFiles(GrammarTest):
     def test_python2(self):
         f = os.path.join(test_dir, "data", "py2_test_grammar.py")
         driver.parse_file(f)
-        
+
     def test_python3(self):
         f = os.path.join(test_dir, "data", "py3_test_grammar.py")
         driver.parse_file(f)

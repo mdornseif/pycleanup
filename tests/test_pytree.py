@@ -47,7 +47,7 @@ class TestNodes(support.TestCase):
         self.assertEqual(str(l1), "foo")
         l2 = pytree.Leaf(100, "foo", context=(" ", (10, 1)))
         self.assertEqual(str(l2), " foo")
-        
+
     def testLeafStrNumericValue(self):
         # Make sure that the Leaf's value is stringified. Failing to
         #  do this can cause a TypeError in certain situations.
@@ -103,11 +103,11 @@ class TestNodes(support.TestCase):
         l1 = pytree.Leaf(100, "foo", prefix="a")
         l2 = pytree.Leaf(100, "bar", prefix="b")
         n1 = pytree.Node(1000, [l1, l2])
-        
+
         self.assertEqual(l1.get_suffix(), l2.get_prefix())
         self.assertEqual(l2.get_suffix(), "")
         self.assertEqual(n1.get_suffix(), "")
-        
+
         l3 = pytree.Leaf(100, "bar", prefix="c")
         n2 = pytree.Node(1000, [n1, l3])
 
@@ -147,22 +147,22 @@ class TestNodes(support.TestCase):
     def testConvert(self):
         # XXX
         pass
-        
+
     def testChangedLeaf(self):
         l1 = pytree.Leaf(100, "f")
         self.failIf(l1.was_changed)
-        
+
         l1.changed()
         self.failUnless(l1.was_changed)
-        
+
     def testChangedNode(self):
         l1 = pytree.Leaf(100, "f")
         n1 = pytree.Node(1000, [l1])
         self.failIf(n1.was_changed)
-        
+
         n1.changed()
         self.failUnless(n1.was_changed)
-        
+
     def testChangedRecursive(self):
         l1 = pytree.Leaf(100, "foo")
         l2 = pytree.Leaf(100, "+")
@@ -172,18 +172,18 @@ class TestNodes(support.TestCase):
         self.failIf(l1.was_changed)
         self.failIf(n1.was_changed)
         self.failIf(n2.was_changed)
-        
+
         n1.changed()
         self.failUnless(n1.was_changed)
         self.failUnless(n2.was_changed)
         self.failIf(l1.was_changed)
-        
+
     def testLeafConstructorPrefix(self):
         for prefix in ("xyz_", ""):
             l1 = pytree.Leaf(100, "self", prefix=prefix)
             self.failUnless(str(l1), prefix + "self")
             self.assertEqual(l1.get_prefix(), prefix)
-        
+
     def testNodeConstructorPrefix(self):
         for prefix in ("xyz_", ""):
             l1 = pytree.Leaf(100, "self")
@@ -193,7 +193,7 @@ class TestNodes(support.TestCase):
             self.assertEqual(n1.get_prefix(), prefix)
             self.assertEqual(l1.get_prefix(), prefix)
             self.assertEqual(l2.get_prefix(), "_")
-            
+
     def testRemove(self):
         l1 = pytree.Leaf(100, "foo")
         l2 = pytree.Leaf(100, "foo")
@@ -216,83 +216,83 @@ class TestNodes(support.TestCase):
         self.assertEqual(n2.parent, None)
         self.failUnless(n1.was_changed)
         self.failUnless(n2.was_changed)
-            
+
     def testRemoveParentless(self):
         n1 = pytree.Node(1000, [])
         n1.remove()
         self.assertEqual(n1.parent, None)
-        
+
         l1 = pytree.Leaf(100, "foo")
         l1.remove()
         self.assertEqual(l1.parent, None)
-        
+
     def testNodeSetChild(self):
         l1 = pytree.Leaf(100, "foo")
         n1 = pytree.Node(1000, [l1])
-        
+
         l2 = pytree.Leaf(100, "bar")
         n1.set_child(0, l2)
         self.assertEqual(l1.parent, None)
         self.assertEqual(l2.parent, n1)
         self.assertEqual(n1.children, [l2])
-        
+
         n2 = pytree.Node(1000, [l1])
         n2.set_child(0, n1)
         self.assertEqual(l1.parent, None)
         self.assertEqual(n1.parent, n2)
         self.assertEqual(n2.parent, None)
         self.assertEqual(n2.children, [n1])
-        
+
         self.assertRaises(IndexError, n1.set_child, 4, l2)
         # I don't care what it raises, so long as it's an exception
         self.assertRaises(Exception, n1.set_child, 0, list)
-        
+
     def testNodeInsertChild(self):
         l1 = pytree.Leaf(100, "foo")
         n1 = pytree.Node(1000, [l1])
-        
+
         l2 = pytree.Leaf(100, "bar")
         n1.insert_child(0, l2)
         self.assertEqual(l2.parent, n1)
         self.assertEqual(n1.children, [l2, l1])
-        
+
         l3 = pytree.Leaf(100, "abc")
         n1.insert_child(2, l3)
         self.assertEqual(n1.children, [l2, l1, l3])
-        
+
         # I don't care what it raises, so long as it's an exception
         self.assertRaises(Exception, n1.insert_child, 0, list)
-        
+
     def testNodeAppendChild(self):
         n1 = pytree.Node(1000, [])
-        
+
         l1 = pytree.Leaf(100, "foo")
         n1.append_child(l1)
         self.assertEqual(l1.parent, n1)
         self.assertEqual(n1.children, [l1])
-        
+
         l2 = pytree.Leaf(100, "bar")
         n1.append_child(l2)
         self.assertEqual(l2.parent, n1)
         self.assertEqual(n1.children, [l1, l2])
-        
+
         # I don't care what it raises, so long as it's an exception
         self.assertRaises(Exception, n1.append_child, list)
-        
+
     def testNodeNextSibling(self):
         n1 = pytree.Node(1000, [])
         n2 = pytree.Node(1000, [])
         p1 = pytree.Node(1000, [n1, n2])
-        
+
         self.failUnless(n1.get_next_sibling() is n2)
         self.assertEqual(n2.get_next_sibling(), None)
         self.assertEqual(p1.get_next_sibling(), None)
-        
+
     def testLeafNextSibling(self):
         l1 = pytree.Leaf(100, "a")
         l2 = pytree.Leaf(100, "b")
         p1 = pytree.Node(1000, [l1, l2])
-        
+
         self.failUnless(l1.get_next_sibling() is l2)
         self.assertEqual(l2.get_next_sibling(), None)
         self.assertEqual(p1.get_next_sibling(), None)
