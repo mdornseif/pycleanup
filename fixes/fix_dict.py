@@ -27,14 +27,14 @@ import pytree
 import patcomp
 from pgen2 import token
 from fixes import basefix
-from fixes.util import Name, Call, LParen, RParen
+from fixes.util import Name, Call, LParen, RParen, ArgList
 
 class FixDict(basefix.BaseFix):
     PATTERN = """
     power< head=any+
          trailer< '.' method=('keys'|'items'|'values'|
                               'iterkeys'|'iteritems'|'itervalues') >
-         trailer< '(' ')' >
+         parens=trailer< '(' ')' >
          tail=any*
     >
     """
@@ -42,20 +42,22 @@ class FixDict(basefix.BaseFix):
     def transform(self, node):
         results = self.match(node)
         head = results["head"]
-        method = results["method"][0].value # Extract method name
+        method = results["method"][0] # Extract node for method name
         tail = results["tail"]
         syms = self.syms
-        isiter = method.startswith("iter")
+        method_name = method.value
+        isiter = method_name.startswith("iter")
         if isiter:
-            method = method[4:]
-        assert method in ("keys", "items", "values"), repr(method)
+            method_name = method_name[4:]
+        assert method_name in ("keys", "items", "values"), repr(method)
         head = [n.clone() for n in head]
         tail = [n.clone() for n in tail]
         special = not tail and self.in_special_context(node, isiter)
         args = head + [pytree.Node(syms.trailer,
                                    [pytree.Leaf(token.DOT, '.'),
-                                    Name(method)]),
-                       pytree.Node(syms.trailer, [LParen(), RParen()])]
+                                    Name(method_name,
+                                         prefix=method.get_prefix())]),
+                       results["parens"].clone()]
         new = pytree.Node(syms.power, args)
         if not special:
             new.set_prefix("")

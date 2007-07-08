@@ -37,7 +37,7 @@ class FixRaise(basefix.BaseFix):
         syms = self.syms
         results = self.match(node)
         assert results
-        
+
         exc = results["exc"].clone()
         if exc.type is token.STRING:
             self.cannot_convert(node, "Python 3 does not support string exceptions")
@@ -49,18 +49,19 @@ class FixRaise(basefix.BaseFix):
         #  raise E1, V
         # Since Python 3 will not support this, we recurse down any tuple
         # literals, always taking the first element.
-        while is_tuple(exc):
-            # exc.children[1:-1] is the unparenthesized tuple
-            # exc.children[1].children[0] is the first element of the tuple
-            exc = exc.children[1].children[0].clone()
-        exc.set_prefix(" ")
+        if is_tuple(exc):
+          while is_tuple(exc):
+              # exc.children[1:-1] is the unparenthesized tuple
+              # exc.children[1].children[0] is the first element of the tuple
+              exc = exc.children[1].children[0].clone()
+          exc.set_prefix(" ")
 
         if "val" not in results:
             # One-argument raise
             new = pytree.Node(syms.raise_stmt, [Name("raise"), exc])
             new.set_prefix(node.get_prefix())
             return new
-        
+
         val = results["val"].clone()
         if is_tuple(val):
             args = [c.clone() for c in val.children[1:-1]]
@@ -71,7 +72,7 @@ class FixRaise(basefix.BaseFix):
         if "tb" in results:
             tb = results["tb"].clone()
             tb.set_prefix("")
-            
+
             e = Call(exc, args)
             with_tb = Attr(e, Name('with_traceback')) + [ArgList([tb])]
             new = pytree.Node(syms.simple_stmt, [Name("raise")] + with_tb)

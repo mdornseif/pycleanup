@@ -277,48 +277,59 @@ class Test_apply(FixerTestCase):
 class Test_intern(FixerTestCase):
     fixer = "intern"
 
-    def test_1(self):
-        b = """x = intern(a)"""
-        a = """x = sys.intern(a)"""
+    def test_prefix_preservation(self):
+        b = """x =   intern(  a  )"""
+        a = """x =   sys.intern(  a  )"""
         self.check(b, a)
 
-    def test_2(self):
         b = """y = intern("b" # test
               )"""
         a = """y = sys.intern("b" # test
               )"""
         self.check(b, a)
 
-    def test_3(self):
+        b = """z = intern(a+b+c.d,   )"""
+        a = """z = sys.intern(a+b+c.d,   )"""
+        self.check(b, a)
+
+    def test(self):
+        b = """x = intern(a)"""
+        a = """x = sys.intern(a)"""
+        self.check(b, a)
+
         b = """z = intern(a+b+c.d,)"""
         a = """z = sys.intern(a+b+c.d,)"""
         self.check(b, a)
 
-    def test_4(self):
         b = """intern("y%s" % 5).replace("y", "")"""
         a = """sys.intern("y%s" % 5).replace("y", "")"""
         self.check(b, a)
 
     # These should not be refactored
 
-    def test_unchanged_1(self):
+    def test_unchanged(self):
         s = """intern(a=1)"""
         self.check(s, s)
 
-    def test_unchanged_2(self):
         s = """intern(f, g)"""
         self.check(s, s)
 
-    def test_unchanged_3(self):
         s = """intern(*h)"""
         self.check(s, s)
 
-    def test_unchanged_4(self):
         s = """intern(**i)"""
+        self.check(s, s)
+
+        s = """intern()"""
         self.check(s, s)
 
 class Test_print(FixerTestCase):
     fixer = "print"
+
+    def test_prefix_preservation(self):
+        b = """print 1,   1+1,   1+1+1"""
+        a = """print(1,   1+1,   1+1+1)"""
+        self.check(b, a)
 
     def test_1(self):
         b = """print 1, 1+1, 1+1+1"""
@@ -378,6 +389,11 @@ class Test_print(FixerTestCase):
 class Test_exec(FixerTestCase):
     fixer = "exec"
 
+    def test_prefix_preservation(self):
+        b = """  exec code in ns1,   ns2"""
+        a = """  exec(code, ns1,   ns2)"""
+        self.check(b, a)
+
     def test_basic(self):
         b = """exec code"""
         a = """exec(code)"""
@@ -425,6 +441,11 @@ class Test_exec(FixerTestCase):
 class Test_repr(FixerTestCase):
     fixer = "repr"
 
+    def test_prefix_preservation(self):
+        b = """x =   `1 + 2`"""
+        a = """x =   repr(1 + 2)"""
+        self.check(b, a)
+
     def test_simple_1(self):
         b = """x = `1 + 2`"""
         a = """x = repr(1 + 2)"""
@@ -457,6 +478,19 @@ class Test_repr(FixerTestCase):
 
 class Test_except(FixerTestCase):
     fixer = "except"
+
+    def test_prefix_preservation(self):
+        b = """
+            try:
+                pass
+            except (RuntimeError, ImportError),    e:
+                pass"""
+        a = """
+            try:
+                pass
+            except (RuntimeError, ImportError) as    e:
+                pass"""
+        self.check(b, a)
 
     def test_tuple_unpack(self):
         b = """
@@ -606,9 +640,28 @@ class Test_raise(FixerTestCase):
         a = """raise Exception(5)"""
         self.check(b, a)
 
-    def test_prefix(self):
+    def test_prefix_preservation(self):
         b = """raise Exception,5"""
         a = """raise Exception(5)"""
+        self.check(b, a)
+
+        b = """raise   Exception,    5"""
+        a = """raise   Exception(5)"""
+        self.check(b, a)
+
+    def test_with_comments(self):
+        b = """raise Exception, 5 # foo"""
+        a = """raise Exception(5) # foo"""
+        self.check(b, a)
+
+        b = """raise E, (5, 6) % (a, b) # foo"""
+        a = """raise E((5, 6) % (a, b)) # foo"""
+        self.check(b, a)
+
+        b = """def foo():
+                    raise Exception, 5, 6 # foo"""
+        a = """def foo():
+                    raise Exception(5).with_traceback(6) # foo"""
         self.check(b, a)
 
     def test_tuple_value(self):
@@ -859,36 +912,34 @@ class Test_long(FixerTestCase):
         a = """b = 0x12"""
         self.check(b, a)
 
-    # These should not be touched
-
-    def test_6(self):
+    def test_unchanged_1(self):
         b = """a = 12"""
-        a = """a = 12"""
-        self.check(b, a)
+        self.check(b, b)
 
-    def test_7(self):
+    def test_unchanged_2(self):
         b = """b = 0x12"""
-        a = """b = 0x12"""
-        self.check(b, a)
+        self.check(b, b)
 
-    def test_8(self):
+    def test_unchanged_3(self):
         b = """c = 3.14"""
-        a = """c = 3.14"""
+        self.check(b, b)
+
+    def test_prefix_preservation(self):
+        b = """x =   long(  x  )"""
+        a = """x =   int(  x  )"""
         self.check(b, a)
 
 
 class Test_sysexcattrs(FixerTestCase):
     fixer = "sysexcattrs"
 
-    def test_1(self):
+    def test(self):
         s = """f = sys.exc_type"""
         self.warns(s, s, "This attribute is going away")
 
-    def test_2(self):
         s = """f = sys.exc_value"""
         self.warns(s, s, "This attribute is going away")
 
-    def test_3(self):
         s = """f = sys.exc_traceback"""
         self.warns(s, s, "This attribute is going away")
 
@@ -896,12 +947,47 @@ class Test_sysexcattrs(FixerTestCase):
 class Test_dict(FixerTestCase):
     fixer = "dict"
 
+    def test_prefix_preservation(self):
+        b = "if   d. keys  (  )  : pass"
+        a = "if   list(d. keys  (  ))  : pass"
+        self.check(b, a)
+
+        b = "if   d. items  (  )  : pass"
+        a = "if   list(d. items  (  ))  : pass"
+        self.check(b, a)
+
+        b = "if   d. iterkeys  ( )  : pass"
+        a = "if   iter(d. keys  ( ))  : pass"
+        self.check(b, a)
+
+        b = "[i for i in    d.  iterkeys(  )  ]"
+        a = "[i for i in    d.  keys(  )  ]"
+        self.check(b, a)
+
+    def test_trailing_comment(self):
+        b = "d.keys() # foo"
+        a = "list(d.keys()) # foo"
+        self.check(b, a)
+
+        b = "d.items()  # foo"
+        a = "list(d.items())  # foo"
+        self.check(b, a)
+
+        b = "d.iterkeys()  # foo"
+        a = "iter(d.keys())  # foo"
+        self.check(b, a)
+
+        b = """[i for i in d.iterkeys() # foo
+               ]"""
+        a = """[i for i in d.keys() # foo
+               ]"""
+        self.check(b, a)
+
     def test_01(self):
         b = "d.keys()"
         a = "list(d.keys())"
         self.check(b, a)
 
-    def test_01a(self):
         b = "a[0].foo().keys()"
         a = "list(a[0].foo().keys())"
         self.check(b, a)
@@ -933,13 +1019,11 @@ class Test_dict(FixerTestCase):
 
     def test_07(self):
         b = "list(d.keys())"
-        a = b
-        self.check(b, a)
+        self.check(b, b)
 
     def test_08(self):
         b = "sorted(d.keys())"
-        a = b
-        self.check(b, a)
+        self.check(b, b)
 
     def test_09(self):
         b = "iter(d.keys())"
@@ -1024,6 +1108,19 @@ class Test_dict(FixerTestCase):
 class Test_xrange(FixerTestCase):
     fixer = "xrange"
 
+    def test_prefix_preservation(self):
+        b = """x =    xrange(  10  )"""
+        a = """x =    range(  10  )"""
+        self.check(b, a)
+
+        b = """x = xrange(  1  ,  10   )"""
+        a = """x = range(  1  ,  10   )"""
+        self.check(b, a)
+
+        b = """x = xrange(  0  ,  10 ,  2 )"""
+        a = """x = range(  0  ,  10 ,  2 )"""
+        self.check(b, a)
+
     def test_1(self):
         b = """x = xrange(10)"""
         a = """x = range(10)"""
@@ -1048,6 +1145,15 @@ class Test_xrange(FixerTestCase):
 class Test_raw_input(FixerTestCase):
     fixer = "raw_input"
 
+    def test_prefix_preservation(self):
+        b = """x =    raw_input(   )"""
+        a = """x =    input(   )"""
+        self.check(b, a)
+
+        b = """x = raw_input(   ''   )"""
+        a = """x = input(   ''   )"""
+        self.check(b, a)
+
     def test_1(self):
         b = """x = raw_input()"""
         a = """x = input()"""
@@ -1066,6 +1172,20 @@ class Test_raw_input(FixerTestCase):
 
 class Test_input(FixerTestCase):
     fixer = "input"
+
+    def test_prefix_preservation(self):
+        b = """x =   input(   )"""
+        a = """x =   eval(input(   ))"""
+        self.check(b, a)
+
+        b = """x = input(   ''   )"""
+        a = """x = eval(input(   ''   ))"""
+        self.check(b, a)
+
+    def test_trailing_comment(self):
+        b = """x = input()  #  foo"""
+        a = """x = eval(input())  #  foo"""
+        self.check(b, a)
 
     def test_1(self):
         b = """x = input()"""
@@ -1837,6 +1957,15 @@ class Test_unicode(FixerTestCase):
 class Test_callable(FixerTestCase):
     fixer = "callable"
 
+    def test_prefix_preservation(self):
+        b = """callable(    x)"""
+        a = """hasattr(    x, '__call__')"""
+        self.check(b, a)
+
+        b = """if     callable(x): pass"""
+        a = """if     hasattr(x, '__call__'): pass"""
+        self.check(b, a)
+
     def test_callable_call(self):
         b = """callable(x)"""
         a = """hasattr(x, '__call__')"""
@@ -1852,8 +1981,16 @@ class Test_callable(FixerTestCase):
         a = """callable(x, kw=y)"""
         self.check(a, a)
 
+        a = """callable()"""
+        self.check(a, a)
+
 class Test_filter(FixerTestCase):
     fixer = "filter"
+
+    def test_prefix_preservation(self):
+        b = """x =   filter(    None,     'abc'   )"""
+        a = """x =   list(filter(    None,     'abc'   ))"""
+        self.check(b, a)
 
     def test_filter_basic(self):
         b = """x = filter(None, 'abc')"""
@@ -1897,6 +2034,16 @@ class Test_filter(FixerTestCase):
 
 class Test_map(FixerTestCase):
     fixer = "map"
+
+    def test_prefix_preservation(self):
+        b = """x =    map(   f,    'abc'   )"""
+        a = """x =    list(map(   f,    'abc'   ))"""
+        self.check(b, a)
+
+    def test_trailing_comment(self):
+        b = """x = map(f, 'abc')   #   foo"""
+        a = """x = list(map(f, 'abc'))   #   foo"""
+        self.check(b, a)
 
     def test_map_basic(self):
         b = """x = map(f, 'abc')"""
