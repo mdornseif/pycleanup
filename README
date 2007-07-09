@@ -139,6 +139,14 @@ The correct Python 3 idiom is ::
 but since we can't detect instance-hood by syntax alone and since any client
 code would have to be changed as well, we don't automate this.
 
+Another translation problem is this: ::
+
+    t = ((E, E2), E3)
+    raise t
+    
+2to3 has no way of knowing that t is a tuple, and so this code will raise an
+exception at runtime since the ability to raise tuples is going away.
+
 
 Notes
 =====
