@@ -34,12 +34,16 @@ A quick run-through of 2to3's current fixers:
 
 * **fix_apply** - convert apply() calls to real function calls.
 
+* **fix_callable** - converts callable(obj) into hasattr(obj, '__call__').
+
 * **fix_dict** - fix up dict.keys(), .values(), .items() and their iterator
   versions.
   
 * **fix_except** - adjust "except" statements to Python 3 syntax (PEP 3110).
 
 * **fix_exec** - convert "exec" statements to exec() function calls.
+
+* **fix_filter** - changes filter(F, X) into list(filter(F, X)).
 
 * **fix_has_key** - "d.has_key(x)" -> "x in d".
 
@@ -48,6 +52,8 @@ A quick run-through of 2to3's current fixers:
 * **fix_intern** - "intern(x)" -> "sys.intern(x)".
 
 * **fix_long** - remove all usage of explicit longs in favor of ints.
+
+* **fix_map** - generally changes map(F, ...) into list(map(F, ...)).
 
 * **fix_ne** - convert the "<>" operator to "!=".
 
@@ -72,6 +78,8 @@ A quick run-through of 2to3's current fixers:
 
 * **fix_tuple_params** - remove tuple parameters from function, method and
   lambda declarations (PEP 3113).
+  
+* **fix_unicode** - convert, e.g., u"..." to "...", unicode(x) to str(x), etc.
   
 * **fix_xrange** - "xrange()" -> "range()".
 
@@ -119,6 +127,15 @@ adjust these statements.
 This is seen frequently when dealing with OSError.
 
 
+fix_filter
+''''''''''
+
+The transformation is not correct if the original code depended on
+filter(F, X) returning a string if X is a string (or a tuple if X is a
+tuple, etc).  That would require type inference, which we don't do.  Python
+2.6's Python 3 compatibility mode should be used to detect such cases.
+
+
 fix_has_key
 '''''''''''
 
@@ -126,6 +143,15 @@ While the primary target of this fixer is dict.has_key(), the
 fixer will change any has_key() method call, regardless of what class it
 belongs to. Anyone using non-dictionary classes with has_key() methods is
 advised to pay close attention when using this fixer.
+
+
+fix_map
+'''''''
+
+The transformation is not correct if the original code was depending on
+map(F, X, Y, ...) to go on until the longest argument is exhausted,
+substituting None for missing values -- like zip(), it now stops as
+soon as the shortest argument is exhausted.
 
 
 fix_raise
