@@ -51,9 +51,8 @@ class Test_all(support.TestCase):
         fixerdir = os.path.join(basedir, "fixes")
         for filename in os.listdir(fixerdir):
             if not filename.endswith(".py"):
-                print "Skipping %s" % filename
                 continue
-            print "Testing fixer %s..." % filename
+            print "Fixing %s..." % filename
             fixer = os.path.join(fixerdir, filename)
             self.refactor_stream(fixer, open(fixer))
 
