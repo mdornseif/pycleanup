@@ -13,7 +13,6 @@ Tips/tricks/hints for writing new fixers:
       just see what the parser does.
 
 
-
 Putting 2to3 to work somewhere else:
 
     * By default, 2to3 uses a merger of Python 2.x and Python 3's grammars.
@@ -28,6 +27,8 @@ Putting 2to3 to work somewhere else:
         could leverage 90% of the existing infrastructure with primarily
         cosmetic changes (e.g., fixes/fix_*.py -> styles/style_*.py).
 
+    * The examples/ directory contains fixers that show off 2to3's flexibility,
+        such as a fixer for whitespace.
 
 
 TODO
@@ -35,7 +36,7 @@ TODO
     Simple:
     #######
     
-    * Refactor common code out of fixes/fix_*.py into fixes.util (ongoing).
+    * Refactor common code out of fixes/fix_*.py into fixes.util (on-going).
 
 
     Complex:
