@@ -126,12 +126,12 @@ class Base(object):
                 return
             node = node.children[0]
         return node.lineno
-        
+
     def changed(self):
         if self.parent:
             self.parent.changed()
         self.was_changed = True
-        
+
     def remove(self):
         """Remove the node from the tree. Returns the position of the node
         in its parent's children before it was removed."""
@@ -149,7 +149,7 @@ class Base(object):
         sibling, return None."""
         if self.parent is None:
             return None
-        
+
         # Can't use index(); we need to test by identity
         for i, sibling in enumerate(self.parent.children):
             if sibling is self:
@@ -157,7 +157,7 @@ class Base(object):
                     return self.parent.children[i+1]
                 except IndexError:
                     return None
-                    
+
     def get_suffix(self):
         """Return the string immediately following the invocant node. This
         is effectively equivalent to node.get_next_sibling().get_prefix()"""
@@ -232,20 +232,20 @@ class Node(Base):
         if not self.children:
             return ""
         return self.children[0].get_prefix()
-        
+
     def set_child(self, i, child):
         """Equivalent to 'node.children[i] = child'. This method also sets the
         child's parent attribute appropriately."""
         child.parent = self
         self.children[i].parent = None
         self.children[i] = child
-        
+
     def insert_child(self, i, child):
         """Equivalent to 'node.children.insert(i, child)'. This method also
         sets the child's parent attribute appropriately."""
         child.parent = self
         self.children.insert(i, child)
-        
+
     def append_child(self, child):
         """Equivalent to 'node.children.append(child)'. This method also
         sets the child's parent attribute appropriately."""
