@@ -304,6 +304,7 @@ class Leaf(Base):
 
     def set_prefix(self, prefix):
         """Sets the prefix for the node."""
+        self.changed()
         self.prefix = prefix
 
     def get_prefix(self):

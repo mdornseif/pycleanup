@@ -67,8 +67,10 @@ class TestNodes(support.TestCase):
     def testLeafPrefix(self):
         l1 = pytree.Leaf(100, "foo")
         self.assertEqual(l1.get_prefix(), "")
+        self.failIf(l1.was_changed)
         l1.set_prefix("  ##\n\n")
         self.assertEqual(l1.get_prefix(), "  ##\n\n")
+        self.failUnless(l1.was_changed)
 
     def testNode(self):
         l1 = pytree.Leaf(100, "foo")
