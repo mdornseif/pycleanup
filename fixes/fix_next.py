@@ -107,7 +107,7 @@ class FixNext(basefix.BaseFix):
             if n:
                 self.warning(n, bind_warning)
                 self.shadowed_next = True
-                
+
     def finish_tree(self, tree, filename):
         super(FixNext, self).finish_tree(tree, filename)
         if self.shadowed_next:
@@ -119,17 +119,17 @@ class FixNext(basefix.BaseFix):
 ###  target.
 
 def is_assign_target(node):
-    assign = find_assign(node)    
+    assign = find_assign(node)
     if assign is None:
         return False
-            
+
     for child in assign.children:
         if child.type == token.EQUAL:
             return False
         elif is_subtree(child, node):
             return True
     return False
-    
+
 def find_assign(node):
     if node.type == syms.expr_stmt:
         return node
