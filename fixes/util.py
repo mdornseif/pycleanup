@@ -41,12 +41,15 @@ def Name(name, prefix=None):
 
 def Attr(obj, attr):
     """A node tuple for obj.attr"""
-    return [obj,
-            Node(syms.trailer, [Leaf(token.DOT, '.'), attr])]
+    return [obj, Node(syms.trailer, [Dot(), attr])]
 
 def Comma():
     """A comma leaf"""
     return Leaf(token.COMMA, ",")
+
+def Dot():
+    """A period (.) leaf"""
+    return Leaf(token.DOT, ".")
 
 def ArgList(args, lparen=LParen(), rparen=RParen()):
     """A parenthesised argument list, used by Call()"""

@@ -27,7 +27,7 @@ import pytree
 import patcomp
 from pgen2 import token
 from fixes import basefix
-from fixes.util import Name, Call, LParen, RParen, ArgList
+from fixes.util import Name, Call, LParen, RParen, ArgList, Dot
 
 class FixDict(basefix.BaseFix):
     PATTERN = """
@@ -54,7 +54,7 @@ class FixDict(basefix.BaseFix):
         tail = [n.clone() for n in tail]
         special = not tail and self.in_special_context(node, isiter)
         args = head + [pytree.Node(syms.trailer,
-                                   [pytree.Leaf(token.DOT, '.'),
+                                   [Dot(),
                                     Name(method_name,
                                          prefix=method.get_prefix())]),
                        results["parens"].clone()]
