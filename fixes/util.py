@@ -7,10 +7,6 @@ from pytree import Leaf, Node
 from pygram import python_symbols as syms
 
 
-### Constant nodes
-ass_leaf = Leaf(token.EQUAL, "=")
-ass_leaf.set_prefix(" ")
-
 ###########################################################
 ### Common node-construction "macros"
 ###########################################################
@@ -33,7 +29,8 @@ def Assign(target, source):
         source.set_prefix(" ")
         source = [source]
 
-    return Node(syms.atom, target + [ass_leaf.clone()] + source)
+    return Node(syms.atom,
+                target + [Leaf(token.EQUAL, "=", prefix=" ")] + source)
 
 def Name(name, prefix=None):
     """Return a NAME leaf"""
@@ -102,7 +99,7 @@ def ListComp(xp, fp, it, test=None):
                        [Leaf(token.LBRACE, "["),
                         inner,
                         Leaf(token.RBRACE, "]")])
-    
+
 ###########################################################
 ### Determine whether a node represents a given literal
 ###########################################################

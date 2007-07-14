@@ -2,19 +2,15 @@
 # Author: Andre Roberge
 
 # Local imports
-import pytree
 from fixes import basefix
 from fixes.util import Name
 
 class FixRawInput(basefix.BaseFix):
 
     PATTERN = """
-              power< 'raw_input' args=trailer< '(' [any] ')' > >
+              power< name='raw_input' trailer< '(' [any] ')' > >
               """
 
     def transform(self, node, results):
-        args = results["args"]
-
-        new = pytree.Node(self.syms.power, [Name("input"), args.clone()])
-        new.set_prefix(node.get_prefix())
-        return new
+        name = results["name"]
+        name.replace(Name("input", prefix=name.get_prefix()))

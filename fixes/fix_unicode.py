@@ -3,7 +3,6 @@
 """
 
 import re
-import pytree
 from pgen2 import token
 from fixes import basefix
 
@@ -27,4 +26,3 @@ class FixUnicode(basefix.BaseFix):
         new = node.clone()
         new.value = new.value[1:]
         return new
-    return None

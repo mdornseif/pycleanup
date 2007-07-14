@@ -33,11 +33,9 @@ class FixTupleParams(basefix.BaseFix):
               lambda=lambdef< 'lambda' args=vfpdef< any+ > ':' body=any >"""
 
     def transform(self, node, results):
-        assert results
-        
         if "lambda" in results:
-            return self.transform_lambda(node)
-        
+            return self.transform_lambda(node, results)
+
         new_lines = []
         suite = results["suite"]
         args = results["args"]
@@ -51,7 +49,7 @@ class FixTupleParams(basefix.BaseFix):
             start = 0
             indent = "; "
             end = pytree.Leaf(token.INDENT, "")
-        
+
         # We need access to self for new_name(), and making this a method
         #  doesn't feel right. Closing over self and new_lines makes the
         #  code below cleaner.
@@ -63,8 +61,9 @@ class FixTupleParams(basefix.BaseFix):
             if add_prefix:
                 n.set_prefix(" ")
             tuple_arg.replace(n)
-            new_lines.append(pytree.Node(syms.simple_stmt, [stmt, end.clone()]))
-        
+            new_lines.append(pytree.Node(syms.simple_stmt,
+                                         [stmt, end.clone()]))
+
         if args.type == syms.tfpdef:
             handle_tuple(args)
         elif args.type == syms.typedargslist:
@@ -73,15 +72,15 @@ class FixTupleParams(basefix.BaseFix):
                     # Without add_prefix, the emitted code is correct,
                     #  just ugly.
                     handle_tuple(arg, add_prefix=(i > 0))
-                    
+
         if not new_lines:
             return node
-        
+
         # This isn't strictly necessary, but it plays nicely with other fixers.
         # TODO(cwinter) get rid of this when children becomes a smart list
         for line in new_lines:
             line.parent = suite[0]
-            
+
         # TODO(cwinter) suite-cleanup
         after = start
         if start == 0:
@@ -89,22 +88,20 @@ class FixTupleParams(basefix.BaseFix):
         elif is_docstring(suite[0].children[start]):
             new_lines[0].set_prefix(indent)
             after = start + 1
-            
+
         suite[0].children[after:after] = new_lines
         for i in range(after+1, after+len(new_lines)+1):
             suite[0].children[i].set_prefix(indent)
         suite[0].changed()
-        
-    def transform_lambda(self, node):
-        results = self.match(node)
-        assert results
+
+    def transform_lambda(self, node, results):
         args = results["args"]
         body = results["body"]
 
         params = find_params(args)
         to_index = map_to_index(params)
         tup_name = self.new_name(tuple_name(params))
-        
+
         new_param = Name(tup_name)
         new_param.set_prefix(args.get_prefix())
         args.replace(new_param.clone())

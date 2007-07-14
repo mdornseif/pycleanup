@@ -78,6 +78,6 @@ class FixRaise(basefix.BaseFix):
             new.set_prefix(node.get_prefix())
             return new
         else:
-            new = pytree.Node(syms.raise_stmt, [Name("raise"), Call(exc, args)])
-            new.set_prefix(node.get_prefix())
-            return new
+            return pytree.Node(syms.raise_stmt,
+                               [Name("raise"), Call(exc, args)],
+                               prefix=node.get_prefix())

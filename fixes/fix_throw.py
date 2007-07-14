@@ -30,11 +30,11 @@ class FixThrow(basefix.BaseFix):
         if exc.type is token.STRING:
             self.cannot_convert(node, "Python 3 does not support string exceptions")
             return
-            
+
         # Leave "g.throw(E)" alone
         val = results.get("val")
         if val is None:
-            return 
+            return
 
         val = val.clone()
         if is_tuple(val):
@@ -48,7 +48,7 @@ class FixThrow(basefix.BaseFix):
         if "tb" in results:
             tb = results["tb"].clone()
             tb.set_prefix("")
-            
+
             e = Call(exc, args)
             with_tb = Attr(e, Name('with_traceback')) + [ArgList([tb])]
             throw_args.replace(pytree.Node(syms.power, with_tb))

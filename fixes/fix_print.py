@@ -20,8 +20,8 @@ from fixes.util import Name, Call, Comma, String
 class FixPrint(basefix.BaseFix):
 
     PATTERN = """
-    'print' | print_stmt
-    """
+              'print' | print_stmt
+              """
 
     def match(self, node):
         # Override

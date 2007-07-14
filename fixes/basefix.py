@@ -116,7 +116,7 @@ class BaseFix(object):
         self.logger.warning(msg % (lineno, for_output))
         if reason:
             self.logger.warning(reason)
-            
+
     def warning(self, node, reason):
         """Used for warning the user about possible uncertainty in the
         translation.
