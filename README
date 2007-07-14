@@ -87,6 +87,9 @@ A quick run-through of 2to3's current fixers:
   
 * **fix_xrange** - "xrange()" -> "range()".
 
+* **fix_xreadlines** - "for x in f.xreadlines():" -> "for x in f:". Also,
+  "g(f.xreadlines)" -> "g(f.__iter__)".
+
 
 Limitations
 ===========
