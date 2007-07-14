@@ -158,10 +158,6 @@ class TestNodes(support.TestCase):
         self.assertEqual(str(n1), "foo**bar")
         self.failUnless(isinstance(n1.children, list))
 
-    def testConvert(self):
-        # XXX
-        pass
-
     def testPostOrder(self):
         l1 = pytree.Leaf(100, "foo")
         l2 = pytree.Leaf(100, "bar")
