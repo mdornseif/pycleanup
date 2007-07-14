@@ -940,20 +940,6 @@ class Test_long(FixerTestCase):
         self.check(b, a)
 
 
-class Test_sysexcattrs(FixerTestCase):
-    fixer = "sysexcattrs"
-
-    def test(self):
-        s = """f = sys.exc_type"""
-        self.warns(s, s, "This attribute is going away")
-
-        s = """f = sys.exc_value"""
-        self.warns(s, s, "This attribute is going away")
-
-        s = """f = sys.exc_traceback"""
-        self.warns(s, s, "This attribute is going away")
-
-
 class Test_dict(FixerTestCase):
     fixer = "dict"
 

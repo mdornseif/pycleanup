@@ -75,9 +75,6 @@ A quick run-through of 2to3's current fixers:
 
 * **fix_stringio** - StringIO.StringIO -> io.StringIO (imports, too).
 
-* **fix_sysexcattrs** - warn on usage of sys.value, sys.type and
-  sys.traceback.
-
 * **fix_throw** - fix generator.throw() calls to be 3.0-compliant (PEP 3109).
 
 * **fix_tuple_params** - remove tuple parameters from function, method and
