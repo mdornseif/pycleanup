@@ -4,6 +4,7 @@
 # Python imports
 import unittest
 import sys
+import os
 import os.path
 import re
 from textwrap import dedent
@@ -15,6 +16,7 @@ import pytree
 from pgen2 import driver
 
 test_dir = os.path.dirname(__file__)
+proj_dir = os.path.normpath(os.path.join(test_dir, ".."))
 grammar_path = os.path.join(test_dir, "..", "Grammar.txt")
 grammar = driver.load_grammar(grammar_path)
 driver = driver.Driver(grammar, convert=pytree.convert)
@@ -35,5 +37,11 @@ def run_all_tests(test_mod=None, tests=None):
 
 def reformat(string):
     return dedent(string) + "\n\n"
+
+def all_project_files():
+    for dirpath, dirnames, filenames in os.walk(proj_dir):
+        for filename in filenames:
+            if filename.endswith(".py"):
+                yield os.path.join(dirpath, filename)
 
 TestCase = unittest.TestCase

@@ -39,22 +39,10 @@ class Test_all(support.TestCase):
         self.refactor.refactor_tree(tree, stream_name)
         return str(tree)
 
-    def test_examples_file(self):
-        # Just test that we can parse examples.py without failing
-        basedir = os.path.dirname(refactor.__file__)
-        example = os.path.join(basedir, "example.py")
-        self.refactor_stream("example.py", open(example))
-
-    def test_fixers(self):
-        # Just test that we can parse all the fixers without failing
-        basedir = os.path.dirname(refactor.__file__)
-        fixerdir = os.path.join(basedir, "fixes")
-        for filename in os.listdir(fixerdir):
-            if not filename.endswith(".py"):
-                continue
-            print "Fixing %s..." % filename
-            fixer = os.path.join(fixerdir, filename)
-            self.refactor_stream(fixer, open(fixer))
+    def test_all_project_files(self):
+        for filepath in support.all_project_files():
+            print "Fixing %s..." % filepath
+            self.refactor_stream(filepath, open(filepath))
 
 
 if __name__ == "__main__":

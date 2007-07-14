@@ -18,17 +18,12 @@ class TestParserIdempotency(support.TestCase):
 
     """A cut-down version of pytree_idempotency.py."""
 
-    def test_2to3_files(self):
-        proj_dir = os.path.join(test_dir, "..")
-
-        for dirpath, dirnames, filenames in os.walk(proj_dir):
-            for filename in filenames:
-                if filename.endswith(".py"):
-                    filepath = os.path.join(dirpath, filename)
-                    print "Parsing %s..." % os.path.normpath(filepath)
-                    tree = driver.parse_file(filepath, debug=True)
-                    if diff(filepath, tree):
-                        self.fail("Idempotency failed: %s" % filename)
+    def test_all_project_files(self):
+        for filepath in support.all_project_files():
+            print "Parsing %s..." % filepath
+            tree = driver.parse_file(filepath, debug=True)
+            if diff(filepath, tree):
+                self.fail("Idempotency failed: %s" % filepath)
 
 
 def diff(fn, tree):
