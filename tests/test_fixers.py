@@ -49,15 +49,22 @@ class FixerTestCase(support.TestCase):
         sh.setFormatter(logging.Formatter("%(message)s"))
         self.refactor.fixers = [Fixer(f, sh) for f in self.refactor.fixers]
 
-    def check(self, before, after):
+    def tearDown(self):
+        self.logging_stream = None
+
+    def _check(self, before, after):
         before = support.reformat(before)
         after = support.reformat(after)
         refactored = self.refactor_stream("<string>", StringIO(before))
         self.failUnlessEqual(after, refactored)
 
-    def warns(self, before, after, message):
-        self.check(before, after)
+    def check(self, before, after, ignore_warnings=False):
+        self._check(before, after)
+        if not ignore_warnings:
+            self.failUnlessEqual(self.logging_stream.getvalue(), "")
 
+    def warns(self, before, after, message):
+        self._check(before, after)
         self.failUnless(message in self.logging_stream.getvalue())
 
     def refactor_stream(self, stream_name, stream):
@@ -1422,7 +1429,7 @@ class Test_next(FixerTestCase):
                 foo(a)
                 a.__next__()
             """
-        self.check(b, a)
+        self.check(b, a, ignore_warnings=True)
 
     def test_prefix_preservation_4(self):
         b = """
@@ -1439,7 +1446,7 @@ class Test_next(FixerTestCase):
                 # def
                 a.__next__()
             """
-        self.check(b, a)
+        self.check(b, a, ignore_warnings=True)
 
     def test_prefix_preservation_5(self):
         b = """
@@ -1454,7 +1461,7 @@ class Test_next(FixerTestCase):
                 foo(foo(a), # abc
                     a.__next__())
             """
-        self.check(b, a)
+        self.check(b, a, ignore_warnings=True)
 
     def test_prefix_preservation_6(self):
         b = """
