@@ -152,6 +152,29 @@ except NameError:
         return l[::-1]
 
 ###########################################################
+### Misc
+###########################################################
+
+def attr_chain(obj, attr):
+    """Follow an attribute chain.
+    
+    If you have a chain of objects where a.foo -> b, b.foo-> c, etc,
+    use this to iterate over all objects in the chain. Iteration is
+    terminated by getattr(x, attr) is None.
+    
+    Args:
+        obj: the starting object
+        attr: the name of the chaining attribute
+    
+    Yields:
+        Each successive object in the chain.
+    """
+    next = getattr(obj, attr)
+    while next:
+        yield next
+        next = getattr(next, attr)
+
+###########################################################
 ### The following functions are to find bindings in a suite
 ###########################################################
 
