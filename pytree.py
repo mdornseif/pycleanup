@@ -79,6 +79,13 @@ class Base(object):
         """
         raise NotImplementedError
 
+    def pre_order(self):
+        """Returns a pre-order iterator for the tree.
+
+        This must be implemented by the concrete subclass.
+        """
+        raise NotImplementedError
+
     def set_prefix(self, prefix):
         """Sets the prefix for the node (see Leaf class).
 
@@ -216,6 +223,13 @@ class Node(Base):
                 yield node
         yield self
 
+    def pre_order(self):
+        """Returns a pre-order iterator for the tree."""
+        yield self
+        for child in self.children:
+            for node in child.post_order():
+                yield node
+
     def set_prefix(self, prefix):
         """Sets the prefix for the node.
 
@@ -300,6 +314,10 @@ class Leaf(Base):
 
     def post_order(self):
         """Returns a post-order iterator for the tree."""
+        yield self
+
+    def pre_order(self):
+        """Returns a pre-order iterator for the tree."""
         yield self
 
     def set_prefix(self, prefix):

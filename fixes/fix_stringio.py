@@ -12,28 +12,8 @@ will be translated to "io".
 # Author: Collin Winter
 
 # Local imports
-import patcomp
 from fixes import basefix
 from fixes.util import Name, attr_chain, any
-
-
-class DelayedStrLeaf(object):
-    def __init__(self, fixer, leaf):
-        self.fixer = fixer
-        self.leaf = leaf
-        self.parent = None
-
-    def __getattr__(self, attr):
-        return getattr(self.leaf, attr)
-
-    def __str__(self):
-        if self.fixer.module_import:
-            return self.leaf.get_prefix() + "io"
-        else:
-            return str(self.leaf)
-
-    def clone(self):
-        return DelayedStrLeaf(self.fixer, self.leaf)
 
 
 class FixStringio(basefix.BaseFix):
@@ -50,6 +30,8 @@ class FixStringio(basefix.BaseFix):
     |
     bare_name='StringIO'
     """
+
+    order = "pre" # Pre-order tree traversal
 
     # Don't match 'StringIO' if it's within another match
     def match(self, node):
@@ -75,7 +57,5 @@ class FixStringio(basefix.BaseFix):
             import_mod.replace(Name("io", prefix=import_mod.get_prefix()))
         elif module_name:
             module_name.replace(Name("io", prefix=module_name.get_prefix()))
-        elif bare_name:
-            bare_name.replace(DelayedStrLeaf(self, bare_name))
-        else:
-            raise RuntimeError("Hmm, shouldn't have gotten here")
+        elif bare_name and self.module_import:
+            bare_name.replace(Name("io", prefix=bare_name.get_prefix()))

@@ -6,7 +6,6 @@
 #   - "with" statement targets aren't checked
 
 # Local imports
-import pytree
 from pgen2 import token
 from pygram import python_symbols as syms
 from fixes import basefix
@@ -15,44 +14,9 @@ from fixes.util import Name, Call, find_binding, any
 bind_warning = "Calls to builtin next() possibly shadowed by global binding"
 
 
-class DelayedStrNode(object):
-
-    def __init__(self, type, base):
-        self.parent = None
-        self.shadowed_next = False
-        self.base = base
-        self.type = type
-        self.value = ""
-        self.prefix = ""
-
-    def __str__(self):
-        if self.shadowed_next:
-            b = "".join([str(n) for n in self.base])
-            return self.prefix + "%s.__next__()" % b
-        else:
-            b_prefix = prefix = self.base[0].get_prefix()
-            self.base[0].set_prefix("")
-            b = "".join([str(n) for n in self.base])
-            self.base[0].set_prefix(b_prefix)
-            return self.prefix + prefix + "next(%s)" % b
-
-    def clone(self):
-        node = DelayedStrNode(self.type, self.base)
-        node.shadowed_next = self.shadowed_next
-        node.value = self.value
-        node.prefix = self.prefix
-        return node
-
-    def set_prefix(self, prefix):
-        self.prefix = prefix
-
-    def get_prefix(self):
-        return self.prefix
-
-
 class FixNext(basefix.BaseFix):
     PATTERN = """
-    power< base=any+ trailer< '.' 'next' > trailer< '(' ')' > >
+    power< base=any+ trailer< '.' attr='next' > trailer< '(' ')' > >
     |
     power< head=any+ trailer< '.' attr='next' > not trailer< '(' ')' > >
     |
@@ -68,10 +32,11 @@ class FixNext(basefix.BaseFix):
     mod=file_input< any+ >
     """
 
+    order = "pre" # Pre-order tree traversal
+
     def start_tree(self, tree, filename):
         super(FixNext, self).start_tree(tree, filename)
         self.shadowed_next = False
-        self.delayed = []
 
     def transform(self, node, results):
         assert results
@@ -82,9 +47,12 @@ class FixNext(basefix.BaseFix):
         mod = results.get("mod")
 
         if base:
-            n = DelayedStrNode(syms.power, base)
-            node.replace(n)
-            self.delayed.append(n)
+          if self.shadowed_next:
+              attr.replace(Name("__next__", prefix=attr.get_prefix()))
+          else:
+              base = [n.clone() for n in base]
+              base[0].set_prefix("")
+              node.replace(Call(Name("next", prefix=node.get_prefix()), base))
         elif name:
             n = Name("__next__", prefix=name.get_prefix())
             name.replace(n)
@@ -106,12 +74,6 @@ class FixNext(basefix.BaseFix):
             if n:
                 self.warning(n, bind_warning)
                 self.shadowed_next = True
-
-    def finish_tree(self, tree, filename):
-        super(FixNext, self).finish_tree(tree, filename)
-        if self.shadowed_next:
-            for node in self.delayed:
-                node.shadowed_next = True
 
 
 ### The following functions help test if node is part of an assignment

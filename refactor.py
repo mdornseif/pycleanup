@@ -111,12 +111,19 @@ class RefactoringTool(object):
         self.driver = driver.Driver(pygram.python_grammar,
                                     convert=pytree.convert,
                                     logger=self.logger)
-        self.fixers = self.get_fixers()
+        self.pre_order, self.post_order = self.get_fixers()
         self.files = []  # List of files that were or should be modified
 
     def get_fixers(self):
-        """Inspects the options to load the requested patterns and handlers."""
-        fixers = []
+        """Inspects the options to load the requested patterns and handlers.
+        
+        Returns:
+          (pre_order, post_order), where pre_order is the list of fixers that
+          want a pre-order AST traversal, and post_order is the list that want
+          post-order traversal.
+        """
+        pre_order_fixers = []
+        post_order_fixers = []
         fix_names = self.options.fix
         if not fix_names or "all" in fix_names:
             fix_names = get_all_fix_names()
@@ -142,8 +149,14 @@ class RefactoringTool(object):
                 continue
             if self.options.verbose:
                 self.log_message("Adding transformation: %s", fix_name)
-            fixers.append(fixer)
-        return fixers
+
+            if fixer.order == "pre":
+                pre_order_fixers.append(fixer)
+            elif fixer.order == "post":
+                post_order_fixers.append(fixer)
+            else:
+                raise ValueError("Illegal fixer order: %r" % fixer.order)
+        return (pre_order_fixers, post_order_fixers)
 
     def log_error(self, msg, *args, **kwds):
         """Increments error count and log a message."""
@@ -249,11 +262,26 @@ class RefactoringTool(object):
 
     def refactor_tree(self, tree, filename):
         """Refactors a parse tree (modifying the tree in place)."""
-        for fixer in self.fixers:
+        changed = False
+        all_fixers = self.pre_order + self.post_order
+        for fixer in all_fixers:
             fixer.start_tree(tree, filename)
-        changes = 0
-        for node in tree.post_order():
-            for fixer in self.fixers:
+
+        changed |= self.traverse_by(self.pre_order, tree.pre_order())
+        changed |= self.traverse_by(self.post_order, tree.post_order())
+        if tree.was_changed:
+            changes = True
+
+        for fixer in all_fixers:
+            fixer.finish_tree(tree, filename)
+        return changed
+
+    def traverse_by(self, fixers, traversal):
+        changed = False
+        if not fixers:
+            return changed
+        for node in traversal:
+            for fixer in fixers:
                 results = fixer.match(node)
                 if results:
                     new = fixer.transform(node, results)
@@ -261,12 +289,8 @@ class RefactoringTool(object):
                                             str(new) != str(node)):
                         node.replace(new)
                         node = new
-                        changes += 1
-                    elif tree.was_changed:
-                        changes += 1
-        for fixer in self.fixers:
-            fixer.finish_tree(tree, filename)
-        return changes
+                        changed = True
+        return changed
 
     def write_file(self, new_text, filename, old_text=None):
         """Writes a string to a file.

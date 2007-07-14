@@ -47,7 +47,10 @@ class FixerTestCase(support.TestCase):
         self.logging_stream = StringIO()
         sh = logging.StreamHandler(self.logging_stream)
         sh.setFormatter(logging.Formatter("%(message)s"))
-        self.refactor.fixers = [Fixer(f, sh) for f in self.refactor.fixers]
+        self.refactor.pre_order = [Fixer(f, sh) for f
+                                                in self.refactor.pre_order]
+        self.refactor.post_order = [Fixer(f, sh) for f
+                                                 in self.refactor.post_order]
 
     def tearDown(self):
         self.logging_stream = None

@@ -34,6 +34,7 @@ class BaseFix(object):
     logger = None   # A logger (set by set_filename)
     numbers = itertools.count(1) # For new_name()
     used_names = set() # A set of all used NAMEs
+    order = "post" # Does the fixer prefer pre- or post-order traversal
 
     # Shortcut for access to Python grammar symbols
     syms = pygram.python_symbols
