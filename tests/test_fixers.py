@@ -1165,6 +1165,11 @@ class Test_raw_input(FixerTestCase):
         a = """x = input('prompt')"""
         self.check(b, a)
 
+    def test_4(self):
+        b = """x = raw_input(foo(a) + 6)"""
+        a = """x = input(foo(a) + 6)"""
+        self.check(b, a)
+
 
 class Test_funcattrs(FixerTestCase):
     fixer = "funcattrs"
@@ -1320,6 +1325,11 @@ class Test_input(FixerTestCase):
     def test_3(self):
         b = """x = input('prompt')"""
         a = """x = eval(input('prompt'))"""
+        self.check(b, a)
+
+    def test_4(self):
+        b = """x = input(foo(5) + 9)"""
+        a = """x = eval(input(foo(5) + 9))"""
         self.check(b, a)
 
 
