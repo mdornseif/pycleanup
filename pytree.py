@@ -101,28 +101,26 @@ class Base(object):
         raise NotImplementedError
 
     def replace(self, new):
-        """Replaces this node with a new one in the parent.
-
-        This can also be used to remove this node from the parent by
-        passing None.
-        """
+        """Replaces this node with a new one in the parent."""
         assert self.parent is not None, str(self)
-        assert new is None or new.parent is None, str(new)
+        assert new is not None
+        if not isinstance(new, list):
+            new = [new]
         l_children = []
         found = False
         for ch in self.parent.children:
             if ch is self:
                 assert not found, (self.parent.children, self, new)
                 if new is not None:
-                    l_children.append(new)
+                    l_children.extend(new)
                 found = True
             else:
                 l_children.append(ch)
         assert found, (self.children, self, new)
-        self.changed()
-        self.parent.children = tuple(l_children)
-        if new is not None:
-            new.parent = self.parent
+        self.parent.changed()
+        self.parent.children = l_children
+        for x in new:
+            x.parent = self.parent
         self.parent = None
 
     def get_lineno(self):

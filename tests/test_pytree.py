@@ -140,11 +140,23 @@ class TestNodes(support.TestCase):
         l3 = pytree.Leaf(100, "bar")
         n1 = pytree.Node(1000, [l1, l2, l3])
         self.assertEqual(n1.children, [l1, l2, l3])
+        self.failUnless(isinstance(n1.children, list))
         self.failIf(n1.was_changed)
         l2new = pytree.Leaf(100, "-")
         l2.replace(l2new)
-        self.assertEqual(n1.children, (l1, l2new, l3))
+        self.assertEqual(n1.children, [l1, l2new, l3])
+        self.failUnless(isinstance(n1.children, list))
         self.failUnless(n1.was_changed)
+
+    def testReplaceWithList(self):
+        l1 = pytree.Leaf(100, "foo")
+        l2 = pytree.Leaf(100, "+")
+        l3 = pytree.Leaf(100, "bar")
+        n1 = pytree.Node(1000, [l1, l2, l3])
+
+        l2.replace([pytree.Leaf(100, "*"), pytree.Leaf(100, "*")])
+        self.assertEqual(str(n1), "foo**bar")
+        self.failUnless(isinstance(n1.children, list))
 
     def testConvert(self):
         # XXX
