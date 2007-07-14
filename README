@@ -45,6 +45,8 @@ A quick run-through of 2to3's current fixers:
 
 * **fix_filter** - changes filter(F, X) into list(filter(F, X)).
 
+* **fix_funcattrs** - fix function attribute names (f.func_x -> f.__x__).
+
 * **fix_has_key** - "d.has_key(x)" -> "x in d".
 
 * **fix_input** - "input()" -> "eval(input())" (PEP 3111).

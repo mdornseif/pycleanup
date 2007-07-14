@@ -1180,6 +1180,26 @@ class Test_raw_input(FixerTestCase):
         self.check(b, a)
 
 
+class Test_funcattrs(FixerTestCase):
+    fixer = "funcattrs"
+
+    attrs = ["closure", "doc", "name", "defaults", "code", "globals", "dict"]
+
+    def test(self):
+        for attr in self.attrs:
+            b = "a.func_%s" % attr
+            a = "a.__%s__" % attr
+            self.check(b, a)
+
+    def test_unchanged(self):
+        for attr in self.attrs:
+            s = "foo(func_%s + 5)" % attr
+            self.check(s, s)
+
+            s = "f(foo.__%s__)" % attr
+            self.check(s, s)
+
+
 class Test_stringio(FixerTestCase):
     fixer = "stringio"
 
