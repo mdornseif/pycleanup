@@ -24,6 +24,8 @@ class FixStringio(basefix.BaseFix):
     import_from< 'from' module_name='StringIO' 'import'
                  ( 'StringIO' | import_as_name< 'StringIO' 'as' any >) >
     |
+    import_from< 'from' module_name='StringIO' 'import' star='*' >
+    |
     import_name< 'import' dotted_as_name< module_name='StringIO' 'as' any > >
     |
     power< module_name='StringIO' trailer< '.' 'StringIO' > any* >
@@ -51,11 +53,14 @@ class FixStringio(basefix.BaseFix):
         import_mod = results.get("module")
         module_name = results.get("module_name")
         bare_name = results.get("bare_name")
+        star = results.get("star")
 
         if import_mod:
             self.module_import = True
             import_mod.replace(Name("io", prefix=import_mod.get_prefix()))
         elif module_name:
             module_name.replace(Name("io", prefix=module_name.get_prefix()))
+            if star:
+                star.replace(Name("StringIO", prefix=star.get_prefix()))
         elif bare_name and self.module_import:
             bare_name.replace(Name("io", prefix=bare_name.get_prefix()))

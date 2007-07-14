@@ -1197,6 +1197,10 @@ class Test_stringio(FixerTestCase):
         a = "from io import StringIO"
         self.check(b, a)
 
+        b = "from StringIO import *"
+        a = "from io import StringIO"
+        self.check(b, a)
+
         s = "from foo import StringIO"
         self.check(s, s)
 
