@@ -27,9 +27,8 @@ class FixApply(basefix.BaseFix):
     >
     """
 
-    def transform(self, node):
+    def transform(self, node, results):
         syms = self.syms
-        results = self.match(node)
         assert results
         func = results["func"]
         args = results["args"]

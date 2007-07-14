@@ -13,9 +13,8 @@ class FixNonzero(basefix.BaseFix):
                               parameters< '(' NAME ')' > any+ >
                      any* > >
     """
-    
-    def transform(self, node):
-        results = self.match(node)
+
+    def transform(self, node, results):
         assert results
 
         name = results["name"]

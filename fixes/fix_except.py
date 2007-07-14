@@ -42,10 +42,9 @@ class FixExcept(basefix.BaseFix):
 	                       | 'finally' ':' suite) >
     """
 
-    def transform(self, node):
-        syms = self.syms
-        results = self.match(node)
+    def transform(self, node, results):
         assert results
+        syms = self.syms
 
         try_cleanup = [ch.clone() for ch in results['cleanup']]
         for except_clause, e_suite in find_excepts(try_cleanup):

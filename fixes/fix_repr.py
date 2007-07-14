@@ -14,9 +14,7 @@ class FixRepr(basefix.BaseFix):
               atom < '`' expr=any '`' >
               """
 
-    def transform(self, node):
-      results = self.match(node)
-      assert results
+    def transform(self, node, results):
       expr = results["expr"].clone()
 
       if expr.type == self.syms.testlist1:

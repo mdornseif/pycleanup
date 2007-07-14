@@ -23,10 +23,9 @@ class FixExec(basefix.BaseFix):
     exec_stmt< 'exec' (not atom<'(' [any] ')'>) a=any >
     """
 
-    def transform(self, node):
-        syms = self.syms
-        results = self.match(node)
+    def transform(self, node, results):
         assert results
+        syms = self.syms
         a = results["a"]
         b = results.get("b")
         c = results.get("c")

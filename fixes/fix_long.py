@@ -21,8 +21,7 @@ class FixLong(basefix.BaseFix):
     static_long = Name("long")
     static_int = Name("int")
 
-    def transform(self, node):
-        results = self.match(node)
+    def transform(self, node, results):
         long_type = results.get("long_type")
         number = results.get("number")
         new = None

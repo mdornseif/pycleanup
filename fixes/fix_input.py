@@ -14,7 +14,7 @@ class FixInput(basefix.BaseFix):
     >
     """
 
-    def transform(self, node):
+    def transform(self, node, results):
         new = node.clone()
         new.set_prefix("")
         new = Call(Name("eval"), [new])

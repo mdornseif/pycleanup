@@ -23,10 +23,9 @@ class FixIntern(basefix.BaseFix):
     >
     """
 
-    def transform(self, node):
-        syms = self.syms
-        results = self.match(node)
+    def transform(self, node, results):
         assert results
+        syms = self.syms
         obj = results["obj"].clone()
         if obj.type == syms.arglist:
             newarglist = obj.clone()

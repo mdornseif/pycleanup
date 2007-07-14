@@ -42,8 +42,7 @@ class FixFilter(basefix.BaseFix):
     >
     """
 
-    def transform(self, node):
-        results = self.match(node)
+    def transform(self, node, results):
         if "filter_lambda" in results:
             new = ListComp(results.get("fp").clone(),
                            results.get("fp").clone(),

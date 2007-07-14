@@ -24,8 +24,7 @@ class FixCallable(basefix.BaseFix):
     >
     """
 
-    def transform(self, node):
-        results = self.match(node)
+    def transform(self, node, results):
         func = results["func"]
 
         args = [func.clone(), String(', '), String("'__call__'")]

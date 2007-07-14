@@ -32,8 +32,7 @@ class FixTupleParams(basefix.BaseFix):
               |
               lambda=lambdef< 'lambda' args=vfpdef< any+ > ':' body=any >"""
 
-    def transform(self, node):
-        results = self.match(node)
+    def transform(self, node, results):
         assert results
         
         if "lambda" in results:

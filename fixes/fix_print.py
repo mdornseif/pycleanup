@@ -30,10 +30,9 @@ class FixPrint(basefix.BaseFix):
             return None
         return self.pattern.match(node)
 
-    def transform(self, node):
-        syms = self.syms
-        results = self.match(node)
+    def transform(self, node, results):
         assert results
+        syms = self.syms
 
         if node == Name("print"):
             # Special-case print all by itself

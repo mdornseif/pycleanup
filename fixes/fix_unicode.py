@@ -11,7 +11,7 @@ class FixUnicode(basefix.BaseFix):
 
   PATTERN = "STRING | NAME<'unicode' | 'unichr'>"
 
-  def transform(self, node):
+  def transform(self, node, results):
     if node.type == token.NAME:
       if node.value == "unicode":
         new = node.clone()

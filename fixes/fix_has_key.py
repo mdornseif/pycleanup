@@ -68,10 +68,9 @@ class FixHasKey(basefix.BaseFix):
     >
     """
 
-    def transform(self, node):
-        syms = self.syms
-        results = self.match(node)
+    def transform(self, node, results):
         assert results
+        syms = self.syms
         if (node.parent.type == syms.not_test and
             self.pattern.match(node.parent)):
             # Don't transform a node matching the first alternative of the

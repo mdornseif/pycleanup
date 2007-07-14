@@ -18,8 +18,7 @@ class FixXrange(basefix.BaseFix):
     >
     """
 
-    def transform(self, node):
-        results = self.match(node)
+    def transform(self, node, results):
         args = results["args"]
         new = pytree.Node(self.syms.power,
                           [Name("range"), args.clone()])

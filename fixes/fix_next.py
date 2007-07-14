@@ -73,8 +73,7 @@ class FixNext(basefix.BaseFix):
         self.shadowed_next = False
         self.delayed = []
 
-    def transform(self, node):
-        results = self.match(node)
+    def transform(self, node, results):
         assert results
 
         base = results.get("base")

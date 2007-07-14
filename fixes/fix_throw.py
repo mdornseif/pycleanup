@@ -23,10 +23,8 @@ class FixThrow(basefix.BaseFix):
     power< any trailer< '.' 'throw' > trailer< '(' exc=any ')' > >
     """
 
-    def transform(self, node):
+    def transform(self, node, results):
         syms = self.syms
-        results = self.match(node)
-        assert results
 
         exc = results["exc"].clone()
         if exc.type is token.STRING:

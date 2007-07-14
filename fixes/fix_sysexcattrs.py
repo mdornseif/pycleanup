@@ -14,5 +14,5 @@ class FixSysexcattrs(basefix.BaseFix):
            any* >
     """
 
-    def transform(self, node):
+    def transform(self, node, results):
         self.cannot_convert(node, "This attribute is going away in Python 3")

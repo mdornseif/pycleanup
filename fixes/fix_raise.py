@@ -33,10 +33,9 @@ class FixRaise(basefix.BaseFix):
     raise_stmt< 'raise' exc=any [',' val=any [',' tb=any]] >
     """
 
-    def transform(self, node):
-        syms = self.syms
-        results = self.match(node)
+    def transform(self, node, results):
         assert results
+        syms = self.syms
 
         exc = results["exc"].clone()
         if exc.type is token.STRING:

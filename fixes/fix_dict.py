@@ -39,8 +39,7 @@ class FixDict(basefix.BaseFix):
     >
     """
 
-    def transform(self, node):
-        results = self.match(node)
+    def transform(self, node, results):
         head = results["head"]
         method = results["method"][0] # Extract node for method name
         tail = results["tail"]

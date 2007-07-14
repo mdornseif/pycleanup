@@ -12,8 +12,7 @@ class FixRawInput(basefix.BaseFix):
               power< 'raw_input' args=trailer< '(' [any] ')' > >
               """
 
-    def transform(self, node):
-        results = self.match(node)
+    def transform(self, node, results):
         args = results["args"]
 
         new = pytree.Node(self.syms.power, [Name("input"), args.clone()])

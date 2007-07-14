@@ -52,8 +52,7 @@ class FixMap(basefix.BaseFix):
     >
     """
 
-    def transform(self, node):
-        results = self.match(node)
+    def transform(self, node, results):
         if "map_lambda" in results:
             new = ListComp(results.get("xp").clone(),
                            results.get("fp").clone(),

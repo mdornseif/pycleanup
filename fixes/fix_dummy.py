@@ -12,5 +12,5 @@ class FixDummy(basefix.BaseFix):
     def match(self, node):
         return True
 
-    def transform(self, node):
+    def transform(self, node, results):
         node.changed()
