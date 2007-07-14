@@ -182,15 +182,5 @@ def pattern_convert(grammar, raw_node_info):
         return pytree.Leaf(type, value, context=context)
 
 
-_SAMPLE = """(a=(power< ('apply' trailer<'(' b=(not STRING) ')'> ) >){1})
-{1,1}"""
-
-
-def _test():
-    pc = PatternCompiler()
-    pat = pc.compile_pattern(_SAMPLE)
-    print pat
-
-
-if __name__ == "__main__":
-    _test()
+def compile_pattern(pattern):
+    return PatternCompiler().compile_pattern(pattern)

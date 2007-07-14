@@ -68,13 +68,13 @@ class FixDict(basefix.BaseFix):
         return new
 
     P1 = "power< func=NAME trailer< '(' node=any ')' > any* >"
-    p1 = patcomp.PatternCompiler().compile_pattern(P1)
+    p1 = patcomp.compile_pattern(P1)
 
     P2 = """for_stmt< 'for' any 'in' node=any ':' any* >
             | list_for< 'for' any 'in' node=any any* >
             | gen_for< 'for' any 'in' node=any any* >
          """
-    p2 = patcomp.PatternCompiler().compile_pattern(P2)
+    p2 = patcomp.compile_pattern(P2)
 
     def in_special_context(self, node, isiter):
         if node.parent is None:

@@ -62,7 +62,7 @@ class FixFilter(basefix.BaseFix):
             | list_for< 'for' any 'in' node=any any* >
             | gen_for< 'for' any 'in' node=any any* >
          """
-    p0 = patcomp.PatternCompiler().compile_pattern(P0)
+    p0 = patcomp.compile_pattern(P0)
 
     P1 = """
     power<
@@ -71,7 +71,7 @@ class FixFilter(basefix.BaseFix):
         any*
     >
     """
-    p1 = patcomp.PatternCompiler().compile_pattern(P1)
+    p1 = patcomp.compile_pattern(P1)
 
     P2 = """
     power<
@@ -80,7 +80,7 @@ class FixFilter(basefix.BaseFix):
         any*
     >
     """
-    p2 = patcomp.PatternCompiler().compile_pattern(P2)
+    p2 = patcomp.compile_pattern(P2)
 
     def in_special_context(self, node):
         p = node.parent
