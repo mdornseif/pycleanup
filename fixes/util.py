@@ -96,8 +96,8 @@ def ListComp(xp, fp, it, test=None):
         test.set_prefix(" ")
         if_leaf = Leaf(token.NAME, "if")
         if_leaf.set_prefix(" ")
-        inner_args.append(Node(syms.list_if, [if_leaf, test]))
-    inner = Node(syms.listmaker, [xp, Node(syms.list_for, inner_args)])
+        inner_args.append(Node(syms.comp_if, [if_leaf, test]))
+    inner = Node(syms.listmaker, [xp, Node(syms.comp_for, inner_args)])
     return Node(syms.atom,
                        [Leaf(token.LBRACE, "["),
                         inner,

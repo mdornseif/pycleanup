@@ -1,5 +1,3 @@
-# Python 3's Lib/test/test_grammar.py (r53781)
-
 # Python test set -- part 1, grammar.
 # This just tests whether the parser accepts them all.
 
@@ -16,7 +14,6 @@ import sys
 # testing import *
 from sys import *
 
-@class_decorator
 class TokenTests(unittest.TestCase):
 
     def testBackslash(self):
@@ -30,26 +27,32 @@ class TokenTests(unittest.TestCase):
         self.assertEquals(x, 0, 'backslash ending comment')
 
     def testPlainIntegers(self):
+        self.assertEquals(type(000), type(0))
         self.assertEquals(0xff, 255)
-        self.assertEquals(0377, 255)
-        self.assertEquals(2147483647, 017777777777)
+        self.assertEquals(0o377, 255)
+        self.assertEquals(2147483647, 0o17777777777)
+        self.assertEquals(0b1001, 9)
         from sys import maxint
         if maxint == 2147483647:
-            self.assertEquals(-2147483647-1, -020000000000)
+            self.assertEquals(-2147483647-1, -0o20000000000)
             # XXX -2147483648
-            self.assert_(037777777777 > 0)
+            self.assert_(0o37777777777 > 0)
             self.assert_(0xffffffff > 0)
-            for s in '2147483648', '040000000000', '0x100000000':
+            self.assert_(0b1111111111111111111111111111111 > 0)
+            for s in ('2147483648', '0o40000000000', '0x100000000',
+                      '0b10000000000000000000000000000000'):
                 try:
                     x = eval(s)
                 except OverflowError:
                     self.fail("OverflowError on huge integer literal %r" % s)
         elif maxint == 9223372036854775807:
-            self.assertEquals(-9223372036854775807-1, -01000000000000000000000)
-            self.assert_(01777777777777777777777 > 0)
+            self.assertEquals(-9223372036854775807-1, -0o1000000000000000000000)
+            self.assert_(0o1777777777777777777777 > 0)
             self.assert_(0xffffffffffffffff > 0)
-            for s in '9223372036854775808', '02000000000000000000000', \
-                     '0x10000000000000000':
+            self.assert_(0b11111111111111111111111111111111111111111111111111111111111111 > 0)
+            for s in '9223372036854775808', '0o2000000000000000000000', \
+                     '0x10000000000000000', \
+                     '0b100000000000000000000000000000000000000000000000000000000000000':
                 try:
                     x = eval(s)
                 except OverflowError:
@@ -59,13 +62,13 @@ class TokenTests(unittest.TestCase):
 
     def testLongIntegers(self):
         x = 0
-        x = 0
         x = 0xffffffffffffffff
-        x = 0xffffffffffffffff
-        x = 077777777777777777
-        x = 077777777777777777
+        x = 0Xffffffffffffffff
+        x = 0o77777777777777777
+        x = 0O77777777777777777
         x = 123456789012345678901234567890
-        x = 123456789012345678901234567890
+        x = 0b100000000000000000000000000000000000000000000000000000000000000000000
+        x = 0B111111111111111111111111111111111111111111111111111111111111111111111
 
     def testFloats(self):
         x = 3.14
@@ -124,6 +127,7 @@ the \'lazy\' dog.\n\
     def testEllipsis(self):
         x = ...
         self.assert_(x is Ellipsis)
+        self.assertRaises(SyntaxError, eval, ".. .")
 
 class GrammarTests(unittest.TestCase):
 
@@ -146,51 +150,32 @@ class GrammarTests(unittest.TestCase):
         ### decorators: decorator+
         ### parameters: '(' [typedargslist] ')'
         ### typedargslist: ((tfpdef ['=' test] ',')*
-        ###                ('*' [tname] (',' tname ['=' test])* [',' '**' tname] | '**' tname)
+        ###                ('*' [tfpdef] (',' tfpdef ['=' test])* [',' '**' tfpdef] | '**' tfpdef)
         ###                | tfpdef ['=' test] (',' tfpdef ['=' test])* [','])
-        ### tname: NAME [':' test]
-        ### tfpdef: tname | '(' tfplist ')'
-        ### tfplist: tfpdef (',' tfpdef)* [',']
+        ### tfpdef: NAME [':' test]
         ### varargslist: ((vfpdef ['=' test] ',')*
-        ###              ('*' [vname] (',' vname ['=' test])*  [',' '**' vname] | '**' vname)
+        ###              ('*' [vfpdef] (',' vfpdef ['=' test])*  [',' '**' vfpdef] | '**' vfpdef)
         ###              | vfpdef ['=' test] (',' vfpdef ['=' test])* [','])
-        ### vname: NAME
-        ### vfpdef: vname | '(' vfplist ')'
-        ### vfplist: vfpdef (',' vfpdef)* [',']
+        ### vfpdef: NAME
         def f1(): pass
         f1()
         f1(*())
         f1(*(), **{})
         def f2(one_argument): pass
         def f3(two, arguments): pass
-        def f4(two, (compound, (argument, list))): pass
-        def f5((compound, first), two): pass
-        self.assertEquals(f2.func_code.co_varnames, ('one_argument',))
-        self.assertEquals(f3.func_code.co_varnames, ('two', 'arguments'))
-        if sys.platform.startswith('java'):
-            self.assertEquals(f4.func_code.co_varnames,
-                   ('two', '(compound, (argument, list))', 'compound', 'argument',
-                                'list',))
-            self.assertEquals(f5.func_code.co_varnames,
-                   ('(compound, first)', 'two', 'compound', 'first'))
-        else:
-            self.assertEquals(f4.func_code.co_varnames,
-                  ('two', '.1', 'compound', 'argument',  'list'))
-            self.assertEquals(f5.func_code.co_varnames,
-                  ('.0', 'two', 'compound', 'first'))
+        self.assertEquals(f2.__code__.co_varnames, ('one_argument',))
+        self.assertEquals(f3.__code__.co_varnames, ('two', 'arguments'))
         def a1(one_arg,): pass
         def a2(two, args,): pass
         def v0(*rest): pass
         def v1(a, *rest): pass
         def v2(a, b, *rest): pass
-        def v3(a, (b, c), *rest): return a, b, c, rest
 
         f1()
         f2(1)
         f2(1,)
         f3(1, 2)
         f3(1, 2,)
-        f4(1, (2, (3, 4)))
         v0()
         v0(1)
         v0(1,)
@@ -205,17 +190,7 @@ class GrammarTests(unittest.TestCase):
         v2(1,2,3)
         v2(1,2,3,4)
         v2(1,2,3,4,5,6,7,8,9,0)
-        v3(1,(2,3))
-        v3(1,(2,3),4)
-        v3(1,(2,3),4,5,6,7,8,9,0)
 
-        # ceval unpacks the formal arguments into the first argcount names;
-        # thus, the names nested inside tuples must appear after these names.
-        if sys.platform.startswith('java'):
-            self.assertEquals(v3.func_code.co_varnames, ('a', '(b, c)', 'rest', 'b', 'c'))
-        else:
-            self.assertEquals(v3.func_code.co_varnames, ('a', '.1', 'rest', 'b', 'c'))
-        self.assertEquals(v3(1, (2, 3), 4), (1, 2, 3, (4,)))
         def d01(a=1): pass
         d01()
         d01(1)
@@ -288,10 +263,6 @@ class GrammarTests(unittest.TestCase):
         d22v(*(1, 2, 3, 4))
         d22v(1, 2, *(3, 4, 5))
         d22v(1, *(2, 3), **{'d': 4})
-        def d31v((x)): pass
-        d31v(1)
-        def d32v((x,)): pass
-        d32v((1,))
         # keyword only argument tests
         def pos0key1(*, key): return key
         pos0key1(key=100)
@@ -305,25 +276,37 @@ class GrammarTests(unittest.TestCase):
 
         # argument annotation tests
         def f(x) -> list: pass
-        self.assertEquals(f.func_annotations, {'return': list})
+        self.assertEquals(f.__annotations__, {'return': list})
         def f(x:int): pass
-        self.assertEquals(f.func_annotations, {'x': int})
+        self.assertEquals(f.__annotations__, {'x': int})
         def f(*x:str): pass
-        self.assertEquals(f.func_annotations, {'x': str})
+        self.assertEquals(f.__annotations__, {'x': str})
         def f(**x:float): pass
-        self.assertEquals(f.func_annotations, {'x': float})
+        self.assertEquals(f.__annotations__, {'x': float})
         def f(x, y:1+2): pass
-        self.assertEquals(f.func_annotations, {'y': 3})
-        def f(a, (b:1, c:2, d)): pass
-        self.assertEquals(f.func_annotations, {'b': 1, 'c': 2})
-        def f(a, (b:1, c:2, d), e:3=4, f=5, *g:6): pass
-        self.assertEquals(f.func_annotations,
+        self.assertEquals(f.__annotations__, {'y': 3})
+        def f(a, b:1, c:2, d): pass
+        self.assertEquals(f.__annotations__, {'b': 1, 'c': 2})
+        def f(a, b:1, c:2, d, e:3=4, f=5, *g:6): pass
+        self.assertEquals(f.__annotations__,
                           {'b': 1, 'c': 2, 'e': 3, 'g': 6})
-        def f(a, (b:1, c:2, d), e:3=4, f=5, *g:6, h:7, i=8, j:9=10,
+        def f(a, b:1, c:2, d, e:3=4, f=5, *g:6, h:7, i=8, j:9=10,
               **k:11) -> 12: pass
-        self.assertEquals(f.func_annotations,
+        self.assertEquals(f.__annotations__,
                           {'b': 1, 'c': 2, 'e': 3, 'g': 6, 'h': 7, 'j': 9,
                            'k': 11, 'return': 12})
+        # Check for SF Bug #1697248 - mixing decorators and a return annotation
+        def null(x): return x
+        @null
+        def f(x) -> list: pass
+        self.assertEquals(f.__annotations__, {'return': list})
+
+        # test MAKE_CLOSURE with a variety of oparg's
+        closure = 1
+        def f(): return closure
+        def f(x=1): return closure
+        def f(*, k=1): return closure
+        def f() -> int: return closure
 
     def testLambdef(self):
         ### lambdef: 'lambda' [varargslist] ':' test
@@ -354,7 +337,7 @@ class GrammarTests(unittest.TestCase):
             x = 1; pass; del x;
         foo()
 
-    ### small_stmt: expr_stmt | pass_stmt | del_stmt | flow_stmt | import_stmt | global_stmt | access_stmt 
+    ### small_stmt: expr_stmt | pass_stmt | del_stmt | flow_stmt | import_stmt | global_stmt | access_stmt
     # Tested below
 
     def testExprStmt(self):
@@ -714,6 +697,20 @@ class GrammarTests(unittest.TestCase):
             def meth2(self, arg): pass
             def meth3(self, a1, a2): pass
 
+        # decorator: '@' dotted_name [ '(' [arglist] ')' ] NEWLINE
+        # decorators: decorator+
+        # decorated: decorators (classdef | funcdef)
+        def class_decorator(x): return x
+        @class_decorator
+        class G: pass
+
+    def testDictcomps(self):
+        # dictorsetmaker: ( (test ':' test (comp_for |
+        #                                   (',' test ':' test)* [','])) |
+        #                   (test (comp_for | (',' test)* [','])) )
+        nums = [1, 2, 3]
+        self.assertEqual({i:i+1 for i in nums}, {1: 2, 2: 3, 3: 4})
+
     def testListcomps(self):
         # list comprehension tests
         nums = [1, 2, 3, 4, 5]
@@ -780,9 +777,9 @@ class GrammarTests(unittest.TestCase):
     def testGenexps(self):
         # generator expression tests
         g = ([x for x in range(10)] for x in range(1))
-        self.assertEqual(g.next(), [x for x in range(10)])
+        self.assertEqual(next(g), [x for x in range(10)])
         try:
-            g.next()
+            next(g)
             self.fail('should produce StopIteration exception')
         except StopIteration:
             pass
@@ -790,7 +787,7 @@ class GrammarTests(unittest.TestCase):
         a = 1
         try:
             g = (a for d in a)
-            g.next()
+            next(g)
             self.fail('should produce TypeError')
         except TypeError:
             pass
@@ -838,7 +835,8 @@ class GrammarTests(unittest.TestCase):
             print(x)
             return ret
 
-        self.assertEqual([ x() for x in lambda: True, lambda: False if x() ], [True])
+        # the next line is not allowed anymore
+        #self.assertEqual([ x() for x in lambda: True, lambda: False if x() ], [True])
         self.assertEqual([ x() for x in (lambda: True, lambda: False) if x() ], [True])
         self.assertEqual([ x(False) for x in (lambda x: False if x else True, lambda x: True if x else False) if x(False) ], [True])
         self.assertEqual((5 if 1 else _checkeval("check 1", 0)), 5)

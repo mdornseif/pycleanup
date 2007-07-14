@@ -70,8 +70,7 @@ class FixMap(basefix.BaseFix):
         return new
 
     P0 = """for_stmt< 'for' any 'in' node=any ':' any* >
-            | list_for< 'for' any 'in' node=any any* >
-            | gen_for< 'for' any 'in' node=any any* >
+            | comp_for< 'for' any 'in' node=any any* >
          """
     p0 = patcomp.compile_pattern(P0)
 

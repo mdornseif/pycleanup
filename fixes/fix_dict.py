@@ -70,8 +70,7 @@ class FixDict(basefix.BaseFix):
     p1 = patcomp.compile_pattern(P1)
 
     P2 = """for_stmt< 'for' any 'in' node=any ':' any* >
-            | list_for< 'for' any 'in' node=any any* >
-            | gen_for< 'for' any 'in' node=any any* >
+            | comp_for< 'for' any 'in' node=any any* >
          """
     p2 = patcomp.compile_pattern(P2)
 
