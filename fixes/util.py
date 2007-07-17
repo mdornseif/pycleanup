@@ -169,7 +169,6 @@ def attr_chain(obj, attr):
     Yields:
         Each successive object in the chain.
     """
-    yield obj
     next = getattr(obj, attr)
     while next:
         yield next
