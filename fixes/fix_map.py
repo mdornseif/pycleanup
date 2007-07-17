@@ -76,7 +76,8 @@ p0 = patcomp.compile_pattern(P0)
 
 P1 = """
 power<
-    ( 'iter' | 'list' | 'tuple' | 'sorted' | 'set' )
+    ( 'iter' | 'list' | 'tuple' | 'sorted' | 'set' |
+      (any* trailer< '.' 'join' >) )
     trailer< '(' node=any ')' >
     any*
 >

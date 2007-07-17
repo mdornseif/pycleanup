@@ -2192,6 +2192,10 @@ class Test_filter(FixerTestCase):
 ##         self.check(b, a)
 
     def test_filter_nochange(self):
+        a = """b.join(filter(f, 'abc'))"""
+        self.unchanged(a)
+        a = """(a + foo(5)).join(filter(f, 'abc'))"""
+        self.unchanged(a)
         a = """iter(filter(f, 'abc'))"""
         self.unchanged(a)
         a = """list(filter(f, 'abc'))"""
@@ -2257,6 +2261,10 @@ class Test_map(FixerTestCase):
 ##         self.check(b, a)
 
     def test_map_nochange(self):
+        a = """b.join(map(f, 'abc'))"""
+        self.unchanged(a)
+        a = """(a + foo(5)).join(map(f, 'abc'))"""
+        self.unchanged(a)
         a = """iter(map(f, 'abc'))"""
         self.unchanged(a)
         a = """list(map(f, 'abc'))"""
