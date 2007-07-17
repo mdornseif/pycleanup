@@ -262,24 +262,20 @@ class RefactoringTool(object):
 
     def refactor_tree(self, tree, filename):
         """Refactors a parse tree (modifying the tree in place)."""
-        changed = False
         all_fixers = self.pre_order + self.post_order
         for fixer in all_fixers:
             fixer.start_tree(tree, filename)
 
-        changed |= self.traverse_by(self.pre_order, tree.pre_order())
-        changed |= self.traverse_by(self.post_order, tree.post_order())
-        if tree.was_changed:
-            changes = True
+        self.traverse_by(self.pre_order, tree.pre_order())
+        self.traverse_by(self.post_order, tree.post_order())
 
         for fixer in all_fixers:
             fixer.finish_tree(tree, filename)
-        return changed
+        return tree.was_changed
 
     def traverse_by(self, fixers, traversal):
-        changed = False
         if not fixers:
-            return changed
+            return
         for node in traversal:
             for fixer in fixers:
                 results = fixer.match(node)
@@ -289,8 +285,6 @@ class RefactoringTool(object):
                                             str(new) != str(node)):
                         node.replace(new)
                         node = new
-                        changed = True
-        return changed
 
     def write_file(self, new_text, filename, old_text=None):
         """Writes a string to a file.
