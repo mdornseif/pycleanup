@@ -58,17 +58,29 @@ class FixerTestCase(support.TestCase):
     def _check(self, before, after):
         before = support.reformat(before)
         after = support.reformat(after)
-        refactored = self.refactor_stream("<string>", StringIO(before))
+        refactored, tree = self.refactor_stream("<string>", StringIO(before))
         self.failUnlessEqual(after, refactored)
+        return tree
 
     def check(self, before, after, ignore_warnings=False):
-        self._check(before, after)
+        tree = self._check(before, after)
+        self.failUnless(tree.was_changed)
         if not ignore_warnings:
             self.failUnlessEqual(self.logging_stream.getvalue(), "")
 
-    def warns(self, before, after, message):
-        self._check(before, after)
+    def warns(self, before, after, message, unchanged=False):
+        tree = self._check(before, after)
         self.failUnless(message in self.logging_stream.getvalue())
+        if not unchanged:
+            self.failUnless(tree.was_changed)
+
+    def warns_unchanged(self, before, message):
+        self.warns(before, before, message, unchanged=True)
+
+    def unchanged(self, before, ignore_warnings=False):
+        self._check(before, before)
+        if not ignore_warnings:
+            self.failUnlessEqual(self.logging_stream.getvalue(), "")
 
     def refactor_stream(self, stream_name, stream):
         try:
@@ -76,7 +88,7 @@ class FixerTestCase(support.TestCase):
         except Exception, err:
             raise
         self.refactor.refactor_tree(tree, stream_name)
-        return str(tree)
+        return str(tree), tree
 
 
 class Test_ne(FixerTestCase):
@@ -249,39 +261,39 @@ class Test_apply(FixerTestCase):
 
     def test_unchanged_1(self):
         s = """apply()"""
-        self.check(s, s)
+        self.unchanged(s)
 
     def test_unchanged_2(self):
         s = """apply(f)"""
-        self.check(s, s)
+        self.unchanged(s)
 
     def test_unchanged_3(self):
         s = """apply(f,)"""
-        self.check(s, s)
+        self.unchanged(s)
 
     def test_unchanged_4(self):
         s = """apply(f, args, kwds, extras)"""
-        self.check(s, s)
+        self.unchanged(s)
 
     def test_unchanged_5(self):
         s = """apply(f, *args, **kwds)"""
-        self.check(s, s)
+        self.unchanged(s)
 
     def test_unchanged_6(self):
         s = """apply(f, *args)"""
-        self.check(s, s)
+        self.unchanged(s)
 
     def test_unchanged_7(self):
         s = """apply(func=f, args=args, kwds=kwds)"""
-        self.check(s, s)
+        self.unchanged(s)
 
     def test_unchanged_8(self):
         s = """apply(f, args=args, kwds=kwds)"""
-        self.check(s, s)
+        self.unchanged(s)
 
     def test_unchanged_9(self):
         s = """apply(f, args, kwds=kwds)"""
-        self.check(s, s)
+        self.unchanged(s)
 
 
 class Test_intern(FixerTestCase):
@@ -319,19 +331,19 @@ class Test_intern(FixerTestCase):
 
     def test_unchanged(self):
         s = """intern(a=1)"""
-        self.check(s, s)
+        self.unchanged(s)
 
         s = """intern(f, g)"""
-        self.check(s, s)
+        self.unchanged(s)
 
         s = """intern(*h)"""
-        self.check(s, s)
+        self.unchanged(s)
 
         s = """intern(**i)"""
-        self.check(s, s)
+        self.unchanged(s)
 
         s = """intern()"""
-        self.check(s, s)
+        self.unchanged(s)
 
 class Test_print(FixerTestCase):
     fixer = "print"
@@ -433,19 +445,19 @@ class Test_exec(FixerTestCase):
 
     def test_unchanged_1(self):
         s = """exec(code)"""
-        self.check(s, s)
+        self.unchanged(s)
 
     def test_unchanged_2(self):
         s = """exec (code)"""
-        self.check(s, s)
+        self.unchanged(s)
 
     def test_unchanged_3(self):
         s = """exec(code, ns)"""
-        self.check(s, s)
+        self.unchanged(s)
 
     def test_unchanged_4(self):
         s = """exec(code, ns1, ns2)"""
-        self.check(s, s)
+        self.unchanged(s)
 
 
 class Test_repr(FixerTestCase):
@@ -626,46 +638,28 @@ class Test_except(FixerTestCase):
     # These should not be touched:
 
     def test_unchanged_1(self):
-        b = """
+        s = """
             try:
                 pass
             except:
                 pass"""
-
-        a = """
-            try:
-                pass
-            except:
-                pass"""
-        self.check(b, a)
+        self.unchanged(s)
 
     def test_unchanged_2(self):
-        b = """
+        s = """
             try:
                 pass
             except Exception:
                 pass"""
-
-        a = """
-            try:
-                pass
-            except Exception:
-                pass"""
-        self.check(b, a)
+        self.unchanged(s)
 
     def test_unchanged_3(self):
-        b = """
+        s = """
             try:
                 pass
             except (Exception, SystemExit):
                 pass"""
-
-        a = """
-            try:
-                pass
-            except (Exception, SystemExit):
-                pass"""
-        self.check(b, a)
+        self.unchanged(s)
 
 
 class Test_raise(FixerTestCase):
@@ -724,15 +718,15 @@ class Test_raise(FixerTestCase):
 
     def test_string_exc(self):
         s = """raise 'foo'"""
-        self.warns(s, s, "Python 3 does not support string exceptions")
+        self.warns_unchanged(s, "Python 3 does not support string exceptions")
 
     def test_string_exc_val(self):
         s = """raise "foo", 5"""
-        self.warns(s, s, "Python 3 does not support string exceptions")
+        self.warns_unchanged(s, "Python 3 does not support string exceptions")
 
     def test_string_exc_val_tb(self):
         s = """raise "foo", 5, 6"""
-        self.warns(s, s, "Python 3 does not support string exceptions")
+        self.warns_unchanged(s, "Python 3 does not support string exceptions")
 
     # These should result in traceback-assignment
 
@@ -818,32 +812,29 @@ class Test_throw(FixerTestCase):
 
     def test_warn_1(self):
         s = """g.throw("foo")"""
-        self.warns(s, s, "Python 3 does not support string exceptions")
+        self.warns_unchanged(s, "Python 3 does not support string exceptions")
 
     def test_warn_2(self):
         s = """g.throw("foo", 5)"""
-        self.warns(s, s, "Python 3 does not support string exceptions")
+        self.warns_unchanged(s, "Python 3 does not support string exceptions")
 
     def test_warn_3(self):
         s = """g.throw("foo", 5, 6)"""
-        self.warns(s, s, "Python 3 does not support string exceptions")
+        self.warns_unchanged(s, "Python 3 does not support string exceptions")
 
     # These should not be touched
 
     def test_untouched_1(self):
-        b = """g.throw(Exception)"""
-        a = """g.throw(Exception)"""
-        self.check(b, a)
+        s = """g.throw(Exception)"""
+        self.unchanged(s)
 
     def test_untouched_2(self):
-        b = """g.throw(Exception(5, 6))"""
-        a = """g.throw(Exception(5, 6))"""
-        self.check(b, a)
+        s = """g.throw(Exception(5, 6))"""
+        self.unchanged(s)
 
     def test_untouched_3(self):
-        b = """5 + g.throw(Exception(5, 6))"""
-        a = """5 + g.throw(Exception(5, 6))"""
-        self.check(b, a)
+        s = """5 + g.throw(Exception(5, 6))"""
+        self.unchanged(s)
 
     # These should result in traceback-assignment
 
@@ -949,16 +940,16 @@ class Test_long(FixerTestCase):
         self.check(b, a)
 
     def test_unchanged_1(self):
-        b = """a = 12"""
-        self.check(b, b)
+        s = """a = 12"""
+        self.unchanged(s)
 
     def test_unchanged_2(self):
-        b = """b = 0x12"""
-        self.check(b, b)
+        s = """b = 0x12"""
+        self.unchanged(s)
 
     def test_unchanged_3(self):
-        b = """c = 3.14"""
-        self.check(b, b)
+        s = """c = 3.14"""
+        self.unchanged(s)
 
     def test_prefix_preservation(self):
         b = """x =   long(  x  )"""
@@ -1040,12 +1031,12 @@ class Test_dict(FixerTestCase):
         self.check(b, a)
 
     def test_07(self):
-        b = "list(d.keys())"
-        self.check(b, b)
+        s = "list(d.keys())"
+        self.unchanged(s)
 
     def test_08(self):
-        b = "sorted(d.keys())"
-        self.check(b, b)
+        s = "sorted(d.keys())"
+        self.unchanged(s)
 
     def test_09(self):
         b = "iter(d.keys())"
@@ -1211,10 +1202,16 @@ class Test_funcattrs(FixerTestCase):
     def test_unchanged(self):
         for attr in self.attrs:
             s = "foo(func_%s + 5)" % attr
-            self.check(s, s)
+            self.unchanged(s)
 
             s = "f(foo.__%s__)" % attr
-            self.check(s, s)
+            self.unchanged(s)
+
+    def test_regressions(self):
+        # Found in setuptools
+        b = "extract_constant(f1.func_code,'q', -1)"
+        a = "extract_constant(f1.__code__,'q', -1)"
+        self.check(b, a)
 
 
 class Test_xreadlines(FixerTestCase):
@@ -1248,16 +1245,16 @@ class Test_xreadlines(FixerTestCase):
 
     def test_unchanged(self):
         s = "for x in f.xreadlines(5): pass"
-        self.check(s, s)
+        self.unchanged(s)
 
         s = "for x in f.xreadlines(k=5): pass"
-        self.check(s, s)
+        self.unchanged(s)
 
         s = "for x in f.xreadlines(*k, **v): pass"
-        self.check(s, s)
+        self.unchanged(s)
 
         s = "foo(xreadlines)"
-        self.check(s, s)
+        self.unchanged(s)
 
 
 class Test_stringio(FixerTestCase):
@@ -1282,7 +1279,7 @@ class Test_stringio(FixerTestCase):
         self.check(b, a)
 
         s = "from foo import StringIO"
-        self.check(s, s)
+        self.unchanged(s)
 
     def test_import_module_as(self):
         b = "import StringIO as foo_bar"
@@ -1364,15 +1361,15 @@ class Test_tuple_params(FixerTestCase):
 
     def test_unchanged_1(self):
         s = """def foo(): pass"""
-        self.check(s, s)
+        self.unchanged(s)
 
     def test_unchanged_2(self):
         s = """def foo(a, b, c): pass"""
-        self.check(s, s)
+        self.unchanged(s)
 
     def test_unchanged_3(self):
         s = """def foo(a=3, b=4, c=5): pass"""
-        self.check(s, s)
+        self.unchanged(s)
 
     def test_1(self):
         b = """
@@ -1477,7 +1474,7 @@ class Test_tuple_params(FixerTestCase):
 
     def test_lambda_no_change(self):
         s = """lambda x: x + 5"""
-        self.check(s, s)
+        self.unchanged(s)
 
     def test_lambda_simple(self):
         b = """lambda (x, y): x + f(y)"""
@@ -1695,7 +1692,7 @@ class Test_next(FixerTestCase):
                 def next(self, a, b):
                     pass
             """
-        self.check(s, s)
+        self.unchanged(s)
 
     def test_shadowing_assign_simple(self):
         s = """
@@ -1705,7 +1702,7 @@ class Test_next(FixerTestCase):
                 def next(self, a, b):
                     pass
             """
-        self.warns(s, s, "Calls to builtin next() possibly shadowed")
+        self.warns_unchanged(s, "Calls to builtin next() possibly shadowed")
 
     def test_shadowing_assign_tuple_1(self):
         s = """
@@ -1715,7 +1712,7 @@ class Test_next(FixerTestCase):
                 def next(self, a, b):
                     pass
             """
-        self.warns(s, s, "Calls to builtin next() possibly shadowed")
+        self.warns_unchanged(s, "Calls to builtin next() possibly shadowed")
 
     def test_shadowing_assign_tuple_2(self):
         s = """
@@ -1725,7 +1722,7 @@ class Test_next(FixerTestCase):
                 def next(self, a, b):
                     pass
             """
-        self.warns(s, s, "Calls to builtin next() possibly shadowed")
+        self.warns_unchanged(s, "Calls to builtin next() possibly shadowed")
 
     def test_shadowing_assign_list_1(self):
         s = """
@@ -1735,7 +1732,7 @@ class Test_next(FixerTestCase):
                 def next(self, a, b):
                     pass
             """
-        self.warns(s, s, "Calls to builtin next() possibly shadowed")
+        self.warns_unchanged(s, "Calls to builtin next() possibly shadowed")
 
     def test_shadowing_assign_list_2(self):
         s = """
@@ -1745,7 +1742,7 @@ class Test_next(FixerTestCase):
                 def next(self, a, b):
                     pass
             """
-        self.warns(s, s, "Calls to builtin next() possibly shadowed")
+        self.warns_unchanged(s, "Calls to builtin next() possibly shadowed")
 
     def test_builtin_assign(self):
         s = """
@@ -1756,7 +1753,7 @@ class Test_next(FixerTestCase):
                 def next(self, a, b):
                     pass
             """
-        self.warns(s, s, "Calls to builtin next() possibly shadowed")
+        self.warns_unchanged(s, "Calls to builtin next() possibly shadowed")
 
     def test_builtin_assign_in_tuple(self):
         s = """
@@ -1767,7 +1764,7 @@ class Test_next(FixerTestCase):
                 def next(self, a, b):
                     pass
             """
-        self.warns(s, s, "Calls to builtin next() possibly shadowed")
+        self.warns_unchanged(s, "Calls to builtin next() possibly shadowed")
 
     def test_builtin_assign_in_list(self):
         s = """
@@ -1778,7 +1775,7 @@ class Test_next(FixerTestCase):
                 def next(self, a, b):
                     pass
             """
-        self.warns(s, s, "Calls to builtin next() possibly shadowed")
+        self.warns_unchanged(s, "Calls to builtin next() possibly shadowed")
 
     def test_assign_to_next(self):
         s = """
@@ -1789,7 +1786,7 @@ class Test_next(FixerTestCase):
                 def next(self, a, b):
                     pass
             """
-        self.check(s, s)
+        self.unchanged(s)
 
     def test_assign_to_next_in_tuple(self):
         s = """
@@ -1800,7 +1797,7 @@ class Test_next(FixerTestCase):
                 def next(self, a, b):
                     pass
             """
-        self.check(s, s)
+        self.unchanged(s)
 
     def test_assign_to_next_in_list(self):
         s = """
@@ -1811,7 +1808,7 @@ class Test_next(FixerTestCase):
                 def next(self, a, b):
                     pass
             """
-        self.check(s, s)
+        self.unchanged(s)
 
     def test_shadowing_import_1(self):
         s = """
@@ -1821,7 +1818,7 @@ class Test_next(FixerTestCase):
                 def next(self, a, b):
                     pass
             """
-        self.warns(s, s, "Calls to builtin next() possibly shadowed")
+        self.warns_unchanged(s, "Calls to builtin next() possibly shadowed")
 
     def test_shadowing_import_2(self):
         s = """
@@ -1831,7 +1828,7 @@ class Test_next(FixerTestCase):
                 def next(self, a, b):
                     pass
             """
-        self.warns(s, s, "Calls to builtin next() possibly shadowed")
+        self.warns_unchanged(s, "Calls to builtin next() possibly shadowed")
 
     def test_shadowing_import_3(self):
         s = """
@@ -1841,7 +1838,7 @@ class Test_next(FixerTestCase):
                 def next(self, a, b):
                     pass
             """
-        self.warns(s, s, "Calls to builtin next() possibly shadowed")
+        self.warns_unchanged(s, "Calls to builtin next() possibly shadowed")
 
     def test_shadowing_import_from_1(self):
         s = """
@@ -1851,7 +1848,7 @@ class Test_next(FixerTestCase):
                 def next(self, a, b):
                     pass
             """
-        self.warns(s, s, "Calls to builtin next() possibly shadowed")
+        self.warns_unchanged(s, "Calls to builtin next() possibly shadowed")
 
     def test_shadowing_import_from_2(self):
         s = """
@@ -1861,7 +1858,7 @@ class Test_next(FixerTestCase):
                 def next(self, a, b):
                     pass
             """
-        self.warns(s, s, "Calls to builtin next() possibly shadowed")
+        self.warns_unchanged(s, "Calls to builtin next() possibly shadowed")
 
     def test_shadowing_import_from_3(self):
         s = """
@@ -1871,7 +1868,7 @@ class Test_next(FixerTestCase):
                 def next(self, a, b):
                     pass
             """
-        self.warns(s, s, "Calls to builtin next() possibly shadowed")
+        self.warns_unchanged(s, "Calls to builtin next() possibly shadowed")
 
     def test_shadowing_import_from_4(self):
         s = """
@@ -1881,7 +1878,7 @@ class Test_next(FixerTestCase):
                 def next(self, a, b):
                     pass
             """
-        self.warns(s, s, "Calls to builtin next() possibly shadowed")
+        self.warns_unchanged(s, "Calls to builtin next() possibly shadowed")
 
     def test_shadowing_funcdef_1(self):
         s = """
@@ -1892,7 +1889,7 @@ class Test_next(FixerTestCase):
                 def next(self, a, b):
                     pass
             """
-        self.warns(s, s, "Calls to builtin next() possibly shadowed")
+        self.warns_unchanged(s, "Calls to builtin next() possibly shadowed")
 
     def test_shadowing_funcdef_2(self):
         b = """
@@ -1923,7 +1920,7 @@ class Test_next(FixerTestCase):
                 global next
                 next = 5
             """
-        self.warns(s, s, "Calls to builtin next() possibly shadowed")
+        self.warns_unchanged(s, "Calls to builtin next() possibly shadowed")
 
     def test_shadowing_global_2(self):
         s = """
@@ -1931,7 +1928,7 @@ class Test_next(FixerTestCase):
                 global a, next, b
                 next = 5
             """
-        self.warns(s, s, "Calls to builtin next() possibly shadowed")
+        self.warns_unchanged(s, "Calls to builtin next() possibly shadowed")
 
     def test_shadowing_for_simple(self):
         s = """
@@ -1941,7 +1938,7 @@ class Test_next(FixerTestCase):
             b = 5
             c = 6
             """
-        self.warns(s, s, "Calls to builtin next() possibly shadowed")
+        self.warns_unchanged(s, "Calls to builtin next() possibly shadowed")
 
     def test_shadowing_for_tuple_1(self):
         s = """
@@ -1951,7 +1948,7 @@ class Test_next(FixerTestCase):
             b = 5
             c = 6
             """
-        self.warns(s, s, "Calls to builtin next() possibly shadowed")
+        self.warns_unchanged(s, "Calls to builtin next() possibly shadowed")
 
     def test_shadowing_for_tuple_2(self):
         s = """
@@ -1961,7 +1958,7 @@ class Test_next(FixerTestCase):
             b = 5
             c = 6
             """
-        self.warns(s, s, "Calls to builtin next() possibly shadowed")
+        self.warns_unchanged(s, "Calls to builtin next() possibly shadowed")
 
     def test_noncall_access_1(self):
         b = """gnext = g.next"""
@@ -2013,7 +2010,7 @@ class Test_nonzero(FixerTestCase):
                 def __bool__(self):
                     pass
             """
-        self.check(s, s)
+        self.unchanged(s)
 
     def test_unchanged_2(self):
         s = """
@@ -2021,14 +2018,14 @@ class Test_nonzero(FixerTestCase):
                 def __nonzero__(self, a):
                     pass
             """
-        self.check(s, s)
+        self.unchanged(s)
 
     def test_unchanged_func(self):
         s = """
             def __nonzero__(self):
                 pass
             """
-        self.check(s, s)
+        self.unchanged(s)
 
 class Test_numliterals(FixerTestCase):
     fixer = "numliterals"
@@ -2055,37 +2052,37 @@ class Test_numliterals(FixerTestCase):
 
     def test_unchanged_int(self):
         s = """5"""
-        self.check(s, s)
+        self.unchanged(s)
 
     def test_unchanged_float(self):
         s = """5.0"""
-        self.check(s, s)
+        self.unchanged(s)
 
     def test_unchanged_octal(self):
         s = """0o755"""
-        self.check(s, s)
+        self.unchanged(s)
 
     def test_unchanged_hex(self):
         s = """0xABC"""
-        self.check(s, s)
+        self.unchanged(s)
 
     def test_unchanged_exp(self):
         s = """5.0e10"""
-        self.check(s, s)
+        self.unchanged(s)
 
     def test_unchanged_complex_int(self):
         s = """5 + 4j"""
-        self.check(s, s)
+        self.unchanged(s)
 
     def test_unchanged_complex_float(self):
         s = """5.4 + 4.9j"""
-        self.check(s, s)
+        self.unchanged(s)
 
     def test_unchanged_complex_bare(self):
         s = """4j"""
-        self.check(s, s)
+        self.unchanged(s)
         s = """4.4j"""
-        self.check(s, s)
+        self.unchanged(s)
 
 class Test_unicode(FixerTestCase):
     fixer = "unicode"
@@ -2129,16 +2126,16 @@ class Test_callable(FixerTestCase):
 
     def test_callable_should_not_change(self):
         a = """callable(*x)"""
-        self.check(a, a)
+        self.unchanged(a)
 
         a = """callable(x, y)"""
-        self.check(a, a)
+        self.unchanged(a)
 
         a = """callable(x, kw=y)"""
-        self.check(a, a)
+        self.unchanged(a)
 
         a = """callable()"""
-        self.check(a, a)
+        self.unchanged(a)
 
 class Test_filter(FixerTestCase):
     fixer = "filter"
@@ -2168,25 +2165,25 @@ class Test_filter(FixerTestCase):
 
     def test_filter_nochange(self):
         a = """iter(filter(f, 'abc'))"""
-        self.check(a, a)
+        self.unchanged(a, a)
         a = """list(filter(f, 'abc'))"""
-        self.check(a, a)
+        self.unchanged(a, a)
         a = """list(filter(f, 'abc'))[0]"""
-        self.check(a, a)
+        self.unchanged(a, a)
         a = """tuple(filter(f, 'abc'))"""
-        self.check(a, a)
+        self.unchanged(a, a)
         a = """sorted(filter(f, 'abc'))"""
-        self.check(a, a)
+        self.unchanged(a, a)
         a = """sorted(filter(f, 'abc'), key=blah)"""
-        self.check(a, a)
+        self.unchanged(a, a)
         a = """sorted(filter(f, 'abc'), key=blah)[0]"""
-        self.check(a, a)
+        self.unchanged(a, a)
         a = """for i in filter(f, 'abc'): pass"""
-        self.check(a, a)
+        self.unchanged(a, a)
         a = """[x for x in filter(f, 'abc')]"""
-        self.check(a, a)
+        self.unchanged(a, a)
         a = """(x for x in filter(f, 'abc'))"""
-        self.check(a, a)
+        self.unchanged(a, a)
 
 class Test_map(FixerTestCase):
     fixer = "map"
@@ -2229,25 +2226,25 @@ class Test_map(FixerTestCase):
 
     def test_map_nochange(self):
         a = """iter(map(f, 'abc'))"""
-        self.check(a, a)
+        self.unchanged(a)
         a = """list(map(f, 'abc'))"""
-        self.check(a, a)
+        self.unchanged(a)
         a = """list(map(f, 'abc'))[0]"""
-        self.check(a, a)
+        self.unchanged(a)
         a = """tuple(map(f, 'abc'))"""
-        self.check(a, a)
+        self.unchanged(a)
         a = """sorted(map(f, 'abc'))"""
-        self.check(a, a)
+        self.unchanged(a)
         a = """sorted(map(f, 'abc'), key=blah)"""
-        self.check(a, a)
+        self.unchanged(a)
         a = """sorted(map(f, 'abc'), key=blah)[0]"""
-        self.check(a, a)
+        self.unchanged(a)
         a = """for i in map(f, 'abc'): pass"""
-        self.check(a, a)
+        self.unchanged(a)
         a = """[x for x in map(f, 'abc')]"""
-        self.check(a, a)
+        self.unchanged(a)
         a = """(x for x in map(f, 'abc'))"""
-        self.check(a, a)
+        self.unchanged(a)
 
 
 if __name__ == "__main__":
