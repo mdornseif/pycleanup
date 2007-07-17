@@ -2208,6 +2208,8 @@ class Test_filter(FixerTestCase):
         self.unchanged(a)
         a = """tuple(filter(f, 'abc'))"""
         self.unchanged(a)
+        a = """enumerate(filter(f, 'abc'))"""
+        self.unchanged(a)
         a = """sorted(filter(f, 'abc'))"""
         self.unchanged(a)
         a = """sorted(filter(f, 'abc'), key=blah)"""
@@ -2276,6 +2278,8 @@ class Test_map(FixerTestCase):
         a = """set(map(f, 'abc')).pop()"""
         self.unchanged(a)
         a = """tuple(map(f, 'abc'))"""
+        self.unchanged(a)
+        a = """enumerate(map(f, 'abc'))"""
         self.unchanged(a)
         a = """sorted(map(f, 'abc'))"""
         self.unchanged(a)
