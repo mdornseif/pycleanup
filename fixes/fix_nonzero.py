@@ -15,8 +15,6 @@ class FixNonzero(basefix.BaseFix):
     """
 
     def transform(self, node, results):
-        assert results
-
         name = results["name"]
         new = Name("__bool__", prefix=name.get_prefix())
         name.replace(new)

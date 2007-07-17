@@ -34,7 +34,6 @@ class FixRaise(basefix.BaseFix):
     """
 
     def transform(self, node, results):
-        assert results
         syms = self.syms
 
         exc = results["exc"].clone()
