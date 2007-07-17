@@ -18,7 +18,7 @@ import pytree
 import patcomp
 from pgen2 import token
 from fixes import basefix
-from fixes.util import Name, Call, ListComp
+from fixes.util import Name, Call, ListComp, attr_chain
 
 class FixFilter(basefix.BaseFix):
 
@@ -49,7 +49,7 @@ class FixFilter(basefix.BaseFix):
                            results.get("it").clone(),
                            results.get("xp").clone())
         else:
-            if self.in_special_context(node):
+            if in_special_context(node):
                 return None
             new = node.clone()
             new.set_prefix("")
@@ -57,49 +57,33 @@ class FixFilter(basefix.BaseFix):
         new.set_prefix(node.get_prefix())
         return new
 
-    P0 = """for_stmt< 'for' any 'in' node=any ':' any* >
-            | comp_for< 'for' any 'in' node=any any* >
-         """
-    p0 = patcomp.compile_pattern(P0)
+P0 = """for_stmt< 'for' any 'in' node=any ':' any* >
+        | comp_for< 'for' any 'in' node=any any* >
+     """
+p0 = patcomp.compile_pattern(P0)
 
-    P1 = """
-    power<
-        ( 'iter' | 'list' | 'tuple' | 'sorted' )
-        trailer< '(' node=any ')' >
-        any*
-    >
-    """
-    p1 = patcomp.compile_pattern(P1)
+P1 = """
+power<
+    ( 'iter' | 'list' | 'tuple' | 'sorted' )
+    trailer< '(' node=any ')' >
+    any*
+>
+"""
+p1 = patcomp.compile_pattern(P1)
 
-    P2 = """
-    power<
-        'sorted'
-        trailer< '(' arglist<node=any any*> ')' >
-        any*
-    >
-    """
-    p2 = patcomp.compile_pattern(P2)
+P2 = """
+power<
+    'sorted'
+    trailer< '(' arglist<node=any any*> ')' >
+    any*
+>
+"""
+p2 = patcomp.compile_pattern(P2)
 
-    def in_special_context(self, node):
-        p = node.parent
-        if p is None:
-            return False
+def in_special_context(node):
+    patterns = [p0, p1, p2]
+    for pattern, parent in zip(patterns, attr_chain(node, "parent")):
         results = {}
-        if self.p0.match(p, results) and results["node"] is node:
+        if pattern.match(parent, results) and results["node"] is node:
             return True
-
-        pp = p.parent
-        if pp is None:
-            return False
-        results = {}
-        if self.p1.match(pp, results) and results["node"] is node:
-            return True
-
-        ppp = pp.parent
-        if ppp is None:
-            return False
-        results = {}
-        if self.p2.match(ppp, results) and results["node"] is node:
-            return True
-
-        return False
+    return False
