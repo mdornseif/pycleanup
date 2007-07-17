@@ -15,23 +15,24 @@ will be translated to "io".
 from fixes import basefix
 from fixes.util import Name, attr_chain, any
 
+MODULE = "('StringIO' | 'cStringIO')"
 
 class FixStringio(basefix.BaseFix):
     PATTERN = """
-    import_name< 'import' (module='StringIO'
-                           | dotted_as_names< any* module='StringIO' any* >) >
+    import_name< 'import' (module=%s
+                           | dotted_as_names< any* module=%s any* >) >
     |
-    import_from< 'from' module_name='StringIO' 'import'
+    import_from< 'from' module_name=%s 'import'
                  ( 'StringIO' | import_as_name< 'StringIO' 'as' any >) >
     |
-    import_from< 'from' module_name='StringIO' 'import' star='*' >
+    import_from< 'from' module_name=%s 'import' star='*' >
     |
-    import_name< 'import' dotted_as_name< module_name='StringIO' 'as' any > >
+    import_name< 'import' dotted_as_name< module_name=%s 'as' any > >
     |
-    power< module_name='StringIO' trailer< '.' 'StringIO' > any* >
+    power< module_name=%s trailer< '.' 'StringIO' > any* >
     |
-    bare_name='StringIO'
-    """
+    bare_name=%s
+    """ % ((MODULE,) * 7)
 
     order = "pre" # Pre-order tree traversal
 
@@ -56,11 +57,14 @@ class FixStringio(basefix.BaseFix):
         star = results.get("star")
 
         if import_mod:
+            import_mod = import_mod[0]
             self.module_import = True
             import_mod.replace(Name("io", prefix=import_mod.get_prefix()))
         elif module_name:
+            module_name = module_name[0]
             module_name.replace(Name("io", prefix=module_name.get_prefix()))
             if star:
                 star.replace(Name("StringIO", prefix=star.get_prefix()))
         elif bare_name and self.module_import:
+            bare_name = bare_name[0]
             bare_name.replace(Name("io", prefix=bare_name.get_prefix()))

@@ -1280,62 +1280,70 @@ class Test_xreadlines(FixerTestCase):
 class Test_stringio(FixerTestCase):
     fixer = "stringio"
 
-    def test_import_module(self):
-        b = "import StringIO"
-        a = "import io"
-        self.check(b, a)
+    modules = ["StringIO", "cStringIO"]
 
-        b = "import foo, StringIO, bar"
-        a = "import foo, io, bar"
-        self.check(b, a)
+    def test_import_module(self):
+        for module in self.modules:
+            b = "import %s" % module
+            a = "import io"
+            self.check(b, a)
+
+            b = "import foo, %s, bar" % module
+            a = "import foo, io, bar"
+            self.check(b, a)
 
     def test_import_from(self):
-        b = "from StringIO import StringIO"
-        a = "from io import StringIO"
-        self.check(b, a)
+        for module in self.modules:
+            b = "from %s import StringIO" % module
+            a = "from io import StringIO"
+            self.check(b, a)
 
-        b = "from StringIO import *"
-        a = "from io import StringIO"
-        self.check(b, a)
+            b = "from %s import *" % module
+            a = "from io import StringIO"
+            self.check(b, a)
 
-        s = "from foo import StringIO"
-        self.unchanged(s)
+            s = "from foo import StringIO"
+            self.unchanged(s)
 
     def test_import_module_as(self):
-        b = "import StringIO as foo_bar"
-        a = "import io as foo_bar"
-        self.check(b, a)
+        for module in self.modules:
+            b = "import %s as foo_bar" % module
+            a = "import io as foo_bar"
+            self.check(b, a)
 
-        b = "import StringIO as foo_bar"
-        a = "import io as foo_bar"
-        self.check(b, a)
+            b = "import %s as foo_bar" % module
+            a = "import io as foo_bar"
+            self.check(b, a)
 
     def test_import_from_as(self):
-        b = "from StringIO import StringIO as foo_bar"
-        a = "from io import StringIO as foo_bar"
-        self.check(b, a)
+        for module in self.modules:
+            b = "from %s import StringIO as foo_bar" % module
+            a = "from io import StringIO as foo_bar"
+            self.check(b, a)
 
     def test_import_module_usage(self):
-        b = """
-            import StringIO
-            foo(StringIO, StringIO.StringIO)
-            """
-        a = """
-            import io
-            foo(io, io.StringIO)
-            """
-        self.check(b, a)
+        for module in self.modules:
+            b = """
+                import %s
+                foo(%s, %s.StringIO)
+                """ % (module, module, module)
+            a = """
+                import io
+                foo(io, io.StringIO)
+                """
+            self.check(b, a)
 
     def test_from_import_usage(self):
-        b = """
-            from StringIO import StringIO
-            foo(StringIO, StringIO())
-            """
-        a = """
-            from io import StringIO
-            foo(StringIO, StringIO())
-            """
-        self.check(b, a)
+        for module in self.modules:
+            b = """
+                from %s import StringIO
+                foo(StringIO, StringIO())
+                """ % module
+            a = """
+                from io import StringIO
+                foo(StringIO, StringIO())
+                """
+            self.check(b, a)
 
 
 class Test_input(FixerTestCase):
