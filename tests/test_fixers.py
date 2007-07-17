@@ -2193,29 +2193,29 @@ class Test_filter(FixerTestCase):
 
     def test_filter_nochange(self):
         a = """iter(filter(f, 'abc'))"""
-        self.unchanged(a, a)
+        self.unchanged(a)
         a = """list(filter(f, 'abc'))"""
-        self.unchanged(a, a)
+        self.unchanged(a)
         a = """list(filter(f, 'abc'))[0]"""
-        self.unchanged(a, a)
+        self.unchanged(a)
         a = """set(filter(f, 'abc'))"""
         self.unchanged(a)
         a = """set(filter(f, 'abc')).pop()"""
         self.unchanged(a)
         a = """tuple(filter(f, 'abc'))"""
-        self.unchanged(a, a)
+        self.unchanged(a)
         a = """sorted(filter(f, 'abc'))"""
-        self.unchanged(a, a)
+        self.unchanged(a)
         a = """sorted(filter(f, 'abc'), key=blah)"""
-        self.unchanged(a, a)
+        self.unchanged(a)
         a = """sorted(filter(f, 'abc'), key=blah)[0]"""
-        self.unchanged(a, a)
+        self.unchanged(a)
         a = """for i in filter(f, 'abc'): pass"""
-        self.unchanged(a, a)
+        self.unchanged(a)
         a = """[x for x in filter(f, 'abc')]"""
-        self.unchanged(a, a)
+        self.unchanged(a)
         a = """(x for x in filter(f, 'abc'))"""
-        self.unchanged(a, a)
+        self.unchanged(a)
 
 class Test_map(FixerTestCase):
     fixer = "map"
