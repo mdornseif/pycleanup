@@ -38,6 +38,7 @@ class Test_is_tuple(support.TestCase):
         self.failUnless(self.is_tuple("(a, (b, c))"))
         self.failUnless(self.is_tuple("((a, (b, c)),)"))
         self.failUnless(self.is_tuple("(a,)"))
+        self.failUnless(self.is_tuple("()"))
     
     def test_invalid(self):
         self.failIf(self.is_tuple("(a)"))

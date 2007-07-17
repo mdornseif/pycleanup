@@ -109,6 +109,8 @@ def ListComp(xp, fp, it, test=None):
 
 def is_tuple(node):
     """Does the node represent a tuple literal?"""
+    if isinstance(node, Node) and node.children == [LParen(), RParen()]:
+        return True
     return (isinstance(node, Node)
             and len(node.children) == 3
             and isinstance(node.children[0], Leaf)
