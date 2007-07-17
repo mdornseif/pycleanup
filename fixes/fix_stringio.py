@@ -40,7 +40,7 @@ class FixStringio(basefix.BaseFix):
         match = super(FixStringio, self).match
         results = match(node)
         if results:
-            if any([match(obj) for obj in attr_chain(node, "parent")]):
+            if any([match(obj) for obj in attr_chain(node.parent, "parent")]):
                 return False
             return results
         return False
