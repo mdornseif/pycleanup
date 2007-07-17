@@ -43,7 +43,6 @@ class FixExcept(basefix.BaseFix):
     """
 
     def transform(self, node, results):
-        assert results
         syms = self.syms
 
         try_cleanup = [ch.clone() for ch in results['cleanup']]
@@ -80,6 +79,10 @@ class FixExcept(basefix.BaseFix):
                     for child in reversed(suite_stmts[:i]):
                         e_suite.insert_child(0, child)
                     e_suite.insert_child(i, assign)
+                elif N.get_prefix() == "":
+                    # No space after a comma is legal; no space after "as",
+                    # not so much.
+                    N.set_prefix(" ")
 
         #TODO(cwinter) fix this when children becomes a smart list
         children = [c.clone() for c in node.children[:3]] + try_cleanup

@@ -502,6 +502,32 @@ class Test_except(FixerTestCase):
                 pass"""
         self.check(b, a)
 
+    def test_simple(self):
+        b = """
+            try:
+                pass
+            except Foo, e:
+                pass"""
+        a = """
+            try:
+                pass
+            except Foo as e:
+                pass"""
+        self.check(b, a)
+
+    def test_simple_no_space_before_target(self):
+        b = """
+            try:
+                pass
+            except Foo,e:
+                pass"""
+        a = """
+            try:
+                pass
+            except Foo as e:
+                pass"""
+        self.check(b, a)
+
     def test_tuple_unpack(self):
         b = """
             def foo():
