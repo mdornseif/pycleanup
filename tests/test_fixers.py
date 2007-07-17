@@ -2198,6 +2198,10 @@ class Test_filter(FixerTestCase):
         self.unchanged(a, a)
         a = """list(filter(f, 'abc'))[0]"""
         self.unchanged(a, a)
+        a = """set(filter(f, 'abc'))"""
+        self.unchanged(a)
+        a = """set(filter(f, 'abc')).pop()"""
+        self.unchanged(a)
         a = """tuple(filter(f, 'abc'))"""
         self.unchanged(a, a)
         a = """sorted(filter(f, 'abc'))"""
@@ -2258,6 +2262,10 @@ class Test_map(FixerTestCase):
         a = """list(map(f, 'abc'))"""
         self.unchanged(a)
         a = """list(map(f, 'abc'))[0]"""
+        self.unchanged(a)
+        a = """set(map(f, 'abc'))"""
+        self.unchanged(a)
+        a = """set(map(f, 'abc')).pop()"""
         self.unchanged(a)
         a = """tuple(map(f, 'abc'))"""
         self.unchanged(a)
