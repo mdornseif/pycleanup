@@ -8,7 +8,7 @@ from fixes.util import Name
 
 class FixFuncattrs(basefix.BaseFix):
     PATTERN = """
-    power< any trailer< '.' attr=('func_closure' | 'func_doc' | 'func_globals'
+    power< any+ trailer< '.' attr=('func_closure' | 'func_doc' | 'func_globals'
                                   | 'func_name' | 'func_defaults' | 'func_code'
                                   | 'func_dict') > any* >
     """

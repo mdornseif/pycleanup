@@ -1199,6 +1199,10 @@ class Test_funcattrs(FixerTestCase):
             a = "a.__%s__" % attr
             self.check(b, a)
 
+            b = "self.foo.func_%s.foo_bar" % attr
+            a = "self.foo.__%s__.foo_bar" % attr
+            self.check(b, a)
+
     def test_unchanged(self):
         for attr in self.attrs:
             s = "foo(func_%s + 5)" % attr
@@ -1207,11 +1211,8 @@ class Test_funcattrs(FixerTestCase):
             s = "f(foo.__%s__)" % attr
             self.unchanged(s)
 
-    def test_regressions(self):
-        # Found in setuptools
-        b = "extract_constant(f1.func_code,'q', -1)"
-        a = "extract_constant(f1.__code__,'q', -1)"
-        self.check(b, a)
+            s = "f(foo.__%s__.foo)" % attr
+            self.unchanged(s)
 
 
 class Test_xreadlines(FixerTestCase):
