@@ -14,32 +14,31 @@ Change:
 import pytree
 from pgen2 import token
 from fixes import basefix
-from fixes.util import Name, Call, Comma, String
+from fixes.util import Name, Call, Comma, String, is_tuple
 
 
 class FixPrint(basefix.BaseFix):
 
     PATTERN = """
-              'print' | print_stmt
+              simple_stmt< bare='print' any > | print_stmt
               """
-
-    def match(self, node):
-        # Override
-        if node.parent is not None and node.parent.type == self.syms.print_stmt:
-            # Avoid matching 'print' as part of a print_stmt
-            return None
-        return self.pattern.match(node)
 
     def transform(self, node, results):
         assert results
-        syms = self.syms
+        bare_print = results.get("bare")
 
-        if node == Name("print"):
+        if bare_print:
             # Special-case print all by itself
-            return Call(Name("print"), [], prefix=node.get_prefix())
+            bare_print.replace(Call(Name("print"), [],
+                               prefix=bare_print.get_prefix()))
+            return
         assert node.children[0] == Name("print")
         args = node.children[1:]
         sep = end = file = None
+        if is_tuple(args[0]):
+            # We don't want to keep sticking parens around an
+            # already-parenthesised expression.
+            return
         if args and args[-1] == Comma():
             args = args[:-1]
             end = " "
