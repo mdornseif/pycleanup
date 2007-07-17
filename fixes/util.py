@@ -55,9 +55,12 @@ def ArgList(args, lparen=LParen(), rparen=RParen()):
                  Node(syms.arglist, args),
                  rparen.clone()])
 
-def Call(func_name, args):
+def Call(func_name, args, prefix=None):
     """A function call"""
-    return Node(syms.power, [func_name, ArgList(args)])
+    node = Node(syms.power, [func_name, ArgList(args)])
+    if prefix is not None:
+        node.set_prefix(prefix)
+    return node
 
 def Newline():
     """A newline literal"""

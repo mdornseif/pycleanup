@@ -55,6 +55,4 @@ class FixApply(basefix.BaseFix):
         # XXX Sometimes we could be cleverer, e.g. apply(f, (x, y) + t)
         # can be translated into f(x, y, *t) instead of f(*(x, y) + t)
         #new = pytree.Node(syms.power, (func, ArgList(l_newargs)))
-        new = Call(func, l_newargs)
-        new.set_prefix(prefix)
-        return new
+        return Call(func, l_newargs, prefix=prefix)

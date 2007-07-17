@@ -36,6 +36,4 @@ class FixExec(basefix.BaseFix):
         if c is not None:
             args.extend([Comma(), c.clone()])
 
-        new = Call(Name("exec"), args)
-        new.set_prefix(node.get_prefix())
-        return new
+        return Call(Name("exec"), args, prefix=node.get_prefix())

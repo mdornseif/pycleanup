@@ -36,9 +36,7 @@ class FixPrint(basefix.BaseFix):
 
         if node == Name("print"):
             # Special-case print all by itself
-            new = Call(Name("print"), [])
-            new.set_prefix(node.get_prefix())
-            return new
+            return Call(Name("print"), [], prefix=node.get_prefix())
         assert node.children[0] == Name("print")
         args = node.children[1:]
         sep = end = file = None

@@ -19,6 +19,4 @@ class FixRepr(basefix.BaseFix):
 
       if expr.type == self.syms.testlist1:
           expr = self.parenthesize(expr)
-      new = Call(Name("repr"), [expr])
-      new.set_prefix(node.get_prefix())
-      return new
+      return Call(Name("repr"), [expr], prefix=node.get_prefix())

@@ -28,7 +28,4 @@ class FixCallable(basefix.BaseFix):
         func = results["func"]
 
         args = [func.clone(), String(', '), String("'__call__'")]
-        new = Call(Name("hasattr"), args)
-        new.set_prefix(node.get_prefix())
-        return new
-
+        return Call(Name("hasattr"), args, prefix=node.get_prefix())
