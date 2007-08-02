@@ -1,13 +1,9 @@
-"""StringIO.StringIO -> io.StringIO (imports, too).
+"""Fix incompatible imports and module references.
 
-Imports this fixer picks up on:
-* "import StringIO" -> "import io"
-* "from StringIO import StringIO" -> "from io import StringIO"
-* "import StringIO as foo" -> "import io as foo"
-
-If the fixer finds "import StringIO", all "StringIO.StringIO" attribute
-lookups will be translated to "io.StringIO" and all "StringIO" names
-will be translated to "io".
+Fixes:
+  * StringIO -> io
+  * cStringIO -> io
+  * md5 -> hashlib
 """
 # Author: Collin Winter
 
