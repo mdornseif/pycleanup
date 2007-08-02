@@ -1277,73 +1277,80 @@ class Test_xreadlines(FixerTestCase):
         self.unchanged(s)
 
 
-class Test_stringio(FixerTestCase):
-    fixer = "stringio"
+class Test_imports(FixerTestCase):
+    fixer = "imports"
 
-    modules = ["StringIO", "cStringIO"]
+    modules = {"StringIO":  ("io", ["StringIO"]),
+               "cStringIO": ("io", ["StringIO"]),
+               "md5":       ("hashlib", ["md5"])}
 
     def test_import_module(self):
-        for module in self.modules:
-            b = "import %s" % module
-            a = "import io"
+        for old, (new, members) in self.modules.items():
+            b = "import %s" % old
+            a = "import %s" % new
             self.check(b, a)
 
-            b = "import foo, %s, bar" % module
-            a = "import foo, io, bar"
+            b = "import foo, %s, bar" % old
+            a = "import foo, %s, bar" % new
             self.check(b, a)
 
     def test_import_from(self):
-        for module in self.modules:
-            b = "from %s import StringIO" % module
-            a = "from io import StringIO"
-            self.check(b, a)
+        for old, (new, members) in self.modules.items():
+            for member in members:
+                b = "from %s import %s" % (old, ", ".join(members))
+                a = "from %s import %s" % (new, ", ".join(members))
+                self.check(b, a)
 
-            b = "from %s import *" % module
-            a = "from io import StringIO"
-            self.check(b, a)
-
-            s = "from foo import StringIO"
-            self.unchanged(s)
+                s = "from foo import %s" % ", ".join(members)
+                self.unchanged(s)
 
     def test_import_module_as(self):
-        for module in self.modules:
-            b = "import %s as foo_bar" % module
-            a = "import io as foo_bar"
+        for old, (new, members) in self.modules.items():
+            b = "import %s as foo_bar" % old
+            a = "import %s as foo_bar" % new
             self.check(b, a)
 
-            b = "import %s as foo_bar" % module
-            a = "import io as foo_bar"
+            b = "import %s as foo_bar" % old
+            a = "import %s as foo_bar" % new
             self.check(b, a)
 
     def test_import_from_as(self):
-        for module in self.modules:
-            b = "from %s import StringIO as foo_bar" % module
-            a = "from io import StringIO as foo_bar"
-            self.check(b, a)
+        for old, (new, members) in self.modules.items():
+            for member in members:
+                b = "from %s import %s as foo_bar" % (old, ", ".join(members))
+                a = "from %s import %s as foo_bar" % (new, ", ".join(members))
+                self.check(b, a)
+
+    def test_star(self):
+        for old in self.modules:
+            s = "from %s import *" % old
+            self.warns_unchanged(s, "Cannot handle star imports")
 
     def test_import_module_usage(self):
-        for module in self.modules:
-            b = """
-                import %s
-                foo(%s, %s.StringIO)
-                """ % (module, module, module)
-            a = """
-                import io
-                foo(io, io.StringIO)
-                """
-            self.check(b, a)
+        for old, (new, members) in self.modules.items():
+            for member in members:
+                b = """
+                    import %s
+                    foo(%s, %s.%s)
+                    """ % (old, old, old, member)
+                a = """
+                    import %s
+                    foo(%s, %s.%s)
+                    """ % (new, new, new, member)
+                self.check(b, a)
 
     def test_from_import_usage(self):
-        for module in self.modules:
-            b = """
-                from %s import StringIO
-                foo(StringIO, StringIO())
-                """ % module
-            a = """
-                from io import StringIO
-                foo(StringIO, StringIO())
-                """
-            self.check(b, a)
+        for old, (new, members) in self.modules.items():
+            for member in members:
+                b = """
+                    from %s import %s
+                    foo(%s, %s())
+                    """ % (old, member, member, member)
+                a = """
+                    from %s import %s
+                    foo(%s, %s())
+                    """ % (new, member, member, member)
+                self.check(b, a)
 
 
 class Test_input(FixerTestCase):
