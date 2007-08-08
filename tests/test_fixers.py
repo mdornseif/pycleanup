@@ -2301,6 +2301,13 @@ class Test_map(FixerTestCase):
         a = """(x for x in map(f, 'abc'))"""
         self.unchanged(a)
 
+    def test_warn(self):
+        a = """
+            foo()
+            map(f, x)
+            """
+        self.warns_unchanged(a, "You should use a for loop here")
+
 
 if __name__ == "__main__":
     import __main__
