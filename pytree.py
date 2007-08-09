@@ -34,7 +34,7 @@ class Base(object):
     def __new__(cls, *args, **kwds):
         """Constructor that prevents Base from being instantiated."""
         assert cls is not Base, "Cannot instantiate Base"
-        return object.__new__(cls, *args, **kwds)
+        return object.__new__(cls)
 
     def __eq__(self, other):
         """Compares two nodes for equality.
@@ -369,7 +369,7 @@ class BasePattern(object):
     def __new__(cls, *args, **kwds):
         """Constructor that prevents BasePattern from being instantiated."""
         assert cls is not BasePattern, "Cannot instantiate BasePattern"
-        return object.__new__(cls, *args, **kwds)
+        return object.__new__(cls)
 
     def __repr__(self):
         args = [self.type, self.content, self.name]
