@@ -43,6 +43,8 @@ A quick run-through of 2to3's current fixers:
 
 * **fix_exec** - convert "exec" statements to exec() function calls.
 
+* **fix_execfile** - execfile(filename, ...) -> exec(open(filename).read())
+
 * **fix_filter** - changes filter(F, X) into list(filter(F, X)).
 
 * **fix_funcattrs** - fix function attribute names (f.func_x -> f.__x__).
