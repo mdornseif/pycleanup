@@ -2308,6 +2308,30 @@ class Test_map(FixerTestCase):
             """
         self.warns_unchanged(a, "You should use a for loop here")
 
+class Test_types(FixerTestCase):
+    fixer = "types"
+
+    def test_basic_types_convert(self):
+        b = """types.StringType"""
+        a = """str"""
+        self.check(b, a)
+
+        b = """types.DictType"""
+        a = """dict"""
+        self.check(b, a)
+
+        b = """types . IntType"""
+        a = """int"""
+        self.check(b, a)
+
+        b = """types.ListType"""
+        a = """list"""
+        self.check(b, a)
+
+        b = """types.LongType"""
+        a = """int"""
+        self.check(b, a)
+
 
 if __name__ == "__main__":
     import __main__
