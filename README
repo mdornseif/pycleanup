@@ -77,6 +77,8 @@ A quick run-through of 2to3's current fixers:
 
 * **fix_repr** - swap backticks for repr() calls.
 
+* **fix_standarderror** - StandardError -> Exception.
+
 * **fix_throw** - fix generator.throw() calls to be 3.0-compliant (PEP 3109).
 
 * **fix_tuple_params** - remove tuple parameters from function, method and
