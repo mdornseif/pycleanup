@@ -77,15 +77,21 @@ class BaseFix(object):
         results = {"node": node}
         return self.pattern.match(node, results) and results
 
-    def transform(self, node):
+    def transform(self, node, results):
         """Returns the transformation for a given parse tree node.
 
-        Should return None, or a node that is a modified copy of the
-        argument node.  The argument should not be modified in place.
+        Args:
+          node: the root of the parse tree that matched the fixer.
+          results: a dict mapping symbolic names to part of the match.
+          
+        Returns:
+          None, or a node that is a modified copy of the
+          argument node.  The node argument may also be modified in-place to
+          effect the same change.
 
         Subclass *must* override.
         """
-        return None
+        raise NotImplementedError()
 
     def parenthesize(self, node):
         """Wrapper around pygram.parenthesize()."""
