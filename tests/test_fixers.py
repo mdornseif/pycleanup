@@ -2348,6 +2348,32 @@ class Test_types(FixerTestCase):
         a = """int"""
         self.check(b, a)
 
+class Test_type_equality(FixerTestCase):
+    fixer = "type_equality"
+
+    def test_simple(self):
+        b = """type(x) == T"""
+        a = """isinstance(x, T)"""
+        self.check(b, a)
+
+    def test_reverse(self):
+        b = """T == type(x)"""
+        a = """isinstance(x, T)"""
+        self.check(b, a)
+
+    def test_expression(self):
+        b = """type(x+y) == d.get('T')"""
+        a = """isinstance(x+y, d.get('T'))"""
+        self.check(b, a)
+
+        b = """type(   x  +  y) == d.get('T')"""
+        a = """isinstance(x  +  y, d.get('T'))"""
+        self.check(b, a)
+
+    def test_unchanged(self):
+        a = """type(x).__name__"""
+        self.unchanged(a)
+
 
 if __name__ == "__main__":
     import __main__
