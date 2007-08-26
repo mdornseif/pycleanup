@@ -18,4 +18,5 @@ class FixTypeEquality(basefix.BaseFix):
         T = results['T'].clone() # The type being compared against
         x.set_prefix('')
         T.set_prefix(' ')
-        return Call(Name('isinstance'), [x, Comma(), T])
+        return Call(Name('isinstance', prefix=node.get_prefix()),
+                    [x, Comma(), T])

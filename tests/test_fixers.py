@@ -2356,9 +2356,17 @@ class Test_type_equality(FixerTestCase):
         a = """isinstance(x, T)"""
         self.check(b, a)
 
+        b = """if   type(x) == T: pass"""
+        a = """if   isinstance(x, T): pass"""
+        self.check(b, a)
+
     def test_reverse(self):
         b = """T == type(x)"""
         a = """isinstance(x, T)"""
+        self.check(b, a)
+
+        b = """if   T == type(x): pass"""
+        a = """if   isinstance(x, T): pass"""
         self.check(b, a)
 
     def test_expression(self):
