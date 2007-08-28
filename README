@@ -84,7 +84,7 @@ A quick run-through of 2to3's current fixers:
 * **fix_tuple_params** - remove tuple parameters from function, method and
   lambda declarations (PEP 3113).
 
-* **fix_type_equality** - convert type(x) == T to isinstance(x, T).
+* **fix_type_equality** - convert type(x) == T to isinstance(x, T), etc.
   
 * **fix_unicode** - convert, e.g., u"..." to "...", unicode(x) to str(x), etc.
   

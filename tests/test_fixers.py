@@ -2405,6 +2405,60 @@ class Test_type_equality(FixerTestCase):
         a = """isinstance(x  +  y, d.get('T'))"""
         self.check(b, a)
 
+    def test_is_not_simple(self):
+        b = """type(x) is not T"""
+        a = """not isinstance(x, T)"""
+        self.check(b, a)
+
+        b = """if   type(x) is not T: pass"""
+        a = """if   not isinstance(x, T): pass"""
+        self.check(b, a)
+
+    def test_is_not_reverse(self):
+        b = """T is not type(x)"""
+        a = """not isinstance(x, T)"""
+        self.check(b, a)
+
+        b = """if   T is not type(x): pass"""
+        a = """if   not isinstance(x, T): pass"""
+        self.check(b, a)
+
+    def test_is_not_expression(self):
+        b = """type(x+y) is not d.get('T')"""
+        a = """not isinstance(x+y, d.get('T'))"""
+        self.check(b, a)
+
+        b = """type(   x  +  y) is not d.get('T')"""
+        a = """not isinstance(x  +  y, d.get('T'))"""
+        self.check(b, a)
+
+    def test_ne_simple(self):
+        b = """type(x) != T"""
+        a = """not isinstance(x, T)"""
+        self.check(b, a)
+
+        b = """if   type(x) != T: pass"""
+        a = """if   not isinstance(x, T): pass"""
+        self.check(b, a)
+
+    def test_ne_reverse(self):
+        b = """T != type(x)"""
+        a = """not isinstance(x, T)"""
+        self.check(b, a)
+
+        b = """if   T != type(x): pass"""
+        a = """if   not isinstance(x, T): pass"""
+        self.check(b, a)
+
+    def test_ne_expression(self):
+        b = """type(x+y) != d.get('T')"""
+        a = """not isinstance(x+y, d.get('T'))"""
+        self.check(b, a)
+
+        b = """type(   x  +  y) != d.get('T')"""
+        a = """not isinstance(x  +  y, d.get('T'))"""
+        self.check(b, a)
+
     def test_unchanged(self):
         a = """type(x).__name__"""
         self.unchanged(a)
