@@ -2351,6 +2351,38 @@ class Test_types(FixerTestCase):
 class Test_idioms(FixerTestCase):
     fixer = "idioms"
 
+    def test_while(self):
+        b = """while 1: foo()"""
+        a = """while True: foo()"""
+        self.check(b, a)
+
+        b = """while   1: foo()"""
+        a = """while   True: foo()"""
+        self.check(b, a)
+
+        b = """
+            while 1:
+                foo()
+            """
+        a = """
+            while True:
+                foo()
+            """
+        self.check(b, a)
+
+    def test_while_unchanged(self):
+        s = """while 11: foo()"""
+        self.unchanged(s)
+
+        s = """while 0: foo()"""
+        self.unchanged(s)
+
+        s = """while foo(): foo()"""
+        self.unchanged(s)
+
+        s = """while []: foo()"""
+        self.unchanged(s)
+
     def test_eq_simple(self):
         b = """type(x) == T"""
         a = """isinstance(x, T)"""
