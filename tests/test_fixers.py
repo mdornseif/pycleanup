@@ -2348,8 +2348,8 @@ class Test_types(FixerTestCase):
         a = """int"""
         self.check(b, a)
 
-class Test_type_equality(FixerTestCase):
-    fixer = "type_equality"
+class Test_idioms(FixerTestCase):
+    fixer = "idioms"
 
     def test_eq_simple(self):
         b = """type(x) == T"""
