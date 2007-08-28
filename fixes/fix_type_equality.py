@@ -1,4 +1,8 @@
-"""Fix type(x) == T -> isinstance(x, T)."""
+"""Change some type comparisons to isinstance() calls:
+
+type(x) == T -> isinstance(x, T)
+type(x) is T -> isinstance(x, T)
+"""
 # Author: Jacques Frechet
 
 # Local imports
@@ -9,8 +13,8 @@ from fixes.util import Call, Comma, Name
 class FixTypeEquality(basefix.BaseFix):
 
     PATTERN = """
-        comparison< power< 'type' trailer< '(' x=any ')' > > '==' T=any > |
-        comparison< T=any '==' power< 'type' trailer< '(' x=any ')' > > >
+        comparison< power< 'type' trailer< '(' x=any ')' > > ('==' | 'is') T=any > |
+        comparison< T=any ('==' | 'is') power< 'type' trailer< '(' x=any ')' > > >
     """
 
     def transform(self, node, results):

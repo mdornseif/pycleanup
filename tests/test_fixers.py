@@ -2351,7 +2351,7 @@ class Test_types(FixerTestCase):
 class Test_type_equality(FixerTestCase):
     fixer = "type_equality"
 
-    def test_simple(self):
+    def test_eq_simple(self):
         b = """type(x) == T"""
         a = """isinstance(x, T)"""
         self.check(b, a)
@@ -2360,7 +2360,7 @@ class Test_type_equality(FixerTestCase):
         a = """if   isinstance(x, T): pass"""
         self.check(b, a)
 
-    def test_reverse(self):
+    def test_eq_reverse(self):
         b = """T == type(x)"""
         a = """isinstance(x, T)"""
         self.check(b, a)
@@ -2369,12 +2369,39 @@ class Test_type_equality(FixerTestCase):
         a = """if   isinstance(x, T): pass"""
         self.check(b, a)
 
-    def test_expression(self):
+    def test_eq_expression(self):
         b = """type(x+y) == d.get('T')"""
         a = """isinstance(x+y, d.get('T'))"""
         self.check(b, a)
 
         b = """type(   x  +  y) == d.get('T')"""
+        a = """isinstance(x  +  y, d.get('T'))"""
+        self.check(b, a)
+
+    def test_is_simple(self):
+        b = """type(x) is T"""
+        a = """isinstance(x, T)"""
+        self.check(b, a)
+
+        b = """if   type(x) is T: pass"""
+        a = """if   isinstance(x, T): pass"""
+        self.check(b, a)
+
+    def test_is_reverse(self):
+        b = """T is type(x)"""
+        a = """isinstance(x, T)"""
+        self.check(b, a)
+
+        b = """if   T is type(x): pass"""
+        a = """if   isinstance(x, T): pass"""
+        self.check(b, a)
+
+    def test_is_expression(self):
+        b = """type(x+y) is d.get('T')"""
+        a = """isinstance(x+y, d.get('T'))"""
+        self.check(b, a)
+
+        b = """type(   x  +  y) is d.get('T')"""
         a = """isinstance(x  +  y, d.get('T'))"""
         self.check(b, a)
 
