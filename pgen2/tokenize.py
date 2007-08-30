@@ -66,7 +66,7 @@ Double = r'[^"\\]*(?:\\.[^"\\]*)*"'
 Single3 = r"[^'\\]*(?:(?:\\.|'(?!''))[^'\\]*)*'''"
 # Tail end of """ string.
 Double3 = r'[^"\\]*(?:(?:\\.|"(?!""))[^"\\]*)*"""'
-Triple = group("[uU]?[rR]?'''", '[uU]?[rR]?"""')
+Triple = group("[ubUB]?[rR]?'''", '[ubUB]?[rR]?"""')
 # Single-line ' or " string.
 String = group(r"[uU]?[rR]?'[^\n'\\]*(?:\\.[^\n'\\]*)*'",
                r'[uU]?[rR]?"[^\n"\\]*(?:\\.[^\n"\\]*)*"')
@@ -120,8 +120,11 @@ triple_quoted = {}
 for t in ("'''", '"""',
           "r'''", 'r"""', "R'''", 'R"""',
           "u'''", 'u"""', "U'''", 'U"""',
+          "b'''", 'b"""', "B'''", 'B"""',
           "ur'''", 'ur"""', "Ur'''", 'Ur"""',
-          "uR'''", 'uR"""', "UR'''", 'UR"""'):
+          "uR'''", 'uR"""', "UR'''", 'UR"""',
+          "br'''", 'br"""', "Br'''", 'Br"""',
+          "bR'''", 'bR"""', "BR'''", 'BR"""',):
     triple_quoted[t] = t
 single_quoted = {}
 for t in ("'", '"',

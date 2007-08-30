@@ -166,6 +166,15 @@ class TestLiterals(GrammarTest):
             """
         self.validate(s)
 
+    def test_multiline_bytes_tripquote_literals(self):
+        s = '''
+            b"""
+            <?xml version="1.0" encoding="UTF-8"?>
+            <!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN">
+            """
+            '''
+        self.validate(s)
+
     def test_multiline_str_literals(self):
         s = """
             md5test("\xaa" * 80,
