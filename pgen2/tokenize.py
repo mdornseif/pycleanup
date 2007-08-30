@@ -127,8 +127,11 @@ single_quoted = {}
 for t in ("'", '"',
           "r'", 'r"', "R'", 'R"',
           "u'", 'u"', "U'", 'U"',
+          "b'", 'b"', "B'", 'B"',
           "ur'", 'ur"', "Ur'", 'Ur"',
-          "uR'", 'uR"', "UR'", 'UR"' ):
+          "uR'", 'uR"', "UR'", 'UR"',
+          "br'", 'br"', "Br'", 'Br"',
+          "bR'", 'bR"', "BR'", 'BR"', ):
     single_quoted[t] = t
 
 tabsize = 8

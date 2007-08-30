@@ -155,6 +155,27 @@ class TestParserIdempotency(support.TestCase):
                 self.fail("Idempotency failed: %s" % filepath)
 
 
+class TestLiterals(GrammarTest):
+
+    def test_multiline_bytes_literals(self):
+        s = """
+            md5test(b"\xaa" * 80,
+                    (b"Test Using Larger Than Block-Size Key "
+                     b"and Larger Than One Block-Size Data"),
+                    "6f630fad67cda0ee1fb1f562db3aa53e")
+            """
+        self.validate(s)
+
+    def test_multiline_str_literals(self):
+        s = """
+            md5test("\xaa" * 80,
+                    ("Test Using Larger Than Block-Size Key "
+                     "and Larger Than One Block-Size Data"),
+                    "6f630fad67cda0ee1fb1f562db3aa53e")
+            """
+        self.validate(s)
+
+
 def diff(fn, tree):
     f = open("@", "w")
     try:
