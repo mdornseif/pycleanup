@@ -6,11 +6,23 @@ A refactoring tool for converting Python 2.x code to 3.0.
 This is a work in progress!
 
 
+General usage
+=============
+
+Run ``refactor.py`` to convert stdin (``-``), files or directories given
+as arguments.  By default, the tool outputs a unified diff-formatted patch
+on standard output and a "what was changed" summary on standard error,
+but the ``-w`` option can be given to write back converted files, creating
+``.bak``-named backup files.
+
+2to3 must be run (at the moment) with Python 2.x!
+
+
 Files
 =====
 
 README         - this file
-refactor.py    - main program; use this to 
+refactor.py    - main program; use this to convert files or directory trees
 test.py        - runs all unittests for 2to3
 patcomp.py     - pattern compiler
 pytree.py      - parse tree nodes (not specific to Python, despite the name!)
