@@ -9,8 +9,8 @@ test_grammar.py files from both Python 2 and Python 3.
 # Author: Collin Winter
 
 # Testing imports
-import support
-from support import driver, test_dir
+from tests import support
+from tests.support import driver, test_dir
 
 # Python imports
 import os

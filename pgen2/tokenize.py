@@ -35,7 +35,7 @@ from pgen2.token import *
 from pgen2 import token
 __all__ = [x for x in dir(token) if x[0] != '_'] + ["tokenize",
            "generate_tokens", "untokenize"]
-del x, token
+del token
 
 def group(*choices): return '(' + '|'.join(choices) + ')'
 def any(*choices): return group(*choices) + '*'

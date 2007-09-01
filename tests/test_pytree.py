@@ -11,7 +11,7 @@ especially when debugging a test.
 """
 
 # Testing imports
-import support
+from tests import support
 
 # Local imports (XXX should become a package)
 import pytree

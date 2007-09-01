@@ -3,7 +3,7 @@
 # Author: Collin Winter
 
 # Testing imports
-import support
+from tests import support
 
 # Python imports
 from StringIO import StringIO
