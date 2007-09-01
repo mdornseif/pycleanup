@@ -2270,6 +2270,18 @@ class Test_map(FixerTestCase):
         a = """x = [x+1 for x in range(4)]"""
         self.check(b, a)
 
+        b = """
+            foo()
+            # foo
+            map(f, x)
+            """
+        a = """
+            foo()
+            # foo
+            list(map(f, x))
+            """
+        self.warns(b, a, "You should use a for loop here")
+
         # XXX This (rare) case is not supported
 ##         b = """x = map(f, 'abc')[0]"""
 ##         a = """x = list(map(f, 'abc'))[0]"""
@@ -2306,13 +2318,6 @@ class Test_map(FixerTestCase):
         self.unchanged(a)
         a = """(x for x in map(f, 'abc'))"""
         self.unchanged(a)
-
-    def test_warn(self):
-        a = """
-            foo()
-            map(f, x)
-            """
-        self.warns_unchanged(a, "You should use a for loop here")
 
 class Test_standarderror(FixerTestCase):
     fixer = "standarderror"

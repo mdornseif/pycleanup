@@ -55,7 +55,9 @@ class FixMap(basefix.BaseFix):
     def transform(self, node, results):
         if node.parent.type == syms.simple_stmt:
             self.warning(node, "You should use a for loop here")
-            return
+            new = node.clone()
+            new.set_prefix("")
+            new = Call(Name("list"), [new])
         elif "map_lambda" in results:
             new = ListComp(results.get("xp").clone(),
                            results.get("fp").clone(),
