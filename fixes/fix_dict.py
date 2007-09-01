@@ -31,7 +31,7 @@ from fixes import basefix
 from fixes.util import Name, Call, LParen, RParen, ArgList, Dot, set
 
 
-exempt = set(["sorted", "enumerate", "list", "set", "any", "all", "tuple"])
+exempt = set(["sorted", "list", "set", "any", "all", "tuple"])
 
 
 class FixDict(basefix.BaseFix):
