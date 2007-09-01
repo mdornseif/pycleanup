@@ -361,6 +361,9 @@ class Test_print(FixerTestCase):
         s = """print()"""
         self.unchanged(s)
 
+        s = """print('')"""
+        self.unchanged(s)
+
     def test_idempotency_print_as_function(self):
         print_stmt = pygram.python_grammar.keywords.pop("print")
         try:
@@ -368,6 +371,9 @@ class Test_print(FixerTestCase):
             self.unchanged(s)
 
             s = """print()"""
+            self.unchanged(s)
+
+            s = """print('')"""
             self.unchanged(s)
         finally:
             pygram.python_grammar.keywords["print"] = print_stmt

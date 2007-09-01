@@ -11,10 +11,14 @@ Change:
 """
 
 # Local imports
+import patcomp
 import pytree
 from pgen2 import token
 from fixes import basefix
 from fixes.util import Name, Call, Comma, String, is_tuple
+
+
+paren_call = patcomp.compile_pattern("""atom< '(' any ')' >""")
 
 
 class FixPrint(basefix.BaseFix):
@@ -35,7 +39,7 @@ class FixPrint(basefix.BaseFix):
         assert node.children[0] == Name("print")
         args = node.children[1:]
         sep = end = file = None
-        if is_tuple(args[0]):
+        if len(args) == 1 and (is_tuple(args[0]) or paren_call.match(args[0])):
             # We don't want to keep sticking parens around an
             # already-parenthesised expression.
             return
