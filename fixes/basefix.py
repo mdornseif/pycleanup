@@ -35,6 +35,7 @@ class BaseFix(object):
     numbers = itertools.count(1) # For new_name()
     used_names = set() # A set of all used NAMEs
     order = "post" # Does the fixer prefer pre- or post-order traversal
+    explicit = False # Is this ignored by refactor.py -f all?
 
     # Shortcut for access to Python grammar symbols
     syms = pygram.python_symbols

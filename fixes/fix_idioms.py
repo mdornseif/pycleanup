@@ -19,6 +19,8 @@ TYPE = "power< 'type' trailer< '(' x=any ')' > >"
 
 class FixIdioms(basefix.BaseFix):
 
+    explicit = True # The user must ask for this fixer
+
     PATTERN = """
         isinstance=comparison< %s %s T=any > |
         isinstance=comparison< T=any %s %s > |
