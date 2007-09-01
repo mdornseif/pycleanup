@@ -64,7 +64,7 @@ A quick run-through of 2to3's current fixers:
 * **fix_has_key** - "d.has_key(x)" -> "x in d".
 
 * **fix_idioms** - convert type(x) == T to isinstance(x, T), "while 1:" to
-  "while True:", etc.
+  "while True:", etc. This fixer must be explicitly requested with "-f idioms".
 
 * **fix_imports** - Fix incompatible imports.
 
