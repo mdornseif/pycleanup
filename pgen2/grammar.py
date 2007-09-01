@@ -13,7 +13,7 @@ fallback token code OP, but the parser needs the actual token code.
 """
 
 # Python imports
-import cPickle as pickle
+import pickle
 
 # Local imports
 from pgen2 import token, tokenize
