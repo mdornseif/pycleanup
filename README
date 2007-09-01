@@ -92,6 +92,9 @@ A quick run-through of 2to3's current fixers:
 
 * **fix_repr** - swap backticks for repr() calls.
 
+* **fix_sort** - converts the two-line "v = list(x)" "v.sort()" idiom into
+  the single-line "v = sorted(x)" equivalent.
+
 * **fix_standarderror** - StandardError -> Exception.
 
 * **fix_throw** - fix generator.throw() calls to be 3.0-compliant (PEP 3109).
