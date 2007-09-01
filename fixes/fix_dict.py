@@ -14,7 +14,8 @@ d.itervalues() -> iter(d.values())
 Except in certain very specific contexts: the iter() can be dropped
 when the context is list(), sorted(), iter() or for...in; the list()
 can be dropped when the context is list() or sorted() (but not iter()
-or for...in!).
+or for...in!). Special contexts that apply to both: list(), sorted(), tuple()
+set(), any(), all().
 
 Note: iter(d.keys()) could be written as iter(d) but since the
 original d.iterkeys() was also redundant we don't fix this.  And there
@@ -27,7 +28,11 @@ import pytree
 import patcomp
 from pgen2 import token
 from fixes import basefix
-from fixes.util import Name, Call, LParen, RParen, ArgList, Dot
+from fixes.util import Name, Call, LParen, RParen, ArgList, Dot, set
+
+
+exempt = set(["sorted", "enumerate", "list", "set", "any", "all", "tuple"])
+
 
 class FixDict(basefix.BaseFix):
     PATTERN = """
@@ -83,10 +88,10 @@ class FixDict(basefix.BaseFix):
                results["node"] is node):
             if isiter:
                 # iter(d.iterkeys()) -> iter(d.keys()), etc.
-                return results["func"].value in ("iter", "list", "sorted")
+                return results["func"].value in exempt | set(["iter"])
             else:
                 # list(d.keys()) -> list(d.keys()), etc.
-                return results["func"].value in ("list", "sorted")
+                return results["func"].value in exempt
         if not isiter:
             return False
         # for ... in d.iterkeys() -> for ... in d.keys(), etc.
