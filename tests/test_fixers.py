@@ -87,10 +87,7 @@ class FixerTestCase(support.TestCase):
             self.failUnlessEqual(self.logging_stream.getvalue(), "")
 
     def refactor_stream(self, stream_name, stream):
-        try:
-            tree = self.refactor.driver.parse_stream(stream)
-        except Exception, err:
-            raise
+        tree = self.refactor.driver.parse_stream(stream)
         self.refactor.refactor_tree(tree, stream_name)
         return str(tree), tree
 
