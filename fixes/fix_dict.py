@@ -15,7 +15,7 @@ Except in certain very specific contexts: the iter() can be dropped
 when the context is list(), sorted(), iter() or for...in; the list()
 can be dropped when the context is list() or sorted() (but not iter()
 or for...in!). Special contexts that apply to both: list(), sorted(), tuple()
-set(), any(), all().
+set(), any(), all(), sum().
 
 Note: iter(d.keys()) could be written as iter(d) but since the
 original d.iterkeys() was also redundant we don't fix this.  And there
@@ -31,7 +31,8 @@ from fixes import basefix
 from fixes.util import Name, Call, LParen, RParen, ArgList, Dot, set
 
 
-exempt = set(["sorted", "list", "set", "any", "all", "tuple"])
+exempt = set(["sorted", "list", "set", "any", "all", "tuple", "sum"])
+iter_exempt = exempt | set(["iter"])
 
 
 class FixDict(basefix.BaseFix):
@@ -88,7 +89,7 @@ class FixDict(basefix.BaseFix):
                results["node"] is node):
             if isiter:
                 # iter(d.iterkeys()) -> iter(d.keys()), etc.
-                return results["func"].value in exempt | set(["iter"])
+                return results["func"].value in iter_exempt
             else:
                 # list(d.keys()) -> list(d.keys()), etc.
                 return results["func"].value in exempt

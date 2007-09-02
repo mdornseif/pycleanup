@@ -1025,7 +1025,7 @@ class Test_dict(FixerTestCase):
         self.check(b, a)
 
     def test_unchanged(self):
-        wrappers = ["set", "sorted", "any", "all", "tuple"]
+        wrappers = ["set", "sorted", "any", "all", "tuple", "sum"]
         for wrapper in wrappers:
             s = "s = %s(d.keys())" % wrapper
             self.unchanged(s)
@@ -2240,6 +2240,8 @@ class Test_filter(FixerTestCase):
         self.unchanged(a)
         a = """all(filter(f, 'abc'))"""
         self.unchanged(a)
+        a = """sum(filter(f, 'abc'))"""
+        self.unchanged(a)
         a = """sorted(filter(f, 'abc'))"""
         self.unchanged(a)
         a = """sorted(filter(f, 'abc'), key=blah)"""
@@ -2324,6 +2326,8 @@ class Test_map(FixerTestCase):
         a = """any(map(f, 'abc'))"""
         self.unchanged(a)
         a = """all(map(f, 'abc'))"""
+        self.unchanged(a)
+        a = """sum(map(f, 'abc'))"""
         self.unchanged(a)
         a = """sorted(map(f, 'abc'))"""
         self.unchanged(a)
