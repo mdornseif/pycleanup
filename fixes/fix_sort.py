@@ -1,21 +1,27 @@
 """Change the two-line list/sort idiom into the modern sorted() call.
 
-That is,
+That is, both
 
-    v = list(t)
-    v.sorted
+    v = list(t())
+    v.sort()
+    foo(v)
+
+and
+
+    v = t()
+    v.sort()
     foo(v)
     
 becomes
 
-    v = sorted(t)
+    v = sorted(t())
     foo(v)
 """
 # Author: Collin Winter
 
 # Local imports
 from fixes import basefix
-from fixes.util import Name
+from fixes.util import Name, Call
 
 
 class FixSort(basefix.BaseFix):
@@ -38,6 +44,19 @@ class FixSort(basefix.BaseFix):
                   >
                   next=any*
               >
+              |
+              any<
+                  any*
+                  simple_stmt< expr_stmt< id1=any '=' expr=any > '\n' >
+                  sort=
+                  simple_stmt<
+                    power< id2=any
+                           trailer< '.' 'sort' > trailer< '(' ')' >
+                    >
+                    '\n'
+                  >
+                  next=any*
+              >
               """
 
     def match(self, node):
@@ -50,10 +69,19 @@ class FixSort(basefix.BaseFix):
 
     def transform(self, node, results):
         sort_stmt = results["sort"]
-        list_call = results["list"]
         next_stmt = results["next"]
+        list_call = results.get("list")
+        simple_expr = results.get("expr")
 
-        list_call.replace(Name("sorted", prefix=list_call.get_prefix()))
+        if list_call:
+            list_call.replace(Name("sorted", prefix=list_call.get_prefix()))
+        elif simple_expr:
+            new = simple_expr.clone()
+            new.set_prefix("")
+            simple_expr.replace(Call(Name("sorted"), [new],
+                                     prefix=simple_expr.get_prefix()))
+        else:
+            raise RuntimeError("should not have reached here")
         sort_stmt.remove()
         if next_stmt:
             next_stmt[0].set_prefix(sort_stmt.get_prefix())
