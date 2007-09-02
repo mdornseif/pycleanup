@@ -7,6 +7,23 @@
     type(x) is not T -> not isinstance(x, T)
     
 * Change "while 1:" into "while True:".
+
+* Change both
+
+    v = list(EXPR)
+    v.sort()
+    foo(v)
+
+and the more general
+
+    v = EXPR
+    v.sort()
+    foo(v)
+    
+into
+
+    v = sorted(EXPR)
+    foo(v)
 """
 # Author: Jacques Frechet, Collin Winter
 
@@ -21,17 +38,63 @@ class FixIdioms(basefix.BaseFix):
 
     explicit = True # The user must ask for this fixer
 
-    PATTERN = """
-        isinstance=comparison< %s %s T=any > |
-        isinstance=comparison< T=any %s %s > |
+    PATTERN = r"""
+        isinstance=comparison< %s %s T=any >
+        |
+        isinstance=comparison< T=any %s %s >
+        |
         while_stmt< 'while' while='1' ':' any+ >
+        |
+        sorted=any<
+            any*
+            simple_stmt<
+              expr_stmt< id1=any '='
+                         power< list='list' trailer< '(' (not arglist<any+>) any ')' > >
+              >
+              '\n'
+            >
+            sort=
+            simple_stmt<
+              power< id2=any
+                     trailer< '.' 'sort' > trailer< '(' ')' >
+              >
+              '\n'
+            >
+            next=any*
+        >
+        |
+        sorted=any<
+            any*
+            simple_stmt< expr_stmt< id1=any '=' expr=any > '\n' >
+            sort=
+            simple_stmt<
+              power< id2=any
+                     trailer< '.' 'sort' > trailer< '(' ')' >
+              >
+              '\n'
+            >
+            next=any*
+        >
     """ % (TYPE, CMP, CMP, TYPE)
+
+    def match(self, node):
+        r = super(FixIdioms, self).match(node)
+        # If we've matched one of the sort/sorted subpatterns above, we
+        # want to reject matches where the initial assignment and the
+        # subsequent .sort() call involve different identifiers.
+        if r and "sorted" in r:
+            if r["id1"] == r["id2"]:
+                return r
+            return None
+        return r
 
     def transform(self, node, results):
         if "isinstance" in results:
             return self.transform_isinstance(node, results)
         elif "while" in results:
             return self.transform_while(node, results)
+        elif "sorted" in results:
+            return self.transform_sort(node, results)
         else:
             raise RuntimeError("Invalid match")
 
@@ -50,3 +113,22 @@ class FixIdioms(basefix.BaseFix):
     def transform_while(self, node, results):
         one = results["while"]
         one.replace(Name("True", prefix=one.get_prefix()))
+
+    def transform_sort(self, node, results):
+        sort_stmt = results["sort"]
+        next_stmt = results["next"]
+        list_call = results.get("list")
+        simple_expr = results.get("expr")
+
+        if list_call:
+            list_call.replace(Name("sorted", prefix=list_call.get_prefix()))
+        elif simple_expr:
+            new = simple_expr.clone()
+            new.set_prefix("")
+            simple_expr.replace(Call(Name("sorted"), [new],
+                                     prefix=simple_expr.get_prefix()))
+        else:
+            raise RuntimeError("should not have reached here")
+        sort_stmt.remove()
+        if next_stmt:
+            next_stmt[0].set_prefix(sort_stmt.get_prefix())

@@ -64,9 +64,10 @@ A quick run-through of 2to3's current fixers:
 * **fix_has_key** - "d.has_key(x)" -> "x in d".
 
 * **fix_idioms** - convert type(x) == T to isinstance(x, T), "while 1:" to
-  "while True:", etc. This fixer must be explicitly requested with "-f idioms".
+  "while True:", plus others. This fixer must be explicitly requested
+  with "-f idioms".
 
-* **fix_imports** - Fix incompatible imports.
+* **fix_imports** - Fix (some) incompatible imports.
 
 * **fix_input** - "input()" -> "eval(input())" (PEP 3111).
 
@@ -91,9 +92,6 @@ A quick run-through of 2to3's current fixers:
 * **fix_raw_input** - "raw_input()" -> "input()" (PEP 3111).
 
 * **fix_repr** - swap backticks for repr() calls.
-
-* **fix_sort** - converts the two-line "v = list(x)" "v.sort()" idiom into
-  the single-line "v = sorted(x)" equivalent.
 
 * **fix_standarderror** - StandardError -> Exception.
 

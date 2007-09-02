@@ -2382,167 +2382,6 @@ class Test_types(FixerTestCase):
         a = """int"""
         self.check(b, a)
 
-class Test_sort(FixerTestCase):
-    fixer = "sort"
-
-    def test_list_call(self):
-        b = """
-            v = list(t)
-            v.sort()
-            foo(v)
-            """
-        a = """
-            v = sorted(t)
-            foo(v)
-            """
-        self.check(b, a)
-
-        b = """
-            v = list(foo(b) + d)
-            v.sort()
-            foo(v)
-            """
-        a = """
-            v = sorted(foo(b) + d)
-            foo(v)
-            """
-        self.check(b, a)
-
-        b = """
-            while x:
-                v = list(t)
-                v.sort()
-                foo(v)
-            """
-        a = """
-            while x:
-                v = sorted(t)
-                foo(v)
-            """
-        self.check(b, a)
-
-        b = """
-            v = list(t)
-            # foo
-            v.sort()
-            foo(v)
-            """
-        a = """
-            v = sorted(t)
-            # foo
-            foo(v)
-            """
-        self.check(b, a)
-
-        b = r"""
-            v = list(   t)
-            v.sort()
-            foo(v)
-            """
-        a = r"""
-            v = sorted(   t)
-            foo(v)
-            """
-        self.check(b, a)
-
-    def test_simple_expr(self):
-        b = """
-            v = t
-            v.sort()
-            foo(v)
-            """
-        a = """
-            v = sorted(t)
-            foo(v)
-            """
-        self.check(b, a)
-
-        b = """
-            v = foo(b)
-            v.sort()
-            foo(v)
-            """
-        a = """
-            v = sorted(foo(b))
-            foo(v)
-            """
-        self.check(b, a)
-
-        b = """
-            v = b.keys()
-            v.sort()
-            foo(v)
-            """
-        a = """
-            v = sorted(b.keys())
-            foo(v)
-            """
-        self.check(b, a)
-
-        b = """
-            v = foo(b) + d
-            v.sort()
-            foo(v)
-            """
-        a = """
-            v = sorted(foo(b) + d)
-            foo(v)
-            """
-        self.check(b, a)
-
-        b = """
-            while x:
-                v = t
-                v.sort()
-                foo(v)
-            """
-        a = """
-            while x:
-                v = sorted(t)
-                foo(v)
-            """
-        self.check(b, a)
-
-        b = """
-            v = t
-            # foo
-            v.sort()
-            foo(v)
-            """
-        a = """
-            v = sorted(t)
-            # foo
-            foo(v)
-            """
-        self.check(b, a)
-
-        b = r"""
-            v =   t
-            v.sort()
-            foo(v)
-            """
-        a = r"""
-            v =   sorted(t)
-            foo(v)
-            """
-        self.check(b, a)
-
-    def test_unchanged(self):
-        s = """
-            v = list(t)
-            w.sort()
-            foo(w)
-            """
-        self.unchanged(s)
-
-        s = """
-            v = list(t)
-            v.sort(u)
-            foo(v)
-            """
-        self.unchanged(s)
-
-
 class Test_idioms(FixerTestCase):
     fixer = "idioms"
 
@@ -2686,9 +2525,166 @@ class Test_idioms(FixerTestCase):
         a = """not isinstance(x  +  y, d.get('T'))"""
         self.check(b, a)
 
-    def test_unchanged(self):
+    def test_type_unchanged(self):
         a = """type(x).__name__"""
         self.unchanged(a)
+
+    def test_sort_list_call(self):
+        b = """
+            v = list(t)
+            v.sort()
+            foo(v)
+            """
+        a = """
+            v = sorted(t)
+            foo(v)
+            """
+        self.check(b, a)
+
+        b = """
+            v = list(foo(b) + d)
+            v.sort()
+            foo(v)
+            """
+        a = """
+            v = sorted(foo(b) + d)
+            foo(v)
+            """
+        self.check(b, a)
+
+        b = """
+            while x:
+                v = list(t)
+                v.sort()
+                foo(v)
+            """
+        a = """
+            while x:
+                v = sorted(t)
+                foo(v)
+            """
+        self.check(b, a)
+
+        b = """
+            v = list(t)
+            # foo
+            v.sort()
+            foo(v)
+            """
+        a = """
+            v = sorted(t)
+            # foo
+            foo(v)
+            """
+        self.check(b, a)
+
+        b = r"""
+            v = list(   t)
+            v.sort()
+            foo(v)
+            """
+        a = r"""
+            v = sorted(   t)
+            foo(v)
+            """
+        self.check(b, a)
+
+    def test_sort_simple_expr(self):
+        b = """
+            v = t
+            v.sort()
+            foo(v)
+            """
+        a = """
+            v = sorted(t)
+            foo(v)
+            """
+        self.check(b, a)
+
+        b = """
+            v = foo(b)
+            v.sort()
+            foo(v)
+            """
+        a = """
+            v = sorted(foo(b))
+            foo(v)
+            """
+        self.check(b, a)
+
+        b = """
+            v = b.keys()
+            v.sort()
+            foo(v)
+            """
+        a = """
+            v = sorted(b.keys())
+            foo(v)
+            """
+        self.check(b, a)
+
+        b = """
+            v = foo(b) + d
+            v.sort()
+            foo(v)
+            """
+        a = """
+            v = sorted(foo(b) + d)
+            foo(v)
+            """
+        self.check(b, a)
+
+        b = """
+            while x:
+                v = t
+                v.sort()
+                foo(v)
+            """
+        a = """
+            while x:
+                v = sorted(t)
+                foo(v)
+            """
+        self.check(b, a)
+
+        b = """
+            v = t
+            # foo
+            v.sort()
+            foo(v)
+            """
+        a = """
+            v = sorted(t)
+            # foo
+            foo(v)
+            """
+        self.check(b, a)
+
+        b = r"""
+            v =   t
+            v.sort()
+            foo(v)
+            """
+        a = r"""
+            v =   sorted(t)
+            foo(v)
+            """
+        self.check(b, a)
+
+    def test_sort_unchanged(self):
+        s = """
+            v = list(t)
+            w.sort()
+            foo(w)
+            """
+        self.unchanged(s)
+
+        s = """
+            v = list(t)
+            v.sort(u)
+            foo(v)
+            """
+        self.unchanged(s)
 
 
 if __name__ == "__main__":
