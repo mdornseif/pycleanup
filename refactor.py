@@ -264,20 +264,40 @@ class RefactoringTool(object):
             elif self.options.verbose:
                 self.log_message("No changes in stdin")
 
-    def refactor_tree(self, tree, filename):
-        """Refactors a parse tree (modifying the tree in place)."""
+    def refactor_tree(self, tree, name):
+        """Refactors a parse tree (modifying the tree in place).
+        
+        Args:
+            tree: a pytree.Node instance representing the root of the tree
+                  to be refactored.
+            name: a human-readable name for this tree.
+        
+        Returns:
+            True if the tree was modified, False otherwise.
+        """
         all_fixers = self.pre_order + self.post_order
         for fixer in all_fixers:
-            fixer.start_tree(tree, filename)
+            fixer.start_tree(tree, name)
 
         self.traverse_by(self.pre_order, tree.pre_order())
         self.traverse_by(self.post_order, tree.post_order())
 
         for fixer in all_fixers:
-            fixer.finish_tree(tree, filename)
+            fixer.finish_tree(tree, name)
         return tree.was_changed
 
     def traverse_by(self, fixers, traversal):
+        """Traverse an AST, applying a set of fixers to each node.
+        
+        This is a helper method for refactor_tree().
+        
+        Args:
+            fixers: a list of fixer instances.
+            traversal: a generator that yields AST nodes.
+        
+        Returns:
+            None
+        """
         if not fixers:
             return
         for node in traversal:
