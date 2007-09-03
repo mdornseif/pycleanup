@@ -358,18 +358,14 @@ class Test_print(FixerTestCase):
         self.unchanged(s)
 
     def test_idempotency_print_as_function(self):
-        print_stmt = pygram.python_grammar.keywords.pop("print")
-        try:
-            s = """print(1, 1+1, 1+1+1)"""
-            self.unchanged(s)
+        s = """print(1, 1+1, 1+1+1)"""
+        self.unchanged(s)
 
-            s = """print()"""
-            self.unchanged(s)
+        s = """print()"""
+        self.unchanged(s)
 
-            s = """print('')"""
-            self.unchanged(s)
-        finally:
-            pygram.python_grammar.keywords["print"] = print_stmt
+        s = """print('')"""
+        self.unchanged(s)
 
     def test_1(self):
         b = """print 1, 1+1, 1+1+1"""
