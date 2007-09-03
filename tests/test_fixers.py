@@ -1288,8 +1288,7 @@ class Test_imports(FixerTestCase):
     fixer = "imports"
 
     modules = {"StringIO":  ("io", ["StringIO"]),
-               "cStringIO": ("io", ["StringIO"]),
-               "md5":       ("hashlib", ["md5"])}
+               "cStringIO": ("io", ["StringIO"])}
 
     def test_import_module(self):
         for old, (new, members) in self.modules.items():

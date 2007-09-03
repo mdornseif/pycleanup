@@ -12,8 +12,7 @@ from fixes import basefix
 from fixes.util import Name, attr_chain, any, set
 
 MAPPING = {"StringIO":  ("io", ["StringIO"]),
-           "cStringIO": ("io", ["StringIO"]),
-           "md5":       ("hashlib", ["md5"])}
+           "cStringIO": ("io", ["StringIO"])}
 
 
 def alternates(members):
