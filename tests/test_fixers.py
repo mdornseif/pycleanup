@@ -62,7 +62,7 @@ class FixerTestCase(support.TestCase):
     def _check(self, before, after):
         before = support.reformat(before)
         after = support.reformat(after)
-        tree = self.refactor.refactor_stream(StringIO(before), "<string>")
+        tree = self.refactor.refactor_string(before, "<string>")
         self.failUnlessEqual(after, str(tree))
         return tree
 

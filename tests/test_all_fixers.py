@@ -7,7 +7,10 @@ running time.
 # Author: Collin Winter
 
 # Testing imports
-from tests import support
+try:
+    from tests import support
+except ImportError:
+    import support
 
 # Python imports
 from StringIO import StringIO
@@ -25,24 +28,17 @@ class Options:
         for k, v in kwargs.items():
             setattr(self, k, v)
         self.verbose = False
+        self.doctests_only = False
 
 class Test_all(support.TestCase):
     def setUp(self):
-        options = Options(fix=["all"], print_function=False)
+        options = Options(fix=["all"], write=False)
         self.refactor = refactor.RefactoringTool(options)
-
-    def refactor_stream(self, stream_name, stream):
-        try:
-            tree = self.refactor.driver.parse_stream(stream)
-        except Exception, err:
-            raise
-        self.refactor.refactor_tree(tree, stream_name)
-        return str(tree)
 
     def test_all_project_files(self):
         for filepath in support.all_project_files():
             print "Fixing %s..." % filepath
-            self.refactor_stream(filepath, open(filepath))
+            self.refactor.refactor_file(filepath)
 
 
 if __name__ == "__main__":
