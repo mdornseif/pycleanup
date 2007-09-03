@@ -225,7 +225,7 @@ class RefactoringTool(object):
                 self.log_message("No doctest changes in %s", filename)
         else:
             tree = self.refactor_string(input, filename)
-            if tree.was_changed:
+            if tree and tree.was_changed:
                 self.write_file(str(tree), filename)
             elif self.options.verbose:
                 self.log_message("No changes in %s", filename)
@@ -273,7 +273,7 @@ class RefactoringTool(object):
                 self.log_message("No doctest changes in stdin")
         else:
             tree = self.refactor_string(input, "<stdin>")
-            if tree.was_changed:
+            if tree and tree.was_changed:
                 self.write_file(str(tree), "<stdin>", input)
             elif self.options.verbose:
                 self.log_message("No changes in stdin")
