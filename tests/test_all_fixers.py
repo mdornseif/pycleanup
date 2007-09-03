@@ -28,7 +28,7 @@ class Options:
 
 class Test_all(support.TestCase):
     def setUp(self):
-        options = Options(fix=["all"], write=False)
+        options = Options(fix=["all", "idioms", "ws_comma"], write=False)
         self.refactor = refactor.RefactoringTool(options)
 
     def test_all_project_files(self):
