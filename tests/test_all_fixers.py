@@ -13,10 +13,6 @@ except ImportError:
     import support
 
 # Python imports
-from StringIO import StringIO
-import logging
-import os
-import os.path
 import unittest
 
 # Local imports
