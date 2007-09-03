@@ -11,6 +11,8 @@ from fixes import basefix
 
 class FixWsComma(basefix.BaseFix):
 
+  explicit = True # The user must ask for this fixers
+
   PATTERN = """
   any<(not(',') any)+ ',' ((not(',') any)+ ',')* [not(',') any]>
   """
@@ -19,7 +21,7 @@ class FixWsComma(basefix.BaseFix):
   COLON = pytree.Leaf(token.COLON, ":")
   SEPS = (COMMA, COLON)
 
-  def transform(self, node):
+  def transform(self, node, results):
     new = node.clone()
     comma = False
     for child in new.children:
