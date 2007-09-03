@@ -1377,6 +1377,16 @@ class Test_input(FixerTestCase):
         a = """x = eval(input())  #  foo"""
         self.check(b, a)
 
+    def test_idempotency(self):
+        s = """x = eval(input())"""
+        self.unchanged(s)
+
+        s = """x = eval(input(''))"""
+        self.unchanged(s)
+
+        s = """x = eval(input(foo(5) + 9))"""
+        self.unchanged(s)
+
     def test_1(self):
         b = """x = input()"""
         a = """x = eval(input())"""
