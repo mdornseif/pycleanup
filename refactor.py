@@ -128,8 +128,7 @@ class RefactoringTool(object):
         pre_order_fixers = []
         post_order_fixers = []
         fix_names = self.options.fix
-        get_all_fixers = not fix_names or "all" in fix_names
-        if get_all_fixers:
+        if not fix_names or "all" in fix_names:
             fix_names = get_all_fix_names()
         for fix_name in fix_names:
             try:
@@ -151,7 +150,7 @@ class RefactoringTool(object):
                 self.log_error("Can't instantiate fixes.fix_%s.%s()",
                                fix_name, class_name, exc_info=True)
                 continue
-            if fixer.explicit and get_all_fixers:
+            if fixer.explicit and fix_name not in self.options.fix:
                 self.log_message("Skipping implicit fixer: %s", fix_name)
                 continue
 
