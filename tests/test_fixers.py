@@ -62,8 +62,8 @@ class FixerTestCase(support.TestCase):
     def _check(self, before, after):
         before = support.reformat(before)
         after = support.reformat(after)
-        refactored, tree = self.refactor_stream("<string>", StringIO(before))
-        self.failUnlessEqual(after, refactored)
+        tree = self.refactor.refactor_stream(StringIO(before), "<string>")
+        self.failUnlessEqual(after, str(tree))
         return tree
 
     def check(self, before, after, ignore_warnings=False):
@@ -85,11 +85,6 @@ class FixerTestCase(support.TestCase):
         self._check(before, before)
         if not ignore_warnings:
             self.failUnlessEqual(self.logging_stream.getvalue(), "")
-
-    def refactor_stream(self, stream_name, stream):
-        tree = self.refactor.driver.parse_stream(stream)
-        self.refactor.refactor_tree(tree, stream_name)
-        return str(tree), tree
 
 
 class Test_ne(FixerTestCase):

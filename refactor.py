@@ -213,12 +213,7 @@ class RefactoringTool(object):
             if self.options.doctests_only:
                 input = f.read()
             else:
-                try:
-                    tree = self.driver.parse_file(filename)
-                except Exception, err:
-                    self.log_error("Can't parse %s: %s: %s",
-                                   filename, err.__class__.__name__, err)
-                    return
+                tree = self.refactor_stream(f, filename)
         finally:
             f.close()
         if self.options.doctests_only:
@@ -230,19 +225,39 @@ class RefactoringTool(object):
             elif self.options.verbose:
                 self.log_message("No doctest changes in %s", filename)
         else:
-            if self.options.verbose:
-                self.log_message("Refactoring %s", filename)
-            if self.refactor_tree(tree, filename):
+            if tree.was_changed:
                 self.write_file(str(tree), filename)
             elif self.options.verbose:
                 self.log_message("No changes in %s", filename)
+
+    def refactor_stream(self, stream, name):
+        """Refactor an stream, pullin from a given file-like object.
+        
+        Args:
+            stream: a file-like object to pull data from.
+            name: a human-readable name for the stream.
+            
+        Returns:
+            An AST corresponding to the refactored input stream; None if
+            there were errors during the parse.
+        """
+        try:
+            tree = self.driver.parse_stream(stream)
+        except Exception, err:
+            self.log_error("Can't parse %s: %s: %s",
+                           name, err.__class__.__name__, err)
+            return
+        if self.options.verbose:
+            self.log_message("Refactoring %s", name)
+        self.refactor_tree(tree, name)
+        return tree
 
     def refactor_stdin(self):
         if self.options.write:
             self.log_error("Can't write changes back to stdin")
             return
-        input = sys.stdin.read()
         if self.options.doctests_only:
+            input = sys.stdin.read()
             if self.options.verbose:
                 self.log_message("Refactoring doctests in stdin")
             output = self.refactor_docstring(input, "<stdin>")
@@ -251,15 +266,8 @@ class RefactoringTool(object):
             elif self.options.verbose:
                 self.log_message("No doctest changes in stdin")
         else:
-            if self.options.verbose:
-                self.log_message("Refactoring stdin")
-            try:
-                tree = self.driver.parse_string(input)
-            except Exception, err:
-                self.log_error("Can't parse stdin: %s: %s",
-                               err.__class__.__name__, err)
-                return
-            if self.refactor_tree(tree, "<stdin>"):
+            tree = self.refactor_stream(sys.stdin, "<stdin>")
+            if tree.was_changed:
                 self.write_file(str(tree), "<stdin>", input)
             elif self.options.verbose:
                 self.log_message("No changes in stdin")
