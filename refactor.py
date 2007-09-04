@@ -212,7 +212,7 @@ class RefactoringTool(object):
             self.log_error("Can't open %s: %s", filename, err)
             return
         try:
-            input = f.read()
+            input = f.read() + "\n" # Silence certain parse errors
         finally:
             f.close()
         if self.options.doctests_only:
@@ -226,7 +226,8 @@ class RefactoringTool(object):
         else:
             tree = self.refactor_string(input, filename)
             if tree and tree.was_changed:
-                self.write_file(str(tree), filename)
+                # The [:-1] is to take off the \n we added earlier
+                self.write_file(str(tree)[:-1], filename)
             elif self.options.verbose:
                 self.log_message("No changes in %s", filename)
 
