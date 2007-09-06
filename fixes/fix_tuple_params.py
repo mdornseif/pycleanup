@@ -11,7 +11,7 @@ def func(x, d):
 
 It will also support lambdas:
   
-    lambda (x, y): x + y -> lambda: t: t[0] + t[1]
+    lambda (x, y): x + y -> lambda t: t[0] + t[1]
 """
 # Author: Collin Winter
 
