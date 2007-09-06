@@ -30,7 +30,7 @@ class FixTupleParams(basefix.BaseFix):
               funcdef< 'def' any parameters< '(' args=any ')' >
                        ['->' any] ':' suite=any+ >
               |
-              lambda=lambdef< 'lambda' args=vfpdef< any+ > ':' body=any >"""
+              lambda=lambdef< 'lambda' args=vfpdef< '(' vfplist< any+ > ')' > ':' body=any >"""
 
     def transform(self, node, results):
         if "lambda" in results:
