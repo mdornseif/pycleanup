@@ -23,8 +23,6 @@ import logging
 import pytree
 import patcomp
 from pgen2 import driver
-from pgen2 import parse
-from pgen2 import token
 from pgen2 import tokenize
 import fixes
 import pygram
@@ -54,6 +52,8 @@ def main(args=None):
                       help="Each FIX specifies a transformation; default all")
     parser.add_option("-l", "--list-fixes", action="store_true",
                       help="List available transformations (fixes/fix_*.py)")
+    parser.add_option("-p", "--print-function", action="store_true",
+                      help="Modify the grammar so that print() is a function")
     parser.add_option("-v", "--verbose", action="store_true",
                       help="More verbose logging")
     parser.add_option("-w", "--write", action="store_true",
@@ -106,14 +106,11 @@ class RefactoringTool(object):
         self.options = options
         self.errors = []
         self.logger = logging.getLogger("RefactoringTool")
-        # Set up two parser drivers: one that expects print statements and a
-        # second that expects print functions.
+        if self.options.print_function:
+            del pygram.python_grammar.keywords["print"]
         self.driver = driver.Driver(pygram.python_grammar,
                                     convert=pytree.convert,
                                     logger=self.logger)
-        self.printless_driver = driver.Driver(pygram.printless_python_grammar,
-                                              convert=pytree.convert,
-                                              logger=self.logger)
         self.pre_order, self.post_order = self.get_fixers()
         self.files = []  # List of files that were or should be modified
 
@@ -243,13 +240,7 @@ class RefactoringTool(object):
             there were errors during the parse.
         """
         try:
-            try:
-                tree = self.driver.parse_string(data)
-            except parse.ParseError, e:
-                if e.type == token.EQUAL:
-                    tree = self.printless_driver.parse_string(data)
-                else:
-                    raise
+            tree = self.driver.parse_string(data)
         except Exception, err:
             self.log_error("Can't parse %s: %s: %s",
                            name, err.__class__.__name__, err)

@@ -24,17 +24,17 @@ class Options:
         for k, v in kwargs.items():
             setattr(self, k, v)
         self.verbose = False
-        self.doctests_only = False
 
 class Test_all(support.TestCase):
     def setUp(self):
-        options = Options(fix=["all", "idioms", "ws_comma"], write=False)
+        options = Options(fix=["all", "idioms", "ws_comma"],
+                          print_function=False)
         self.refactor = refactor.RefactoringTool(options)
 
     def test_all_project_files(self):
         for filepath in support.all_project_files():
             print "Fixing %s..." % filepath
-            self.refactor.refactor_file(filepath)
+            self.refactor.refactor_string(open(filepath).read(), filepath)
 
 
 if __name__ == "__main__":

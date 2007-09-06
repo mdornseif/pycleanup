@@ -29,8 +29,6 @@ class Symbols(object):
 
 python_grammar = driver.load_grammar(_GRAMMAR_FILE)
 python_symbols = Symbols(python_grammar)
-printless_python_grammar = driver.load_grammar(_GRAMMAR_FILE)
-del printless_python_grammar.keywords["print"]
 
 
 def parenthesize(node):
