@@ -2209,6 +2209,11 @@ class Test_filter(FixerTestCase):
         a = """x = [x for x in range(10) if x%2 == 0]"""
         self.check(b, a)
 
+        # Note the parens around x
+        b = """x = filter(lambda (x): x%2 == 0, range(10))"""
+        a = """x = [x for x in range(10) if x%2 == 0]"""
+        self.check(b, a)
+
         # XXX This (rare) case is not supported
 ##         b = """x = filter(f, 'abc')[0]"""
 ##         a = """x = list(filter(f, 'abc'))[0]"""
@@ -2281,6 +2286,11 @@ class Test_map(FixerTestCase):
         self.check(b, a)
 
         b = """x = map(lambda x: x+1, range(4))"""
+        a = """x = [x+1 for x in range(4)]"""
+        self.check(b, a)
+
+        # Note the parens around x
+        b = """x = map(lambda (x): x+1, range(4))"""
         a = """x = [x+1 for x in range(4)]"""
         self.check(b, a)
 

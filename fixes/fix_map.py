@@ -38,7 +38,9 @@ class FixMap(basefix.BaseFix):
         trailer<
             '('
             arglist<
-                lambdef< 'lambda' fp=NAME ':' xp=any >
+                lambdef< 'lambda'
+                         (fp=NAME | vfpdef< '(' fp=NAME ')'> ) ':' xp=any
+                >
                 ','
                 it=any
             >
