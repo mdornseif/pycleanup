@@ -109,7 +109,7 @@ class FixTupleParams(basefix.BaseFix):
         # Replace lambda ((((x)))): x  with lambda x: x
         if inner.type == token.NAME:
             inner = inner.clone()
-            inner.set_prefix(args.get_prefix())
+            inner.set_prefix(" ")
             args.replace(inner)
             return
 
@@ -117,8 +117,7 @@ class FixTupleParams(basefix.BaseFix):
         to_index = map_to_index(params)
         tup_name = self.new_name(tuple_name(params))
 
-        new_param = Name(tup_name)
-        new_param.set_prefix(args.get_prefix())
+        new_param = Name(tup_name, prefix=" ")
         args.replace(new_param.clone())
         for n in body.post_order():
             if n.type == token.NAME and n.value in to_index:

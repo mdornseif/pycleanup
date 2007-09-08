@@ -1536,7 +1536,15 @@ class Test_tuple_params(FixerTestCase):
         a = """lambda x: x + 5"""
         self.check(b, a)
 
+        b = """lambda(x): x + 5"""
+        a = """lambda x: x + 5"""
+        self.check(b, a)
+
         b = """lambda ((((x)))): x + 5"""
+        a = """lambda x: x + 5"""
+        self.check(b, a)
+
+        b = """lambda((((x)))): x + 5"""
         a = """lambda x: x + 5"""
         self.check(b, a)
 
@@ -1545,7 +1553,15 @@ class Test_tuple_params(FixerTestCase):
         a = """lambda x_y: x_y[0] + f(x_y[1])"""
         self.check(b, a)
 
+        b = """lambda(x, y): x + f(y)"""
+        a = """lambda x_y: x_y[0] + f(x_y[1])"""
+        self.check(b, a)
+
         b = """lambda (((x, y))): x + f(y)"""
+        a = """lambda x_y: x_y[0] + f(x_y[1])"""
+        self.check(b, a)
+
+        b = """lambda(((x, y))): x + f(y)"""
         a = """lambda x_y: x_y[0] + f(x_y[1])"""
         self.check(b, a)
 
