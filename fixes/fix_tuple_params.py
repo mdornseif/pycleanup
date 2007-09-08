@@ -12,6 +12,9 @@ def func(x, d):
 It will also support lambdas:
   
     lambda (x, y): x + y -> lambda t: t[0] + t[1]
+
+    # The parens are a syntax error in Python 3
+    lambda (x): x + y -> lambda x: x + y
 """
 # Author: Collin Winter
 
@@ -30,7 +33,11 @@ class FixTupleParams(basefix.BaseFix):
               funcdef< 'def' any parameters< '(' args=any ')' >
                        ['->' any] ':' suite=any+ >
               |
-              lambda=lambdef< 'lambda' args=vfpdef< '(' vfplist< any+ > ')' > ':' body=any >"""
+              lambda=
+              lambdef< 'lambda' args=vfpdef< '(' inner=any ')' >
+                       ':' body=any
+              >
+              """
 
     def transform(self, node, results):
         if "lambda" in results:
@@ -97,6 +104,14 @@ class FixTupleParams(basefix.BaseFix):
     def transform_lambda(self, node, results):
         args = results["args"]
         body = results["body"]
+        inner = simplify_args(results["inner"])
+
+        # Replace lambda ((((x)))): x  with lambda x: x
+        if inner.type == token.NAME:
+            inner = inner.clone()
+            inner.set_prefix(args.get_prefix())
+            args.replace(inner)
+            return
 
         params = find_params(args)
         to_index = map_to_index(params)
@@ -115,6 +130,17 @@ class FixTupleParams(basefix.BaseFix):
 
 
 ### Helper functions for transform_lambda()
+
+def simplify_args(node):
+    if node.type in (syms.vfplist, token.NAME):
+        return node
+    elif node.type == syms.vfpdef:
+        # These look like vfpdef< '(' x ')' > where x is NAME
+        # or another vfpdef instance (leading to recursion).
+        while node.type == syms.vfpdef:
+            node = node.children[1]
+        return node
+    raise RuntimeError("Received unexpected node %s" % node)
 
 def find_params(node):
     if node.type == syms.vfpdef:

@@ -1531,17 +1531,30 @@ class Test_tuple_params(FixerTestCase):
         s = """lambda x: x + 5"""
         self.unchanged(s)
 
-        # Note the parens around x
-        s = """lambda (x): x + 5"""
-        self.unchanged(s)
+    def test_lambda_parens_single_arg(self):
+        b = """lambda (x): x + 5"""
+        a = """lambda x: x + 5"""
+        self.check(b, a)
+
+        b = """lambda ((((x)))): x + 5"""
+        a = """lambda x: x + 5"""
+        self.check(b, a)
 
     def test_lambda_simple(self):
         b = """lambda (x, y): x + f(y)"""
         a = """lambda x_y: x_y[0] + f(x_y[1])"""
         self.check(b, a)
 
+        b = """lambda (((x, y))): x + f(y)"""
+        a = """lambda x_y: x_y[0] + f(x_y[1])"""
+        self.check(b, a)
+
     def test_lambda_one_tuple(self):
         b = """lambda (x,): x + f(x)"""
+        a = """lambda x1: x1[0] + f(x1[0])"""
+        self.check(b, a)
+
+        b = """lambda (((x,))): x + f(x)"""
         a = """lambda x1: x1[0] + f(x1[0])"""
         self.check(b, a)
 
@@ -1557,6 +1570,10 @@ class Test_tuple_params(FixerTestCase):
 
     def test_lambda_nested(self):
         b = """lambda (x, (y, z)): x + y + z"""
+        a = """lambda x_y_z: x_y_z[0] + x_y_z[1][0] + x_y_z[1][1]"""
+        self.check(b, a)
+
+        b = """lambda (((x, (y, z)))): x + y + z"""
         a = """lambda x_y_z: x_y_z[0] + x_y_z[1][0] + x_y_z[1][1]"""
         self.check(b, a)
 
