@@ -18,7 +18,9 @@ from fixes import basefix
 from fixes.util import Name, Call, Comma, String, is_tuple
 
 
-paren_call = patcomp.compile_pattern("""atom< '(' any ')' >""")
+parend_expr = patcomp.compile_pattern(
+              """atom< '(' [atom|STRING|NAME] ')' >"""
+              )
 
 
 class FixPrint(basefix.BaseFix):
@@ -38,11 +40,12 @@ class FixPrint(basefix.BaseFix):
             return
         assert node.children[0] == Name("print")
         args = node.children[1:]
-        sep = end = file = None
-        if len(args) == 1 and (is_tuple(args[0]) or paren_call.match(args[0])):
+        if len(args) == 1 and parend_expr.match(args[0]):
             # We don't want to keep sticking parens around an
             # already-parenthesised expression.
             return
+
+        sep = end = file = None
         if args and args[-1] == Comma():
             args = args[:-1]
             end = " "

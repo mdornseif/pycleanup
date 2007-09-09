@@ -348,9 +348,6 @@ class Test_print(FixerTestCase):
         self.check(b, a)
 
     def test_idempotency(self):
-        s = """print(1, 1+1, 1+1+1)"""
-        self.unchanged(s)
-
         s = """print()"""
         self.unchanged(s)
 
@@ -384,6 +381,11 @@ class Test_print(FixerTestCase):
     def test_3(self):
         b = """print"""
         a = """print()"""
+        self.check(b, a)
+
+    def test_tuple(self):
+        b = """print (a, b, c)"""
+        a = """print((a, b, c))"""
         self.check(b, a)
 
     # trailing commas
