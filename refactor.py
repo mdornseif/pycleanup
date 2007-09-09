@@ -106,6 +106,7 @@ class RefactoringTool(object):
         self.options = options
         self.errors = []
         self.logger = logging.getLogger("RefactoringTool")
+        self.fixer_log = []
         if self.options.print_function:
             del pygram.python_grammar.keywords["print"]
         self.driver = driver.Driver(pygram.python_grammar,
@@ -142,7 +143,7 @@ class RefactoringTool(object):
                                fix_name, class_name)
                 continue
             try:
-                fixer = fix_class(self.options)
+                fixer = fix_class(self.options, self.fixer_log)
             except Exception, err:
                 self.log_error("Can't instantiate fixes.fix_%s.%s()",
                                fix_name, class_name, exc_info=True)
@@ -456,6 +457,10 @@ class RefactoringTool(object):
             self.log_message("Files that %s modified:", were)
             for file in self.files:
                 self.log_message(file)
+        if self.fixer_log:
+            self.log_message("Warnings/messages while refactoring:")
+            for message in self.fixer_log:
+                self.log_message(message)
         if self.errors:
             if len(self.errors) == 1:
                 self.log_message("There was 1 error:")

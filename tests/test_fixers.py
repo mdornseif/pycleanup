@@ -9,30 +9,12 @@ except ImportError:
     import support
 
 # Python imports
-from StringIO import StringIO
-import logging
 import unittest
 
 # Local imports
 import pygram
 import pytree
 import refactor
-
-# We wrap the RefactoringTool's fixer objects so we can intercept
-#  the call to start_tree() and so modify the fixers' logging objects.
-# This allows us to make sure that certain code chunks produce certain
-#  warnings.
-class Fixer(object):
-    def __init__(self, fixer, handler):
-        self.fixer = fixer
-        self.handler = handler
-
-    def __getattr__(self, attr):
-        return getattr(self.fixer, attr)
-
-    def start_tree(self, tree, filename):
-        self.fixer.start_tree(tree, filename)
-        self.fixer.logger.handlers[:] = [self.handler]
 
 class Options:
     def __init__(self, **kwargs):
@@ -45,17 +27,11 @@ class FixerTestCase(support.TestCase):
     def setUp(self):
         options = Options(fix=[self.fixer], print_function=False)
         self.refactor = refactor.RefactoringTool(options)
+        self.fixer_log = []
 
-        self.logging_stream = StringIO()
-        sh = logging.StreamHandler(self.logging_stream)
-        sh.setFormatter(logging.Formatter("%(message)s"))
-        self.refactor.pre_order = [Fixer(f, sh) for f
-                                                in self.refactor.pre_order]
-        self.refactor.post_order = [Fixer(f, sh) for f
-                                                 in self.refactor.post_order]
-
-    def tearDown(self):
-        self.logging_stream = None
+        for order in (self.refactor.pre_order, self.refactor.post_order):
+            for fixer in order:
+                fixer.log = self.fixer_log
 
     def _check(self, before, after):
         before = support.reformat(before)
@@ -68,11 +44,11 @@ class FixerTestCase(support.TestCase):
         tree = self._check(before, after)
         self.failUnless(tree.was_changed)
         if not ignore_warnings:
-            self.failUnlessEqual(self.logging_stream.getvalue(), "")
+            self.failUnlessEqual(self.fixer_log, [])
 
     def warns(self, before, after, message, unchanged=False):
         tree = self._check(before, after)
-        self.failUnless(message in self.logging_stream.getvalue())
+        self.failUnless(message in "".join(self.fixer_log))
         if not unchanged:
             self.failUnless(tree.was_changed)
 
@@ -82,7 +58,7 @@ class FixerTestCase(support.TestCase):
     def unchanged(self, before, ignore_warnings=False):
         self._check(before, before)
         if not ignore_warnings:
-            self.failUnlessEqual(self.logging_stream.getvalue(), "")
+            self.failUnlessEqual(self.fixer_log, [])
 
 
 class Test_ne(FixerTestCase):

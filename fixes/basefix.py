@@ -40,13 +40,16 @@ class BaseFix(object):
     # Shortcut for access to Python grammar symbols
     syms = pygram.python_symbols
 
-    def __init__(self, options):
+    def __init__(self, options, log):
         """Initializer.  Subclass may override.
 
-        The argument is an optparse.Values instance which can be used
-        to inspect the command line options.
+        Args:
+            options: an optparse.Values instance which can be used
+                to inspect the command line options.
+            log: a list to append warnings and other messages to.
         """
         self.options = options
+        self.log = log
         self.compile_pattern()
 
     def compile_pattern(self):
@@ -109,6 +112,12 @@ class BaseFix(object):
         self.used_names.add(name)
         return name
 
+    def log_message(self, message):
+        if self.first_log:
+            self.first_log = False
+            self.log.append("### In file %s ###" % self.filename)
+        self.log.append(message)
+
     def cannot_convert(self, node, reason=None):
         """Warn the user that a given chunk of code is not valid Python 3,
         but that it cannot be converted automatically.
@@ -119,10 +128,10 @@ class BaseFix(object):
         lineno = node.get_lineno()
         for_output = node.clone()
         for_output.set_prefix("")
-        msg = "At line %d: could not convert: %s"
-        self.logger.warning(msg % (lineno, for_output))
+        msg = "Line %d: could not convert: %s"
+        self.log_message(msg % (lineno, for_output))
         if reason:
-            self.logger.warning(reason)
+            self.log_message(reason)
 
     def warning(self, node, reason):
         """Used for warning the user about possible uncertainty in the
@@ -132,7 +141,7 @@ class BaseFix(object):
         Optional second argument is why it can't be converted.
         """
         lineno = node.get_lineno()
-        self.logger.warning("At line %d: %s" % (lineno, reason))
+        self.log_message("Line %d: %s" % (lineno, reason))
 
     def start_tree(self, tree, filename):
         """Some fixers need to maintain tree-wide state.
@@ -144,6 +153,7 @@ class BaseFix(object):
         self.used_names = tree.used_names
         self.set_filename(filename)
         self.numbers = itertools.count(1)
+        self.first_log = True
 
     def finish_tree(self, tree, filename):
         """Some fixers need to maintain tree-wide state.
