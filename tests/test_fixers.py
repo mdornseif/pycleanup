@@ -2716,6 +2716,24 @@ class Test_idioms(FixerTestCase):
         self.unchanged(s)
 
 
+class Test_basestring(FixerTestCase):
+    fixer = "basestring"
+
+    def test_basestring(self):
+        b = """isinstance(x, basestring)"""
+        a = """isinstance(x, str)"""
+        self.check(b, a)
+
+
+class Test_buffer(FixerTestCase):
+    fixer = "buffer"
+
+    def test_buffer(self):
+        b = """x = buffer(y)"""
+        a = """x = memoryview(y)"""
+        self.check(b, a)
+
+
 if __name__ == "__main__":
     import __main__
     support.run_all_tests(__main__)

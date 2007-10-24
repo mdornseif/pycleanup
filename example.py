@@ -355,6 +355,12 @@ def map_examples():
     map(None, foo, bar)
     map(f, foo.bar)
     map(lambda x: x+1, range(10))
-    
+
+def basestring_examples():
+    if isinstance(x, basestring): pass
+
+def buffer_examples():
+    x = buffer(y)
+
 
 # This is the last line.
