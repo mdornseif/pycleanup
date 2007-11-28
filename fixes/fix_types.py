@@ -25,15 +25,26 @@ from fixes import basefix
 from fixes.util import Name
 
 _TYPE_MAPPING = {
+        'BooleanType' : 'bool',
+        'BufferType' : 'memoryview',
+        'ClassType' : 'type',
+        'ComplexType' : 'complex',
         'DictType': 'dict',
-        'ListType': 'list',
-        'NoneType': 'type(None)',
-        'IntType': 'int',
-        'LongType': 'int',
+        'DictionaryType' : 'dict',
+        #'FileType' : 'io.IOBase',
         'FloatType': 'float',
-        'StringType': 'str',
+        'IntType': 'int',
+        'ListType': 'list',
+        'LongType': 'int',
+        'ObjectType' : 'object',
+        'NoneType': 'type(None)',
+        'SliceType' : 'slice',
+        'StringType': 'bytes', # XXX ?
+        'StringTypes' : 'str', # XXX ?
         'TupleType': 'tuple',
-        'UnicodeType': 'unicode',
+        'TypeType' : 'type',
+        'UnicodeType': 'str',
+        'XRangeType' : 'range',
     }
 
 _pats = ["power< 'types' trailer< '.' name='%s' > >" % t for t in _TYPE_MAPPING]

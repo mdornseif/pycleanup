@@ -2425,7 +2425,7 @@ class Test_types(FixerTestCase):
 
     def test_basic_types_convert(self):
         b = """types.StringType"""
-        a = """str"""
+        a = """bytes"""
         self.check(b, a)
 
         b = """types.DictType"""
@@ -2442,6 +2442,10 @@ class Test_types(FixerTestCase):
 
         b = """types.LongType"""
         a = """int"""
+        self.check(b, a)
+
+        b = """types.NoneType"""
+        a = """type(None)"""
         self.check(b, a)
 
 class Test_idioms(FixerTestCase):
