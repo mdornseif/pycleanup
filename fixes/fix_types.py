@@ -31,6 +31,7 @@ _TYPE_MAPPING = {
         'ComplexType' : 'complex',
         'DictType': 'dict',
         'DictionaryType' : 'dict',
+        'EllipsisType' : 'type(Ellipsis)',
         #'FileType' : 'io.IOBase',
         'FloatType': 'float',
         'IntType': 'int',
@@ -38,6 +39,7 @@ _TYPE_MAPPING = {
         'LongType': 'int',
         'ObjectType' : 'object',
         'NoneType': 'type(None)',
+        'NotImplementedType' : 'type(NotImplemented)',
         'SliceType' : 'slice',
         'StringType': 'bytes', # XXX ?
         'StringTypes' : 'str', # XXX ?
