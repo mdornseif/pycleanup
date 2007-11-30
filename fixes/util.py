@@ -66,6 +66,10 @@ def Newline():
     """A newline literal"""
     return Leaf(token.NEWLINE, "\n")
 
+def BlankLine():
+    """A blank line"""
+    return Leaf(token.NEWLINE, "")
+
 def Number(n, prefix=None):
     return Leaf(token.NUMBER, n, prefix=prefix)
 

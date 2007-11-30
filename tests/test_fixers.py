@@ -2770,6 +2770,13 @@ class Test_buffer(FixerTestCase):
         a = """x = memoryview(y)"""
         self.check(b, a)
 
+class Test_future(FixerTestCase):
+    fixer = "future"
+
+    def test_future(self):
+        b = """from __future__ import braces"""
+        a = """"""
+        self.check(b, a)
 
 if __name__ == "__main__":
     import __main__
