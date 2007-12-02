@@ -10,9 +10,14 @@ Fixes:
 # Local imports
 from fixes import basefix
 from fixes.util import Name, attr_chain, any, set
+import __builtin__
+builtin_names = [name for name in dir(__builtin__)
+                 if name not in ("__name__", "__doc__")]
 
 MAPPING = {"StringIO":  ("io", ["StringIO"]),
-           "cStringIO": ("io", ["StringIO"])}
+           "cStringIO": ("io", ["StringIO"]),
+           "__builtin__" : ("builtins", builtin_names), 
+          }
 
 
 def alternates(members):

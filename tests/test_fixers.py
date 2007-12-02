@@ -1270,7 +1270,10 @@ class Test_imports(FixerTestCase):
     fixer = "imports"
 
     modules = {"StringIO":  ("io", ["StringIO"]),
-               "cStringIO": ("io", ["StringIO"])}
+               "cStringIO": ("io", ["StringIO"]),
+               "__builtin__" : ("builtins", ["open", "Exception",
+                   "__debug__", "str"]),
+              }
 
     def test_import_module(self):
         for old, (new, members) in self.modules.items():
@@ -1285,11 +1288,11 @@ class Test_imports(FixerTestCase):
     def test_import_from(self):
         for old, (new, members) in self.modules.items():
             for member in members:
-                b = "from %s import %s" % (old, ", ".join(members))
-                a = "from %s import %s" % (new, ", ".join(members))
+                b = "from %s import %s" % (old, member)
+                a = "from %s import %s" % (new, member)
                 self.check(b, a)
 
-                s = "from foo import %s" % ", ".join(members)
+                s = "from foo import %s" % member
                 self.unchanged(s)
 
     def test_import_module_as(self):
@@ -1305,8 +1308,8 @@ class Test_imports(FixerTestCase):
     def test_import_from_as(self):
         for old, (new, members) in self.modules.items():
             for member in members:
-                b = "from %s import %s as foo_bar" % (old, ", ".join(members))
-                a = "from %s import %s as foo_bar" % (new, ", ".join(members))
+                b = "from %s import %s as foo_bar" % (old, member)
+                a = "from %s import %s as foo_bar" % (new, member)
                 self.check(b, a)
 
     def test_star(self):
