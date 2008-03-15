@@ -2207,7 +2207,7 @@ class Test_renames(FixerTestCase):
             a = "from %s import %s" % (mod, new)
             self.check(b, a)
 
-	    s = "from foo import %s" % old
+            s = "from foo import %s" % old
             self.unchanged(s)
 
     def test_import_from_as(self):
