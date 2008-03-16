@@ -47,9 +47,9 @@ import sys
 from StringIO import StringIO
 
 # Local imports
-import pytree
+from lib2to3 import pytree
 from pgen2 import driver
-from pygram import python_symbols, python_grammar
+from lib2to3.pygram import python_symbols, python_grammar
 
 driver = driver.Driver(python_grammar, convert=pytree.convert)
 
