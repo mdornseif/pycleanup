@@ -18,6 +18,7 @@ __all__ = ["Driver", "load_grammar"]
 # Python imports
 import os
 import logging
+import sys
 
 # Pgen imports
 from pgen2 import grammar, parse, token, tokenize
@@ -119,7 +120,7 @@ def load_grammar(gt="Grammar.txt", gp=None,
         head, tail = os.path.splitext(gt)
         if tail == ".txt":
             tail = ""
-        gp = head + tail + ".pickle"
+        gp = head + tail + ".".join(map(str, sys.version_info)) + ".pickle"
     if force or not _newer(gp, gt):
         logger.info("Generating grammar tables from %s", gt)
         from pgen2 import pgen
