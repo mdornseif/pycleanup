@@ -20,8 +20,8 @@ from pgen2 import token
 from pgen2 import tokenize
 
 # Really local imports
-import pytree
-import pygram
+from . import pytree
+from . import pygram
 
 # The pattern grammar file
 _PATTERN_GRAMMAR_FILE = os.path.join(os.path.dirname(__file__),

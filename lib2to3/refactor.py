@@ -20,12 +20,13 @@ import optparse
 import logging
 
 # Local imports
-import pytree
-import patcomp
 from pgen2 import driver
 from pgen2 import tokenize
-import fixes
-import pygram
+
+from . import pytree
+from . import patcomp
+from . import fixes
+from . import pygram
 
 if sys.version_info < (2, 4):
     hdlr = logging.StreamHandler()
