@@ -6,7 +6,7 @@ uses of colons.  It does not touch other uses of whitespace.
 """
 
 from .. import pytree
-from pgen2 import token
+from ..pgen2 import token
 from .import basefix
 
 class FixWsComma(basefix.BaseFix):

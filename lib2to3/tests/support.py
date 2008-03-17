@@ -13,7 +13,7 @@ from textwrap import dedent
 
 # Local imports
 from .. import pytree
-from pgen2 import driver
+from ..pgen2 import driver
 
 test_dir = os.path.dirname(__file__)
 proj_dir = os.path.normpath(os.path.join(test_dir, ".."))

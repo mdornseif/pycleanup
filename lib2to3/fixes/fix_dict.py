@@ -26,7 +26,7 @@ as an argument to a function that introspects the argument).
 # Local imports
 from .. import pytree
 from .. import patcomp
-from pgen2 import token
+from ..pgen2 import token
 from . import basefix
 from .util import Name, Call, LParen, RParen, ArgList, Dot, set
 

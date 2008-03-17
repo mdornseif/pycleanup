@@ -20,7 +20,7 @@ It will also support lambdas:
 
 # Local imports
 from .. import pytree
-from pgen2 import token
+from ..pgen2 import token
 from .import basefix
 from .util import Assign, Name, Newline, Number, Subscript, syms
 

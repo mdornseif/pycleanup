@@ -3,7 +3,7 @@
 """
 
 import re
-from pgen2 import token
+from ..pgen2 import token
 from .import basefix
 
 class FixUnicode(basefix.BaseFix):

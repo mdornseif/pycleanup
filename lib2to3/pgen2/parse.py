@@ -17,7 +17,7 @@ except NameError:
     from sets import Set as set
 
 # Local imports
-from pgen2 import token
+from . import token
 
 class ParseError(Exception):
     """Exception to signal the parser is stuck."""

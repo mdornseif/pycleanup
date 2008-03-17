@@ -30,9 +30,9 @@ __credits__ = \
     'GvR, ESR, Tim Peters, Thomas Wouters, Fred Drake, Skip Montanaro'
 
 import string, re
-from pgen2.token import *
+from lib2to3.pgen2.token import *
 
-from pgen2 import token
+from . import token
 __all__ = [x for x in dir(token) if x[0] != '_'] + ["tokenize",
            "generate_tokens", "untokenize"]
 del token

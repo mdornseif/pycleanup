@@ -9,7 +9,7 @@ g.throw("foo"[, V[, T]]) will warn about string exceptions."""
 
 # Local imports
 from .. import pytree
-from pgen2 import token
+from ..pgen2 import token
 from .import basefix
 from .util import Name, Call, ArgList, Attr, is_tuple
 

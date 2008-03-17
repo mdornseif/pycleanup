@@ -23,7 +23,7 @@ The following cases will be converted:
 
 # Local imports
 from .. import pytree
-from pgen2 import token
+from ..pgen2 import token
 from . import basefix
 from .util import Assign, Attr, Name, is_tuple, is_list, reversed
 

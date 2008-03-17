@@ -20,7 +20,7 @@ soon as the shortest argument is exhausted.
 # Local imports
 from .. import pytree
 from .. import patcomp
-from pgen2 import token
+from ..pgen2 import token
 from . import basefix
 from .util import Name, Call, ListComp, attr_chain
 from ..pygram import python_symbols as syms

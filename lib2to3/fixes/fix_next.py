@@ -6,7 +6,7 @@
 #   - "with" statement targets aren't checked
 
 # Local imports
-from pgen2 import token
+from ..pgen2 import token
 from ..pygram import python_symbols as syms
 from . import basefix
 from .util import Name, Call, find_binding, any

@@ -17,7 +17,7 @@ import os
 import os.path
 
 # Local imports
-from pgen2.parse import ParseError
+from ..pgen2.parse import ParseError
 
 
 class GrammarTest(support.TestCase):

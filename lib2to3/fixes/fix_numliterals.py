@@ -4,7 +4,7 @@
 # Licensed to PSF under a Contributor Agreement.
 
 # Local imports
-from pgen2 import token
+from ..pgen2 import token
 from .import basefix
 from .util import Number, set
 
