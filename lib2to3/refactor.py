@@ -20,8 +20,8 @@ import optparse
 import logging
 
 # Local imports
-from pgen2 import driver
-from pgen2 import tokenize
+from .pgen2 import driver
+from .pgen2 import tokenize
 
 from . import pytree
 from . import patcomp
