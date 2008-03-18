@@ -40,6 +40,11 @@ class FixFilter(basefix.BaseFix):
     |
     power<
         'filter'
+        trailer< '(' arglist< none='None' ',' seq=any > ')' >
+    >
+    |
+    power<
+        'filter'
         args=trailer< '(' [any] ')' >
     >
     """
@@ -65,6 +70,13 @@ class FixFilter(basefix.BaseFix):
                            results.get("fp").clone(),
                            results.get("it").clone(),
                            results.get("xp").clone())
+
+        elif "none" in results:
+            new = ListComp(Name("_f"),
+                           Name("_f"),
+                           results["seq"].clone(),
+                           Name("_f"))
+
         else:
             if in_special_context(node):
                 return None

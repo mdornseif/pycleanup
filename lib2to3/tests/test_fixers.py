@@ -2308,13 +2308,17 @@ class Test_filter(FixerTestCase):
     fixer = "filter"
 
     def test_prefix_preservation(self):
-        b = """x =   filter(    None,     'abc'   )"""
-        a = """x =   list(filter(    None,     'abc'   ))"""
+        b = """x =   filter(    foo,     'abc'   )"""
+        a = """x =   list(filter(    foo,     'abc'   ))"""
+        self.check(b, a)
+
+        b = """x =   filter(  None , 'abc'  )"""
+        a = """x =   [_f for _f in 'abc' if _f]"""
         self.check(b, a)
 
     def test_filter_basic(self):
         b = """x = filter(None, 'abc')"""
-        a = """x = list(filter(None, 'abc'))"""
+        a = """x = [_f for _f in 'abc' if _f]"""
         self.check(b, a)
 
         b = """x = len(filter(f, 'abc'))"""
