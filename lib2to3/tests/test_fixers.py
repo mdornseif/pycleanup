@@ -2371,6 +2371,17 @@ class Test_filter(FixerTestCase):
         a = """(x for x in filter(f, 'abc'))"""
         self.unchanged(a)
 
+    def test_future_builtins(self):
+        a = "from future_builtins import spam, filter; filter(f, 'ham')"
+        self.unchanged(a)
+
+        b = """from future_builtins import spam; x = filter(f, 'abc')"""
+        a = """from future_builtins import spam; x = list(filter(f, 'abc'))"""
+        self.check(b, a)
+
+        a = "from future_builtins import *; filter(f, 'ham')"
+        self.unchanged(a)
+
 class Test_map(FixerTestCase):
     fixer = "map"
 

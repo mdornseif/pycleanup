@@ -18,7 +18,7 @@ from .. import pytree
 from .. import patcomp
 from ..pgen2 import token
 from . import basefix
-from .util import Name, Call, ListComp, attr_chain
+from .util import Name, Call, ListComp, attr_chain, does_tree_import
 
 class FixFilter(basefix.BaseFix):
 
@@ -44,7 +44,22 @@ class FixFilter(basefix.BaseFix):
     >
     """
 
+    def start_tree(self, *args):
+        super(FixFilter, self).start_tree(*args)
+        self._new_filter = None
+
+    def has_new_filter(self, node):
+        if self._new_filter is not None:
+            return self._new_filter
+        self._new_filter = does_tree_import('future_builtins', 'filter', node)
+        return self._new_filter
+
     def transform(self, node, results):
+        if self.has_new_filter(node):
+            # If filter is imported from future_builtins, we don't want to
+            # do anything here.
+            return
+
         if "filter_lambda" in results:
             new = ListComp(results.get("fp").clone(),
                            results.get("fp").clone(),
