@@ -84,9 +84,53 @@ class Test_Name(MacroTestCase):
         self.assertStr(Name("a", prefix="b"), "ba")
 
 
+class Test_does_tree_import(support.TestCase):
+    def _find_bind_rec(self, name, node):
+        # Search a tree for a binding -- used to find the starting
+        # point for these tests.
+        c = util.find_binding(name, node)
+        if c: return c
+        for child in node.children:
+            c = self._find_bind_rec(name, child)
+            if c: return c
+
+    def does_tree_import(self, package, name, string):
+        node = parse(string)
+        # Find the binding of start -- that's what we'll go from
+        node = self._find_bind_rec('start', node)
+        return util.does_tree_import(package, name, node)
+
+    def try_with(self, string):
+        failing_tests = (("a", "a", "from a import b"),
+                         ("a.d", "a", "from a.d import b"),
+                         ("d.a", "a", "from d.a import b"),
+                         (None, "a", "import b"),
+                         (None, "a", "import b, c, d"))
+        for package, name, import_ in failing_tests:
+            n = self.does_tree_import(package, name, import_ + "\n" + string)
+            self.failIf(n)
+            n = self.does_tree_import(package, name, string + "\n" + import_)
+            self.failIf(n)
+
+        passing_tests = (("a", "a", "from a import a"),
+                         ("x", "a", "from x import a"),
+                         ("x", "a", "from x import b, c, a, d"),
+                         ("x.b", "a", "from x.b import a"),
+                         ("x.b", "a", "from x.b import b, c, a, d"),
+                         (None, "a", "import a"),
+                         (None, "a", "import b, c, a, d"))
+        for package, name, import_ in passing_tests:
+            n = self.does_tree_import(package, name, import_ + "\n" + string)
+            self.failUnless(n)
+            n = self.does_tree_import(package, name, string + "\n" + import_)
+            self.failUnless(n)
+
+    def test_in_function(self):
+        self.try_with("def foo():\n\tbar.baz()\n\tstart=3")
+
 class Test_find_binding(support.TestCase):
-    def find_binding(self, name, string):
-        return util.find_binding(name, parse(string))
+    def find_binding(self, name, string, package=None):
+        return util.find_binding(name, parse(string), package)
 
     def test_simple_assignment(self):
         self.failUnless(self.find_binding("a", "a = b"))
@@ -148,6 +192,42 @@ class Test_find_binding(support.TestCase):
         self.failIf(self.find_binding("a", "from a import b as t"))
         self.failIf(self.find_binding("a", "from a.d import b as t"))
         self.failIf(self.find_binding("a", "from d.a import b as t"))
+
+    def test_simple_import_with_package(self):
+        self.failUnless(self.find_binding("b", "import b"))
+        self.failUnless(self.find_binding("b", "import b, c, d"))
+        self.failIf(self.find_binding("b", "import b", "b"))
+        self.failIf(self.find_binding("b", "import b, c, d", "c"))
+
+    def test_from_import_with_package(self):
+        self.failUnless(self.find_binding("a", "from x import a", "x"))
+        self.failUnless(self.find_binding("a", "from a import a", "a"))
+        self.failUnless(self.find_binding("a", "from x import *", "x"))
+        self.failUnless(self.find_binding("a", "from x import b, c, a, d", "x"))
+        self.failUnless(self.find_binding("a", "from x.b import a", "x.b"))
+        self.failUnless(self.find_binding("a", "from x.b import *", "x.b"))
+        self.failUnless(self.find_binding("a", "from x.b import b, c, a, d", "x.b"))
+        self.failIf(self.find_binding("a", "from a import b", "a"))
+        self.failIf(self.find_binding("a", "from a.d import b", "a.d"))
+        self.failIf(self.find_binding("a", "from d.a import b", "a.d"))
+        self.failIf(self.find_binding("a", "from x.y import *", "a.b"))
+
+    def test_import_as_with_package(self):
+        self.failIf(self.find_binding("a", "import b.c as a", "b.c"))
+        self.failIf(self.find_binding("a", "import a as f", "f"))
+        self.failIf(self.find_binding("a", "import a as f", "a"))
+
+    def test_from_import_as_with_package(self):
+        # Because it would take a lot of special-case code in the fixers
+        # to deal with from foo import bar as baz, we'll simply always
+        # fail if there is an "from ... import ... as ..."
+        self.failIf(self.find_binding("a", "from x import b as a", "x"))
+        self.failIf(self.find_binding("a", "from x import g as a, d as b", "x"))
+        self.failIf(self.find_binding("a", "from x.b import t as a", "x.b"))
+        self.failIf(self.find_binding("a", "from x.b import g as a, d", "x.b"))
+        self.failIf(self.find_binding("a", "from a import b as t", "a"))
+        self.failIf(self.find_binding("a", "from a import b as t", "b"))
+        self.failIf(self.find_binding("a", "from a import b as t", "t"))
 
     def test_function_def(self):
         self.failUnless(self.find_binding("a", "def a(): pass"))

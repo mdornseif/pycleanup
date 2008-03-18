@@ -193,23 +193,26 @@ def make_suite(node):
     suite.parent = parent
     return suite
 
+def does_tree_import(package, name, node):
+    """ Returns true if name is imported from package at the
+        top level of the tree which node belongs to.
+        To cover the case of an import like 'import foo', use
+        Null for the package and 'foo' for the name. """
+    # Scamper up to the top level namespace
+    while node.type != syms.file_input:
+        assert node.parent, "Tree is insane! root found before "\
+                           "file_input node was found."
+        node = node.parent
+
+    binding = find_binding(name, node, package)
+    return bool(binding)
+
 _def_syms = set([syms.classdef, syms.funcdef])
 def find_binding(name, node, package=None):
     """ Returns the node which binds variable name, otherwise None.
         If optional argument package is supplied, only imports will
         be returned.
-        >>> for args in (('map', 'map = 3'),
-                         ('map', 'from foo import map'),
-                         ('map', 'from foo import map', 'foo'),
-                         ('map', 'from bar import map', 'foo'),
-                         ('map', 'map = 3', 'foo')):
-                print bool(find_binding(*args))
-        True
-        True
-        True
-        False
-        False
-        >>> """
+        See test cases for examples."""
     for child in node.children:
         ret = None
         if child.type == syms.for_stmt:
@@ -233,17 +236,18 @@ def find_binding(name, node, package=None):
         elif child.type in _def_syms and child.children[1].value == name:
             ret = child
         elif _is_import_binding(child, name, package):
-            return child
+            ret = child
         elif child.type == syms.simple_stmt:
             ret = find_binding(name, child, package)
         elif child.type == syms.expr_stmt:
                 if _find(name, child.children[0]):
                     ret = child
 
-        if not package and ret:
-            # Because the _is_import_binding returns directly, we don't want
-            # to return here if a package is defined.
-            return ret
+        if ret:
+            if not package:
+                return ret
+            if ret.type in (syms.import_name, syms.import_from):
+                return ret
     return None
 
 _block_syms = set([syms.funcdef, syms.classdef, syms.trailer])
@@ -260,20 +264,9 @@ def _find(name, node):
 def _is_import_binding(node, name, package=None):
     """ Will reuturn node if node will import name, or node
         will import * from package.  None is returned otherwise.
-        >>> for n in ('from datetime import date',
-                      'from datetime import *',
-                      'import date',
-                      'from spam import date'):
-                print bool(_is_import_binding(n, 'date', 'datetime'))
-        True
-        True
-        True
-        False
-        >>> bool(_is_import_binding('from spam import date', 'date')
-        True
-        >>> """
+        See test cases for examples. """
 
-    if node.type == syms.import_name:
+    if node.type == syms.import_name and not package:
         imp = node.children[1]
         if imp.type == syms.dotted_as_names:
             for child in imp.children:
@@ -289,10 +282,15 @@ def _is_import_binding(node, name, package=None):
         elif imp.type == token.NAME and imp.value == name:
             return node
     elif node.type == syms.import_from:
-        if package and node.children[1].value != package:
+        # unicode(...) is used to make life easier here, because
+        # from a.b import parses to ['import', ['a', '.', 'b'], ...]
+        if package and unicode(node.children[1]).strip() != package:
             return None
         n = node.children[3]
-        if n.type == syms.import_as_names and _find(name, n):
+        if package and _find('as', n):
+            # See test_from_import_as for explanation
+            return None
+        elif n.type == syms.import_as_names and _find(name, n):
             return node
         elif n.type == syms.import_as_name:
             child = n.children[2]

@@ -24,7 +24,7 @@ from .. import pytree
 from .. import patcomp
 from ..pgen2 import token
 from . import basefix
-from .util import Name, Call, ListComp, attr_chain, find_binding
+from .util import Name, Call, ListComp, attr_chain, does_tree_import
 from ..pygram import python_symbols as syms
 
 class FixMap(basefix.BaseFix):
@@ -63,21 +63,7 @@ class FixMap(basefix.BaseFix):
     def has_future_map(self, node):
         if self._future_map_found is not None:
             return self._future_map_found
-
-        # Scamper up to the top level namespace
-        top = node
-        while top.type != syms.file_input:
-            assert top.parent, "Tree is insane! root found before "\
-                               "file_input node was found."
-            top = top.parent
-        top=top.children[0]
-
-        self._future_map_found = False
-
-        binding = find_binding('map', top, 'future_builtins')
-
-        self._future_map_found = bool(binding)
-
+        self._future_map_found = does_tree_import('future_builtins', 'map', node)
         return self._future_map_found
 
     def transform(self, node, results):
