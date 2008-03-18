@@ -1,7 +1,9 @@
 # Copyright 2007 Google, Inc. All Rights Reserved.
 # Licensed to PSF under a Contributor Agreement.
 
-"""Fixer that changes map(F, ...) into list(map(F, ...)).
+"""Fixer that changes map(F, ...) into list(map(F, ...)) unless there
+exists a 'from future_builtins import map' statement in the top-level
+namespace.
 
 As a special case, map(None, X) is changed into list(X).  (This is
 necessary because the semantics are changed in this case -- the new
@@ -22,7 +24,7 @@ from .. import pytree
 from .. import patcomp
 from ..pgen2 import token
 from . import basefix
-from .util import Name, Call, ListComp, attr_chain
+from .util import Name, Call, ListComp, attr_chain, find_binding
 from ..pygram import python_symbols as syms
 
 class FixMap(basefix.BaseFix):
@@ -54,7 +56,36 @@ class FixMap(basefix.BaseFix):
     >
     """
 
+    def start_tree(self, *args):
+        super(FixMap, self).start_tree(*args)
+        self._future_map_found = None
+
+    def has_future_map(self, node):
+        if self._future_map_found is not None:
+            return self._future_map_found
+
+        # Scamper up to the top level namespace
+        top = node
+        while top.type != syms.file_input:
+            assert top.parent, "Tree is insane! root found before "\
+                               "file_input node was found."
+            top = top.parent
+        top=top.children[0]
+
+        self._future_map_found = False
+
+        binding = find_binding('map', top, 'future_builtins')
+
+        self._future_map_found = bool(binding)
+
+        return self._future_map_found
+
     def transform(self, node, results):
+        if self.has_future_map(node):
+            # If a future map has been imported for this file, we won't
+            # be making any modifications
+            return
+            
         if node.parent.type == syms.simple_stmt:
             self.warning(node, "You should use a for loop here")
             new = node.clone()

@@ -2374,6 +2374,10 @@ class Test_filter(FixerTestCase):
 class Test_map(FixerTestCase):
     fixer = "map"
 
+    def check(self, b, a):
+        self.unchanged("from future_builtins import map; " + b, a)
+        FixerTestCase.check(self, b, a)
+
     def test_prefix_preservation(self):
         b = """x =    map(   f,    'abc'   )"""
         a = """x =    list(map(   f,    'abc'   ))"""
@@ -2461,6 +2465,17 @@ class Test_map(FixerTestCase):
         a = """[x for x in map(f, 'abc')]"""
         self.unchanged(a)
         a = """(x for x in map(f, 'abc'))"""
+        self.unchanged(a)
+
+    def test_future_builtins(self):
+        a = "from future_builtins import spam, map, eggs; map(f, 'ham')"
+        self.unchanged(a)
+
+        b = """from future_builtins import spam, eggs; x = map(f, 'abc')"""
+        a = """from future_builtins import spam, eggs; x = list(map(f, 'abc'))"""
+        self.check(b, a)
+
+        a = "from future_builtins import *; map(f, 'ham')"
         self.unchanged(a)
 
 class Test_standarderror(FixerTestCase):
