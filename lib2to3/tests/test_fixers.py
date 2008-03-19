@@ -10,6 +10,7 @@ except ImportError:
 
 # Python imports
 import unittest
+from os.path import dirname, pathsep
 
 # Local imports
 from .. import pygram
@@ -28,6 +29,7 @@ class FixerTestCase(support.TestCase):
         options = Options(fix=[self.fixer], print_function=False)
         self.refactor = refactor.RefactoringTool(options)
         self.fixer_log = []
+        self.filename = "<string>"
 
         for order in (self.refactor.pre_order, self.refactor.post_order):
             for fixer in order:
@@ -36,7 +38,7 @@ class FixerTestCase(support.TestCase):
     def _check(self, before, after):
         before = support.reformat(before)
         after = support.reformat(after)
-        tree = self.refactor.refactor_string(before, "<string>")
+        tree = self.refactor.refactor_string(before, self.filename)
         self.failUnlessEqual(after, str(tree))
         return tree
 
@@ -59,7 +61,6 @@ class FixerTestCase(support.TestCase):
         self._check(before, before)
         if not ignore_warnings:
             self.failUnlessEqual(self.fixer_log, [])
-
 
 class Test_ne(FixerTestCase):
     fixer = "ne"
@@ -412,7 +413,6 @@ class Test_print(FixerTestCase):
         a = """print(file=sys.stderr)"""
         self.check(b, a)
 
-
 class Test_exec(FixerTestCase):
     fixer = "exec"
 
@@ -463,7 +463,6 @@ class Test_exec(FixerTestCase):
     def test_unchanged_4(self):
         s = """exec(code, ns1, ns2)"""
         self.unchanged(s)
-
 
 class Test_repr(FixerTestCase):
     fixer = "repr"
@@ -666,7 +665,6 @@ class Test_except(FixerTestCase):
                 pass"""
         self.unchanged(s)
 
-
 class Test_raise(FixerTestCase):
     fixer = "raise"
 
@@ -788,7 +786,6 @@ class Test_raise(FixerTestCase):
                     raise Exception(5, 6, 7).with_traceback(6)
                     b = 6"""
         self.check(b, a)
-
 
 class Test_throw(FixerTestCase):
     fixer = "throw"
@@ -915,7 +912,6 @@ class Test_throw(FixerTestCase):
                     b = 6"""
         self.check(b, a)
 
-
 class Test_long(FixerTestCase):
     fixer = "long"
 
@@ -960,7 +956,6 @@ class Test_long(FixerTestCase):
         b = """x =   long(  x  )"""
         a = """x =   int(  x  )"""
         self.check(b, a)
-
 
 class Test_dict(FixerTestCase):
     fixer = "dict"
@@ -1171,7 +1166,6 @@ class Test_xrange(FixerTestCase):
         a = """for i in range(10):\n    j=i"""
         self.check(b, a)
 
-
 class Test_raw_input(FixerTestCase):
     fixer = "raw_input"
 
@@ -1204,7 +1198,6 @@ class Test_raw_input(FixerTestCase):
         a = """x = input(foo(a) + 6)"""
         self.check(b, a)
 
-
 class Test_funcattrs(FixerTestCase):
     fixer = "funcattrs"
 
@@ -1230,7 +1223,6 @@ class Test_funcattrs(FixerTestCase):
 
             s = "f(foo.__%s__.foo)" % attr
             self.unchanged(s)
-
 
 class Test_xreadlines(FixerTestCase):
     fixer = "xreadlines"
@@ -1273,7 +1265,6 @@ class Test_xreadlines(FixerTestCase):
 
         s = "foo(xreadlines)"
         self.unchanged(s)
-
 
 class Test_imports(FixerTestCase):
     fixer = "imports"
@@ -1352,7 +1343,6 @@ class Test_imports(FixerTestCase):
                     """ % (new, member, member, member)
                 self.check(b, a)
 
-
 class Test_input(FixerTestCase):
     fixer = "input"
 
@@ -1399,7 +1389,6 @@ class Test_input(FixerTestCase):
         b = """x = input(foo(5) + 9)"""
         a = """x = eval(input(foo(5) + 9))"""
         self.check(b, a)
-
 
 class Test_tuple_params(FixerTestCase):
     fixer = "tuple_params"
@@ -1619,7 +1608,6 @@ class Test_methodattrs(FixerTestCase):
 
             s = "f(foo.__%s__.foo)" % attr
             self.unchanged(s)
-
 
 class Test_next(FixerTestCase):
     fixer = "next"
@@ -2249,7 +2237,6 @@ class Test_renames(FixerTestCase):
                 foo(%s, %s)
                 """ % (mod, new, mod, new)
             self.check(b, a)
-
 
 class Test_unicode(FixerTestCase):
     fixer = "unicode"
@@ -2904,7 +2891,6 @@ class Test_idioms(FixerTestCase):
             """
         self.unchanged(s)
 
-
 class Test_basestring(FixerTestCase):
     fixer = "basestring"
 
@@ -2912,7 +2898,6 @@ class Test_basestring(FixerTestCase):
         b = """isinstance(x, basestring)"""
         a = """isinstance(x, str)"""
         self.check(b, a)
-
 
 class Test_buffer(FixerTestCase):
     fixer = "buffer"
@@ -2974,6 +2959,78 @@ class Test_itertools(FixerTestCase):
         b = """    itertools.ifilterfalse(a, b)"""
         a = """    itertools.filterfalse(a, b)"""
         self.check(b, a)
+
+class Test_import(FixerTestCase):
+    fixer = "import"
+
+    def setUp(self):
+        FixerTestCase.setUp(self)
+        # Need to replace fix_import's isfile and isdir method
+        # so we can check that it's doing the right thing
+        self.files_checked = []
+        self.always_exists = True
+        def fake_exists(name):
+            self.files_checked.append(name)
+            return self.always_exists
+
+        from ..fixes import fix_import
+        fix_import.exists = fake_exists
+
+    def check_both(self, b, a):
+        self.always_exists = True
+        FixerTestCase.check(self, b, a)
+        self.always_exists = False
+        FixerTestCase.unchanged(self, b)
+
+    def test_files_checked(self):
+        def p(path):
+            # Takes a unix path and returns a path with correct separators
+            return pathsep.join(path.split("/"))
+
+        self.always_exists = False
+        expected_extensions = ('.py', pathsep, '.pyc', '.so', '.sl', '.pyd')
+        names_to_test = (p("/spam/eggs.py"), "ni.py", p("../../shrubbery.py"))
+
+        for name in names_to_test:
+            self.files_checked = []
+            self.filename = name
+            self.unchanged("import jam")
+
+            if dirname(name): name = dirname(name) + '/jam'
+            else:             name = 'jam'
+            expected_checks = set(name + ext for ext in expected_extensions)
+
+            self.failUnlessEqual(set(self.files_checked), expected_checks)
+
+    def test_from(self):
+        b = "from foo import bar"
+        a = "from .foo import bar"
+        self.check_both(b, a)
+
+    def test_dotted_from(self):
+        b = "from green.eggs import ham"
+        a = "from .green.eggs import ham"
+        self.check_both(b, a)
+
+    def test_from_as(self):
+        b = "from green.eggs import ham as spam"
+        a = "from .green.eggs import ham as spam"
+        self.check_both(b, a)
+
+    def test_import(self):
+        b = "import foo"
+        a = "import .foo"
+        self.check_both(b, a)
+
+    def test_dotted_import(self):
+        b = "import foo.bar"
+        a = "import .foo.bar"
+        self.check_both(b, a)
+
+    def test_dotted_import_as(self):
+        b = "import foo.bar as bang"
+        a = "import .foo.bar as bang"
+        self.check_both(b, a)
 
 
 if __name__ == "__main__":
