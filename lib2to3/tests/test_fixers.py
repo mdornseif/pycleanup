@@ -2984,6 +2984,51 @@ class Test_itertools(FixerTestCase):
         a = """    itertools.filterfalse(a, b)"""
         self.check(b, a)
 
+class Test_itertools_imports(FixerTestCase):
+    fixer = 'itertools_imports'
+
+    def test_reduced(self):
+        b = "from itertools import imap, izip, foo"
+        a = "from itertools import foo"
+        self.check(b, a)
+
+        b = "from itertools import bar, imap, izip, foo"
+        a = "from itertools import bar, foo"
+        self.check(b, a)
+
+    def test_none(self):
+        b = "from itertools import imap, izip"
+        a = ""
+        self.check(b, a)
+
+    def test_import_as(self):
+        b = "from itertools import izip, bar as bang, imap"
+        a = "from itertools import bar as bang"
+        self.check(b, a)
+
+        s = "from itertools import bar as bang"
+        self.unchanged(s)
+        
+    def test_ifilter(self):
+        b = "from itertools import ifilterfalse"
+        a = "from itertools import filterfalse"
+        self.check(b, a)
+
+        b = "from itertools import imap, ifilterfalse, foo"
+        a = "from itertools import filterfalse, foo"
+        self.check(b, a)
+
+        b = "from itertools import bar, ifilterfalse, foo"
+        a = "from itertools import bar, filterfalse, foo"
+        self.check(b, a)
+
+
+    def test_unchanged(self):
+        s = "from itertools import foo"
+        self.unchanged(s)
+
+
+
 class Test_import(FixerTestCase):
     fixer = "import"
 
