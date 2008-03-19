@@ -33,7 +33,7 @@ class FixZip(basefix.BaseFix):
             # If a future zip has been imported for this file, we won't
             # be making any modifications
             return
-            
+
         if in_special_context(node):
             return None
         new = node.clone()

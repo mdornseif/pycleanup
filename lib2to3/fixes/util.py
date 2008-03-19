@@ -164,15 +164,15 @@ except NameError:
 
 def attr_chain(obj, attr):
     """Follow an attribute chain.
-    
+
     If you have a chain of objects where a.foo -> b, b.foo-> c, etc,
     use this to iterate over all objects in the chain. Iteration is
     terminated by getattr(x, attr) is None.
-    
+
     Args:
         obj: the starting object
         attr: the name of the chaining attribute
-    
+
     Yields:
         Each successive object in the chain.
     """
@@ -279,8 +279,8 @@ def find_binding(name, node, package=None):
         elif child.type == syms.simple_stmt:
             ret = find_binding(name, child, package)
         elif child.type == syms.expr_stmt:
-                if _find(name, child.children[0]):
-                    ret = child
+            if _find(name, child.children[0]):
+                ret = child
 
         if ret:
             if not package:

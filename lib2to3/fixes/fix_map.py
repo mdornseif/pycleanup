@@ -69,7 +69,7 @@ class FixMap(basefix.BaseFix):
             # If a future map has been imported for this file, we won't
             # be making any modifications
             return
-            
+
         if node.parent.type == syms.simple_stmt:
             self.warning(node, "You should use a for loop here")
             new = node.clone()
