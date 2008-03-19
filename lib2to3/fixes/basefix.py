@@ -16,6 +16,7 @@ except NameError:
 # Local imports
 from ..patcomp import PatternCompiler
 from .. import pygram
+from .util import does_tree_import
 
 class BaseFix(object):
 
@@ -163,3 +164,23 @@ class BaseFix(object):
         filename - the name of the file the tree came from.
         """
         pass
+
+
+class ConditionalFix(BaseFix):
+    """ Base class for fixers which not execute if an import is found. """
+
+    # This is the name of the import which, if found, will cause the test to be skipped
+    skip_on = None
+
+    def start_tree(self, *args):
+        super(ConditionalFix, self).start_tree(*args)
+        self._should_skip = None
+
+    def should_skip(self, node):
+        if self._should_skip is not None:
+            return self._should_skip
+        pkg = self.skip_on.split(".")
+        name = pkg[-1]
+        pkg = ".".join(pkg[:-1])
+        self._should_skip = does_tree_import(pkg, name, node)
+        return self._should_skip
