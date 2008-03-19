@@ -3027,8 +3027,6 @@ class Test_itertools_imports(FixerTestCase):
         s = "from itertools import foo"
         self.unchanged(s)
 
-
-
 class Test_import(FixerTestCase):
     fixer = "import"
 
