@@ -413,6 +413,30 @@ class Test_print(FixerTestCase):
         a = """print(file=sys.stderr)"""
         self.check(b, a)
 
+    # With from __future__ import print_function
+    def test_with_future_print_function(self):
+        # XXX: These tests won't actually do anything until the parser
+        #      is fixed so it won't crash when it sees print(x=y).
+        #      When #2412 is fixed, the try/except block can be taken
+        #      out and the tests can be run like normal.
+        try:
+            s = "from __future__ import print_function\n"\
+                "print('Hai!', end=' ')"
+            self.unchanged(s)
+
+            b = "print 'Hello, world!'"
+            a = "print('Hello, world!')"
+            self.check(b, a)
+
+            s = "from __future__ import *\n"\
+                "print('Hai!', end=' ')"
+            self.unchanged(s)
+        except:
+            return
+        else:
+            self.assertFalse(True, "#2421 has been fixed -- printing tests "\
+                                   "need to be updated!")
+
 class Test_exec(FixerTestCase):
     fixer = "exec"
 
