@@ -36,6 +36,8 @@ class FixItertoolsImports(basefix.BaseFix):
         
         # If there is nothing left, return a blank line
         if not (imports.children or getattr(imports, 'value', None)):
-            node = BlankLine()
-
-        return node
+            new = BlankLine()
+            new.prefix = node.get_prefix()
+        else:
+            new = node
+        return new

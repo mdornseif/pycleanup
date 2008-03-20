@@ -15,4 +15,6 @@ class FixFuture(basefix.BaseFix):
     run_order = 10
 
     def transform(self, node, results):
-        return BlankLine()
+        new = BlankLine()
+        new.prefix = node.get_prefix()
+        return new

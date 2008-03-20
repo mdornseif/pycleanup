@@ -2955,9 +2955,16 @@ class Test_future(FixerTestCase):
         a = """"""
         self.check(b, a)
 
+        b = """# comment\nfrom __future__ import braces"""
+        a = """# comment\n"""
+        self.check(b, a)
+
+        b = """from __future__ import braces\n# comment"""
+        a = """\n# comment"""
+        self.check(b, a)
+
     def test_run_order(self):
         self.assert_runs_after('print')
-
 
 class Test_itertools(FixerTestCase):
     fixer = "itertools"
@@ -3017,6 +3024,11 @@ class Test_itertools_imports(FixerTestCase):
 
         b = "from itertools import bar, imap, izip, foo"
         a = "from itertools import bar, foo"
+        self.check(b, a)
+
+    def test_comments(self):
+        b = "#foo\nfrom itertools import imap, izip"
+        a = "#foo\n"
         self.check(b, a)
 
     def test_none(self):
