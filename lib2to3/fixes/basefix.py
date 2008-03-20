@@ -37,6 +37,8 @@ class BaseFix(object):
     used_names = set() # A set of all used NAMEs
     order = "post" # Does the fixer prefer pre- or post-order traversal
     explicit = False # Is this ignored by refactor.py -f all?
+    run_order = 5   # Fixers will be sorted by run order before execution
+                    # Lower numbers will be run first.
 
     # Shortcut for access to Python grammar symbols
     syms = pygram.python_symbols

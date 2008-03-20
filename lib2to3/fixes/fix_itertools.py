@@ -21,6 +21,9 @@ class FixItertools(basefix.BaseFix):
               power< func=%(it_funcs)s trailer< '(' [any] ')' > >
               """ %(locals())
 
+    # Needs to be run after fix_(map|zip|filter)
+    run_order = 6
+
     def transform(self, node, results):
         prefix = None
         func = results['func'][0]

@@ -62,6 +62,22 @@ class FixerTestCase(support.TestCase):
         if not ignore_warnings:
             self.failUnlessEqual(self.fixer_log, [])
 
+    def assert_runs_after(self, *names):
+        fix = [self.fixer]
+        fix.extend(names)
+        options = Options(fix=fix, print_function=False)
+        r = refactor.RefactoringTool(options)
+        (pre, post) = r.get_fixers()
+        n = "fix_" + self.fixer
+        if post and post[-1].__class__.__module__.endswith(n):
+            # We're the last fixer to run
+            return
+        if pre and pre[-1].__class__.__module__.endswith(n) and not post:
+            # We're the last in pre and post is empty
+            return 
+        self.fail("Fixer run order (%s) is incorrect; %s should be last."\
+               %(", ".join([x.__class__.__module__ for x in (pre+post)]), n))
+
 class Test_ne(FixerTestCase):
     fixer = "ne"
 
@@ -2939,6 +2955,10 @@ class Test_future(FixerTestCase):
         a = """"""
         self.check(b, a)
 
+    def test_run_order(self):
+        self.assert_runs_after('print')
+
+
 class Test_itertools(FixerTestCase):
     fixer = "itertools"
 
@@ -2983,6 +3003,9 @@ class Test_itertools(FixerTestCase):
         b = """    itertools.ifilterfalse(a, b)"""
         a = """    itertools.filterfalse(a, b)"""
         self.check(b, a)
+
+    def test_run_order(self):
+        self.assert_runs_after('map', 'zip', 'filter')
 
 class Test_itertools_imports(FixerTestCase):
     fixer = 'itertools_imports'

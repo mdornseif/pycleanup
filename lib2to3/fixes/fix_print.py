@@ -32,11 +32,6 @@ class FixPrint(basefix.ConditionalFix):
               simple_stmt< bare='print' any > | print_stmt
               """
 
-    # The traversal order does not matter, but the preorder fixers are run
-    # before the post-order fixers, and fix_future (which is defined to be
-    # postorder will remove the __future__ import (so we've got to be run
-    # first)
-    order = 'pre'
     skip_on = '__future__.print_function'
 
     def transform(self, node, results):
