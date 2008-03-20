@@ -20,10 +20,10 @@ def type_repr(type_num):
     if not _type_reprs:
         from .pygram import python_symbols
         # printing tokens is possible but not as useful
-        # from .pgen2 import token // token.__dict__.items())
+        # from .pgen2 import token // token.__dict__.items():
         for name, val in python_symbols.__dict__.items():
             if type(val) == int: _type_reprs[val] = name
-    return _type_reprs.get(type_num, '???')
+    return _type_reprs.setdefault(type_num, type_num)
 
 
 class Base(object):
@@ -383,7 +383,7 @@ class BasePattern(object):
         return object.__new__(cls)
 
     def __repr__(self):
-        args = [self.type, self.content, self.name]
+        args = [type_repr(self.type), self.content, self.name]
         while args and args[-1] is None:
             del args[-1]
         return "%s(%s)" % (self.__class__.__name__, ", ".join(map(repr, args)))
