@@ -33,7 +33,7 @@ class FixItertoolsImports(basefix.BaseFix):
 
         if unicode(children[-1]) == ',':
             children[-1].remove()
-        
+
         # If there is nothing left, return a blank line
         if not (imports.children or getattr(imports, 'value', None)):
             new = BlankLine()

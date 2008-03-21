@@ -17,7 +17,7 @@ class FixZip(basefix.ConditionalFix):
     power< 'zip' args=trailer< '(' [any] ')' >
     >
     """
-    
+
     skip_on = "future_builtins.zip"
 
     def transform(self, node, results):

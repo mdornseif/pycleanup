@@ -48,7 +48,7 @@ def probably_a_local_import(imp_name, file_path):
     # Must be stripped because the right space is included by the parser
     imp_name = imp_name.split('.', 1)[0].strip()
     base_path = dirname(file_path)
-    base_path = join(base_path, imp_name) 
+    base_path = join(base_path, imp_name)
     for ext in ['.py', pathsep, '.pyc', '.so', '.sl', '.pyd']:
         if exists(base_path + ext):
             return True

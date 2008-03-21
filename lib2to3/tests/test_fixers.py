@@ -74,7 +74,7 @@ class FixerTestCase(support.TestCase):
             return
         if pre and pre[-1].__class__.__module__.endswith(n) and not post:
             # We're the last in pre and post is empty
-            return 
+            return
         self.fail("Fixer run order (%s) is incorrect; %s should be last."\
                %(", ".join([x.__class__.__module__ for x in (pre+post)]), n))
 
@@ -3043,7 +3043,7 @@ class Test_itertools_imports(FixerTestCase):
 
         s = "from itertools import bar as bang"
         self.unchanged(s)
-        
+
     def test_ifilter(self):
         b = "from itertools import ifilterfalse"
         a = "from itertools import filterfalse"

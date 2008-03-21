@@ -36,7 +36,7 @@ class FixPrint(basefix.ConditionalFix):
 
     def transform(self, node, results):
         assert results
-        
+
         if self.should_skip(node):
             return
 
