@@ -3036,6 +3036,10 @@ class Test_itertools_imports(FixerTestCase):
         a = ""
         self.check(b, a)
 
+        b = "from itertools import izip"
+        a = ""
+        self.check(b, a)
+
     def test_import_as(self):
         b = "from itertools import izip, bar as bang, imap"
         a = "from itertools import bar as bang"
