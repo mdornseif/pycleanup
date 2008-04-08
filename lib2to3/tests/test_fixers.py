@@ -1103,7 +1103,8 @@ class Test_dict(FixerTestCase):
         self.check(b, a)
 
     def test_unchanged(self):
-        wrappers = ["set", "sorted", "any", "all", "tuple", "sum"]
+        wrappers = ["set", "sorted", "any", "all", "tuple", "sum",
+                    "min", "max"]
         for wrapper in wrappers:
             s = "s = %s(d.keys())" % wrapper
             self.unchanged(s)

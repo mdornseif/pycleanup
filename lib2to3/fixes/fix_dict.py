@@ -31,7 +31,8 @@ from . import basefix
 from .util import Name, Call, LParen, RParen, ArgList, Dot, set
 
 
-exempt = set(["sorted", "list", "set", "any", "all", "tuple", "sum"])
+exempt = set(["sorted", "list", "set", "any", "all", "tuple", "sum",
+              "min", "max"])
 iter_exempt = exempt | set(["iter"])
 
 

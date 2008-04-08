@@ -363,4 +363,11 @@ def buffer_examples():
     x = buffer(y)
 
 
+class X:
+    def maximum(self):
+        return max(self.data.values())
+    def total(self):
+        return sum(self.data.values())
+
+
 # This is the last line.
