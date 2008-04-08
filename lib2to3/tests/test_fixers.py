@@ -16,6 +16,8 @@ from os.path import dirname, pathsep
 from .. import pygram
 from .. import pytree
 from .. import refactor
+from ..fixes import util
+
 
 class Options:
     def __init__(self, **kwargs):
@@ -1103,9 +1105,7 @@ class Test_dict(FixerTestCase):
         self.check(b, a)
 
     def test_unchanged(self):
-        wrappers = ["set", "sorted", "any", "all", "tuple", "sum",
-                    "min", "max"]
-        for wrapper in wrappers:
+        for wrapper in util.consuming_calls:
             s = "s = %s(d.keys())" % wrapper
             self.unchanged(s)
 
@@ -1253,25 +1253,53 @@ class Test_xrange(FixerTestCase):
         a = """x = range(  0  ,  10 ,  2 )"""
         self.check(b, a)
 
-    def test_1(self):
+    def test_single_arg(self):
         b = """x = xrange(10)"""
         a = """x = range(10)"""
         self.check(b, a)
 
-    def test_2(self):
+    def test_two_args(self):
         b = """x = xrange(1, 10)"""
         a = """x = range(1, 10)"""
         self.check(b, a)
 
-    def test_3(self):
+    def test_three_args(self):
         b = """x = xrange(0, 10, 2)"""
         a = """x = range(0, 10, 2)"""
         self.check(b, a)
 
-    def test_4(self):
+    def test_wrap_in_list(self):
+        b = """x = range(10, 3, 9)"""
+        a = """x = list(range(10, 3, 9))"""
+        self.check(b, a)
+
+        b = """x = foo(range(10, 3, 9))"""
+        a = """x = foo(list(range(10, 3, 9)))"""
+        self.check(b, a)
+
+        b = """x = range(10, 3, 9) + [4]"""
+        a = """x = list(range(10, 3, 9)) + [4]"""
+        self.check(b, a)
+
+    def test_xrange_in_for(self):
         b = """for i in xrange(10):\n    j=i"""
         a = """for i in range(10):\n    j=i"""
         self.check(b, a)
+
+        b = """[i for i in xrange(10)]"""
+        a = """[i for i in range(10)]"""
+        self.check(b, a)
+
+    def test_range_in_for(self):
+        self.unchanged("for i in range(10): pass")
+        self.unchanged("[i for i in range(10)]")
+
+    def test_in_contains_test(self):
+        self.unchanged("x in range(10, 3, 9)")
+
+    def test_in_consuming_context(self):
+        for call in util.consuming_calls:
+            self.unchanged("a = %s(range(10))" % call)
 
 class Test_raw_input(FixerTestCase):
     fixer = "raw_input"
