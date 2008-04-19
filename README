@@ -3,7 +3,8 @@ Abstract
 
 A refactoring tool for converting Python 2.x code to 3.0.
 
-This is a work in progress!
+This is a work in progress! Bugs should be reported to
+http://bugs.python.org/ under the "2to3" category.
 
 
 General usage
