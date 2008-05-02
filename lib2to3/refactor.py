@@ -107,7 +107,7 @@ def get_head_types(pat):
         #   or a type and content -- so they don't get any farther
         # Always return leafs
         return set([pat.type])
-    
+
     if isinstance(pat, pytree.NegatedPattern):
         if pat.content:
             return get_head_types(pat.content)
