@@ -22,6 +22,8 @@ MAPPING = {"StringIO":  ("io", ["StringIO"]),
                                     'add_extension',
                                     'remove_extension',
                                     'clear_extension_cache'])
+           'Queue': ('queue', ['Empty', 'Full', 'Queue',
+                               'PriorityQueue', 'LifoQueue']),
           }
 
 
