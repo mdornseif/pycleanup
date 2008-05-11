@@ -17,6 +17,11 @@ builtin_names = [name for name in dir(__builtin__)
 MAPPING = {"StringIO":  ("io", ["StringIO"]),
            "cStringIO": ("io", ["StringIO"]),
            "__builtin__" : ("builtins", builtin_names),
+           'copy_reg': ('copyreg', ['pickle',
+                                    'constructor',
+                                    'add_extension',
+                                    'remove_extension',
+                                    'clear_extension_cache'])
           }
 
 
