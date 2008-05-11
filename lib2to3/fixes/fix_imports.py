@@ -24,6 +24,7 @@ MAPPING = {"StringIO":  ("io", ["StringIO"]),
                                     'clear_extension_cache'])
            'Queue': ('queue', ['Empty', 'Full', 'Queue',
                                'PriorityQueue', 'LifoQueue']),
+           'PixMapWrapper': ('pixmapwrapper', ['PixMapWrapper']),
           }
 
 
