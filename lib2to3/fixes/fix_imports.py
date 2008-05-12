@@ -24,8 +24,16 @@ MAPPING = {"StringIO":  ("io", ["StringIO"]),
                                     'clear_extension_cache'])
            'Queue': ('queue', ['Empty', 'Full', 'Queue',
                                'PriorityQueue', 'LifoQueue']),
-           'PixMapWrapper': ('pixmapwrapper', ['PixMapWrapper']),
-          }
+           'SocketServer': ('socketserver',
+                            ['TCPServer', 'UDPServer', 'BaseServer'
+                             'ForkingUDPServer', 'ForkingTCPServer',
+                             'ThreadingUDPServer', 'ThreadingTCPServer',
+                             'BaseRequestHandler', 'StreamRequestHandler',
+                             'DatagramRequestHandler', 'ThreadingMixIn',
+                             'ForkingMixIn', 'UnixStreamServer',
+                             'UnixDatagramServer', 'ThreadingUnixStreamServer',
+                             'ThreadingUnixDatagramServer'])
+           }
 
 
 def alternates(members):
