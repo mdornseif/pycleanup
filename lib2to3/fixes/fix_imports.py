@@ -14,6 +14,9 @@ import __builtin__
 builtin_names = [name for name in dir(__builtin__)
                  if name not in ("__name__", "__doc__")]
 
+# XXX(alexandre): It would be possible to get the modules exports by fetching
+# XXX: their __all__ attribute. However, I fear that this would add an additional
+# XXX: overhead to the fixer.
 MAPPING = {"StringIO":  ("io", ["StringIO"]),
            "cStringIO": ("io", ["StringIO"]),
            "__builtin__" : ("builtins", builtin_names),
@@ -32,7 +35,16 @@ MAPPING = {"StringIO":  ("io", ["StringIO"]),
                              'DatagramRequestHandler', 'ThreadingMixIn',
                              'ForkingMixIn', 'UnixStreamServer',
                              'UnixDatagramServer', 'ThreadingUnixStreamServer',
-                             'ThreadingUnixDatagramServer'])
+                             'ThreadingUnixDatagramServer']),
+           'ConfigParser': ('configparser',
+                            ['NoSectionError', 'DuplicateSectionError',
+                             'NoOptionError', 'InterpolationError',
+                             'InterpolationDepthError',
+                             'InterpolationSyntaxError',
+                             'ParsingError', 'MissingSectionHeaderError',
+                             'ConfigParser', 'SafeConfigParser',
+                             'RawConfigParser', 'DEFAULTSECT',
+                             'MAX_INTERPOLATION_DEPTH'])
            }
 
 
