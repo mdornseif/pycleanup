@@ -24,7 +24,7 @@ MAPPING = {"StringIO":  ("io", ["StringIO"]),
                                     'constructor',
                                     'add_extension',
                                     'remove_extension',
-                                    'clear_extension_cache'])
+                                    'clear_extension_cache']),
            'Queue': ('queue', ['Empty', 'Full', 'Queue',
                                'PriorityQueue', 'LifoQueue']),
            'SocketServer': ('socketserver',
