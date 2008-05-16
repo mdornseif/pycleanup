@@ -1418,6 +1418,7 @@ class Test_imports(FixerTestCase):
                                                  "ForkingMixIn"
                     #XXX: This is failing. Why?? "BaseServer"
                                                  ]),
+               "repr": ("reprlib", ["Repr", "repr"]),
               }
 
     def test_import_module(self):

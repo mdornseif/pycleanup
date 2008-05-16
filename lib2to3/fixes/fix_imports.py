@@ -44,7 +44,8 @@ MAPPING = {"StringIO":  ("io", ["StringIO"]),
                              'ParsingError', 'MissingSectionHeaderError',
                              'ConfigParser', 'SafeConfigParser',
                              'RawConfigParser', 'DEFAULTSECT',
-                             'MAX_INTERPOLATION_DEPTH'])
+                             'MAX_INTERPOLATION_DEPTH']),
+           'repr': ('reprlib', ['Repr', 'repr'])
            }
 
 
