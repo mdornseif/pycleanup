@@ -62,7 +62,8 @@ def build_pattern():
                               | dotted_as_names< any* module=%r any* >) >
               """ % (old_module, old_module)
         yield """import_from< 'from' module_name=%r 'import'
-                   ( %s | import_as_name< %s 'as' any >) >
+                   ( %s | import_as_name< %s 'as' any > |
+                     import_as_names< any* >) >
               """ % (old_module, members, members)
         yield """import_from< 'from' module_name=%r 'import' star='*' >
               """ % old_module

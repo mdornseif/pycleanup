@@ -1409,7 +1409,15 @@ class Test_imports(FixerTestCase):
     modules = {"StringIO":  ("io", ["StringIO"]),
                "cStringIO": ("io", ["StringIO"]),
                "__builtin__" : ("builtins", ["open", "Exception",
-                   "__debug__", "str"]),
+                                             "__debug__", "str"]),
+               "Queue": ("queue", ["Empty", "Queue", "LifoQueue"]),
+               "ConfigParser": ("configparser", ["ConfigParser",
+                                                 "NoOptionError",
+                                                 "NoSectionError"]),
+               "SocketServer": ("socketserver", ["TCPServer",
+                                                 "ForkingMixIn"
+                    #XXX: This is failing. Why?? "BaseServer"
+                                                 ]),
               }
 
     def test_import_module(self):
@@ -1431,6 +1439,13 @@ class Test_imports(FixerTestCase):
 
                 s = "from foo import %s" % member
                 self.unchanged(s)
+
+            b = "from %s import %s" % (old, ", ".join(members))
+            a = "from %s import %s" % (new, ", ".join(members))
+            self.check(b, a)
+
+            s = "from foo import %s" % ", ".join(members)
+            self.unchanged(s)
 
     def test_import_module_as(self):
         for old, (new, members) in self.modules.items():
@@ -1479,6 +1494,16 @@ class Test_imports(FixerTestCase):
                     foo(%s, %s())
                     """ % (new, member, member, member)
                 self.check(b, a)
+            b = """
+                from %s import %s
+                foo(%s)
+                """ % (old, ", ".join(members), ", ".join(members))
+            a = """
+                from %s import %s
+                foo(%s)
+                """ % (new, ", ".join(members), ", ".join(members))
+            self.check(b, a)
+
 
 class Test_input(FixerTestCase):
     fixer = "input"
