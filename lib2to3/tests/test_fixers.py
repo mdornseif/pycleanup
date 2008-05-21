@@ -1415,8 +1415,8 @@ class Test_imports(FixerTestCase):
                                                  "NoOptionError",
                                                  "NoSectionError"]),
                "SocketServer": ("socketserver", ["TCPServer",
-                                                 "ForkingMixIn"
-                    #XXX: This is failing. Why?? "BaseServer"
+                                                 "ForkingMixIn",
+                                                 "BaseServer"
                                                  ]),
                "repr": ("reprlib", ["Repr", "repr"]),
               }

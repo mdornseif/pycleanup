@@ -28,7 +28,7 @@ MAPPING = {"StringIO":  ("io", ["StringIO"]),
            'Queue': ('queue', ['Empty', 'Full', 'Queue',
                                'PriorityQueue', 'LifoQueue']),
            'SocketServer': ('socketserver',
-                            ['TCPServer', 'UDPServer', 'BaseServer'
+                            ['TCPServer', 'UDPServer', 'BaseServer',
                              'ForkingUDPServer', 'ForkingTCPServer',
                              'ThreadingUDPServer', 'ThreadingTCPServer',
                              'BaseRequestHandler', 'StreamRequestHandler',
