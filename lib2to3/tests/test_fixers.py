@@ -1405,21 +1405,7 @@ class Test_xreadlines(FixerTestCase):
 
 class Test_imports(FixerTestCase):
     fixer = "imports"
-
-    modules = {"StringIO":  ("io", ["StringIO"]),
-               "cStringIO": ("io", ["StringIO"]),
-               "__builtin__" : ("builtins", ["open", "Exception",
-                                             "__debug__", "str"]),
-               "Queue": ("queue", ["Empty", "Queue", "LifoQueue"]),
-               "ConfigParser": ("configparser", ["ConfigParser",
-                                                 "NoOptionError",
-                                                 "NoSectionError"]),
-               "SocketServer": ("socketserver", ["TCPServer",
-                                                 "ForkingMixIn",
-                                                 "BaseServer"
-                                                 ]),
-               "repr": ("reprlib", ["Repr", "repr"]),
-              }
+    from ..fixes.fix_imports import MAPPING as modules
 
     def test_import_module(self):
         for old, (new, members) in self.modules.items():
