@@ -114,7 +114,8 @@ MAPPING = {"StringIO":  ("io", ["StringIO"]),
                         'OptionMenu', 'Image', 'PhotoImage', 'BitmapImage',
                         'image_names', 'image_types', 'Spinbox', 'LabelFrame',
                         'PanedWindow', 'Studbutton', 'Tributton']),
-           }
+           'markupbase': ('_markupbase', ['ParserBase']),
+          }
 
 
 def alternates(members):
