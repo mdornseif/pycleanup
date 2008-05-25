@@ -140,6 +140,11 @@ MAPPING = {"StringIO":  ("io", ["StringIO"]),
                'REG_DWORD_LITTLE_ENDIAN', 'REG_DWORD_BIG_ENDIAN', 'REG_LINK',
                'REG_MULTI_SZ', 'REG_RESOURCE_LIST',
                'REG_FULL_RESOURCE_DESCRIPTOR', 'REG_RESOURCE_REQUIREMENTS_LIST']),
+           'thread': ('_thread',
+                      ['LockType', '_local', 'allocate', 'allocate_lock',
+                       'error', 'exit', 'exit_thread', 'get_ident',
+                       'interrupt_main', 'stack_size', 'start_new',
+                       'start_new_thread']),
 }
 
 
