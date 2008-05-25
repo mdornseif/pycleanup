@@ -145,6 +145,11 @@ MAPPING = {"StringIO":  ("io", ["StringIO"]),
                        'error', 'exit', 'exit_thread', 'get_ident',
                        'interrupt_main', 'stack_size', 'start_new',
                        'start_new_thread']),
+           'dummy_thread': ('_dummy_thread',
+                      ['LockType', '_local', 'allocate', 'allocate_lock',
+                       'error', 'exit', 'exit_thread', 'get_ident',
+                       'interrupt_main', 'stack_size', 'start_new',
+                       'start_new_thread']),
 }
 
 
