@@ -115,7 +115,32 @@ MAPPING = {"StringIO":  ("io", ["StringIO"]),
                         'image_names', 'image_types', 'Spinbox', 'LabelFrame',
                         'PanedWindow', 'Studbutton', 'Tributton']),
            'markupbase': ('_markupbase', ['ParserBase']),
-          }
+           '_winreg': ('winreg', [
+               'CloseKey', 'ConnectRegistry', 'CreateKey', 'DeleteKey',
+               'DeleteValue', 'DisableReflectionKey', 'EnableReflectionKey',
+               'EnumKey', 'EnumValue', 'ExpandEnvironmentStrings', 'FlushKey',
+               'LoadKey', 'OpenKey', 'OpenKeyEx', 'QueryValue', 'QueryValueEx',
+               'QueryInfoKey', 'QueryReflectionKey', 'SaveKey', 'SetValue',
+               'SetValueEx', 'HKEY_CLASSES_ROOT', 'HKEY_CURRENT_USER',
+               'HKEY_LOCAL_MACHINE', 'HKEY_USERS', 'HKEY_PERFORMANCE_DATA',
+               'HKEY_CURRENT_CONFIG', 'HKEY_DYN_DATA', 'KEY_QUERY_VALUE',
+               'KEY_SET_VALUE', 'KEY_CREATE_SUB_KEY', 'KEY_ENUMERATE_SUB_KEYS',
+               'KEY_NOTIFY', 'KEY_CREATE_LINK', 'KEY_READ', 'KEY_WRITE',
+               'KEY_EXECUTE', 'KEY_ALL_ACCESS', 'KEY_WOW64_64KEY',
+               'KEY_WOW64_32KEY', 'REG_OPTION_RESERVED',
+               'REG_OPTION_NON_VOLATILE', 'REG_OPTION_VOLATILE',
+               'REG_OPTION_CREATE_LINK', 'REG_OPTION_BACKUP_RESTORE',
+               'REG_OPTION_OPEN_LINK', 'REG_LEGAL_OPTION',
+               'REG_CREATED_NEW_KEY', 'REG_OPENED_EXISTING_KEY',
+               'REG_WHOLE_HIVE_VOLATILE', 'REG_REFRESH_HIVE',
+               'REG_NO_LAZY_FLUSH', 'REG_NOTIFY_CHANGE_NAME',
+               'REG_NOTIFY_CHANGE_ATTRIBUTES', 'REG_NOTIFY_CHANGE_LAST_SET',
+               'REG_NOTIFY_CHANGE_SECURITY', 'REG_LEGAL_CHANGE_FILTER',
+               'REG_NONE', 'REG_SZ', 'REG_EXPAND_SZ', 'REG_BINARY', 'REG_DWORD',
+               'REG_DWORD_LITTLE_ENDIAN', 'REG_DWORD_BIG_ENDIAN', 'REG_LINK',
+               'REG_MULTI_SZ', 'REG_RESOURCE_LIST',
+               'REG_FULL_RESOURCE_DESCRIPTOR', 'REG_RESOURCE_REQUIREMENTS_LIST']),
+}
 
 
 def alternates(members):
