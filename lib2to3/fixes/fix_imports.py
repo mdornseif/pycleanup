@@ -264,6 +264,7 @@ MAPPING = {"StringIO":  ("io", ["StringIO"]),
                           "set_memlimit", "bigmemtest", "bigaddrspacetest",
                           "BasicTestRunner", "run_unittest", "run_doctest",
                           "threading_setup", "threading_cleanup", "reap_children"]),
+           'commands': ('subprocess', ['getstatusoutput', 'getoutput']),
 }
 
 
