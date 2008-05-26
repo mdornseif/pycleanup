@@ -150,6 +150,12 @@ MAPPING = {"StringIO":  ("io", ["StringIO"]),
                        'error', 'exit', 'exit_thread', 'get_ident',
                        'interrupt_main', 'stack_size', 'start_new',
                        'start_new_thread']),
+           'whichdb': ('dbm', ['whichdb']),
+           'anydbm': ('dbm', ['error', 'open']),
+           'dbhash': ('dbm.bsd', ['error', 'open']),
+           'dumbdbm': ('dbm.dumb', ['error', 'open', '_Database']),
+           'dbm': ('dbm.ndbm', ['error', 'open', 'library']),
+           'gdbm': ('dbm.gnu', ['error', 'open', 'open_flags']),
 }
 
 
