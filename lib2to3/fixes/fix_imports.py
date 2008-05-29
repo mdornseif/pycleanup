@@ -266,6 +266,7 @@ MAPPING = {"StringIO":  ("io", ["StringIO"]),
                           "threading_setup", "threading_cleanup", "reap_children"]),
            'commands': ('subprocess', ['getstatusoutput', 'getoutput']),
            'UserString' : ('collections', ['UserString']),
+           'UserList' : ('collections', ['UserList']),
 }
 
 
