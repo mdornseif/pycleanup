@@ -265,6 +265,7 @@ MAPPING = {"StringIO":  ("io", ["StringIO"]),
                           "BasicTestRunner", "run_unittest", "run_doctest",
                           "threading_setup", "threading_cleanup", "reap_children"]),
            'commands': ('subprocess', ['getstatusoutput', 'getoutput']),
+           'UserString' : ('collections', ['UserString']),
 }
 
 
