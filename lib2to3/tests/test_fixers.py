@@ -10,13 +10,14 @@ except ImportError:
 
 # Python imports
 import unittest
+from itertools import chain
 from os.path import dirname, pathsep
 
 # Local imports
 from .. import pygram
 from .. import pytree
 from .. import refactor
-from ..fixes import util
+from .. import fixer_util
 
 
 class Options:
@@ -33,7 +34,6 @@ class FixerTestCase(support.TestCase):
         self.fixer_log = []
         self.filename = "<string>"
 
-        from itertools import chain
         for order in (self.refactor.pre_order.values(),\
                       self.refactor.post_order.values()):
             for fixer in chain(*order):
@@ -1107,7 +1107,7 @@ class Test_dict(FixerTestCase):
         self.check(b, a)
 
     def test_unchanged(self):
-        for wrapper in util.consuming_calls:
+        for wrapper in fixer_util.consuming_calls:
             s = "s = %s(d.keys())" % wrapper
             self.unchanged(s)
 
@@ -1300,7 +1300,7 @@ class Test_xrange(FixerTestCase):
         self.unchanged("x in range(10, 3, 9)")
 
     def test_in_consuming_context(self):
-        for call in util.consuming_calls:
+        for call in fixer_util.consuming_calls:
             self.unchanged("a = %s(range(10))" % call)
 
 class Test_raw_input(FixerTestCase):

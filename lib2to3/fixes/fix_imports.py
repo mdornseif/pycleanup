@@ -8,8 +8,8 @@ Fixes:
 # Author: Collin Winter
 
 # Local imports
-from . import basefix
-from .util import Name, attr_chain, any, set
+from .. import fixer_base
+from ..fixer_util import Name, attr_chain, any, set
 import __builtin__
 builtin_names = [name for name in dir(__builtin__)
                  if name not in ("__name__", "__doc__")]
@@ -297,7 +297,7 @@ def build_pattern():
     yield """bare_name=%s""" % alternates(bare)
 
 
-class FixImports(basefix.BaseFix):
+class FixImports(fixer_base.BaseFix):
     PATTERN = "|".join(build_pattern())
 
     order = "pre" # Pre-order tree traversal
