@@ -30,7 +30,7 @@ class Options:
 class FixerTestCase(support.TestCase):
     def setUp(self):
         options = Options(fix=[self.fixer], print_function=False)
-        self.refactor = refactor.RefactoringTool(options)
+        self.refactor = refactor.RefactoringTool("lib2to3/fixes", options)
         self.fixer_log = []
         self.filename = "<string>"
 
@@ -70,7 +70,7 @@ class FixerTestCase(support.TestCase):
         fix = [self.fixer]
         fix.extend(names)
         options = Options(fix=fix, print_function=False)
-        r = refactor.RefactoringTool(options)
+        r = refactor.RefactoringTool("lib2to3/fixes", options)
         (pre, post) = r.get_fixers()
         n = "fix_" + self.fixer
         if post and post[-1].__class__.__module__.endswith(n):
