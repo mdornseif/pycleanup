@@ -272,35 +272,6 @@ MAPPING = {"StringIO":  ("io", ["StringIO"]),
            'commands': ('subprocess', ['getstatusoutput', 'getoutput']),
            'UserString' : ('collections', ['UserString']),
            'UserList' : ('collections', ['UserList']),
-           'urllib' : (
-                       'urllib.request',
-                           ['URLOpener', 'FancyURLOpener', 'urlretrieve',
-                               '_urlopener', 'urlcleanup'],
-                        'urllib.parse',
-                            ['quote', 'quote_plus', 'unquote', 'unquote_plus',
-                                'urlencode', 'pathname2url', 'url2pathname'],
-                        'urllib.error', ['ContentTooShortError'],),
-            'urllib2' : (
-                         'urllib.request',
-                            ['urlopen', 'install_opener', 'build_opener',
-                             'Request', 'OpenerDirector', 'BaseHandler',
-                             'HTTPDefaultErrorHandler', 'HTTPRedirectHandler',
-                             'HTTPCookieProcessor', 'ProxyHandler',
-                             'HTTPPasswordMgr',
-                             'HTTPPasswordMgrWithDefaultRealm',
-                             'AbstractBasicAuthHandler',
-                             'HTTPBasicAuthHandler', 'ProxyBasicAuthHandler',
-                             'AbstractDigestAuthHandler',
-                             'HTTPDigestAuthHander', 'ProxyDigestAuthHandler',
-                             'HTTPHandler', 'HTTPSHandler', 'FileHandler',
-                             'FTPHandler', 'CacheFTPHandler',
-                             'UnknownHandler'],
-                        'urllib.error', ['URLError', 'HTTPError'],),
-            'urlparse' : ('urllib.parse',
-                            ['urlparse', 'urlunparse', 'urlsplit',
-                                'urlunsplit', 'urljoin', 'urldefrag',
-                                'ParseResult', 'SplitResult']),
-            'robotparser' : ('urllib.robotparser', ['RobotFileParser']),
 }
 
 
@@ -310,26 +281,24 @@ def alternates(members):
 
 def build_pattern():
     bare = set()
-    for old_module, changes in MAPPING.items():
-        changes_iter = iter(changes)
-        for new_module, members in zip(changes_iter, changes_iter):
-            bare.add(old_module)
-            bare.update(members)
-            members = alternates(members)
-            yield """import_name< 'import' (module=%r
-                                  | dotted_as_names< any* module=%r any* >) >
-                  """ % (old_module, old_module)
-            yield """import_from< 'from' module_name=%r 'import'
-                       ( %s | import_as_name< %s 'as' any > |
-                         import_as_names< any* >) >
-                  """ % (old_module, members, members)
-            yield """import_from< 'from' module_name=%r 'import' star='*' >
-                  """ % old_module
-            yield """import_name< 'import'
-                                  dotted_as_name< module_name=%r 'as' any > >
-                  """ % old_module
-            yield """power< module_name=%r trailer< '.' %s > any* >
-                  """ % (old_module, members)
+    for old_module, (new_module, members) in MAPPING.items():
+        bare.add(old_module)
+        bare.update(members)
+        members = alternates(members)
+        yield """import_name< 'import' (module=%r
+                              | dotted_as_names< any* module=%r any* >) >
+              """ % (old_module, old_module)
+        yield """import_from< 'from' module_name=%r 'import'
+                   ( %s | import_as_name< %s 'as' any > |
+                     import_as_names< any* >) >
+              """ % (old_module, members, members)
+        yield """import_from< 'from' module_name=%r 'import' star='*' >
+              """ % old_module
+        yield """import_name< 'import'
+                              dotted_as_name< module_name=%r 'as' any > >
+              """ % old_module
+        yield """power< module_name=%r trailer< '.' %s > any* >
+              """ % (old_module, members)
     yield """bare_name=%s""" % alternates(bare)
 
 
@@ -359,19 +328,16 @@ class FixImports(fixer_base.BaseFix):
         star = results.get("star")
 
         if import_mod or mod_name:
-            changes = MAPPING[(import_mod or mod_name).value]
-            changes_iter = iter(changes)
-            for new_name, members in zip(changes_iter, changes_iter):
-                if import_mod:
-                    self.replace[import_mod.value] = new_name
-                    import_mod.replace(Name(new_name,
-                                        prefix=import_mod.get_prefix()))
-                elif mod_name:
-                    if star:
-                        self.cannot_convert(node, "Cannot handle star imports.")
-                    else:
-                        mod_name.replace(Name(new_name,
-                                                prefix=mod_name.get_prefix()))
+            new_name, members = MAPPING[(import_mod or mod_name).value]
+
+        if import_mod:
+            self.replace[import_mod.value] = new_name
+            import_mod.replace(Name(new_name, prefix=import_mod.get_prefix()))
+        elif mod_name:
+            if star:
+                self.cannot_convert(node, "Cannot handle star imports.")
+            else:
+                mod_name.replace(Name(new_name, prefix=mod_name.get_prefix()))
         elif bare_name:
             bare_name = bare_name[0]
             new_name = self.replace.get(bare_name.value)
