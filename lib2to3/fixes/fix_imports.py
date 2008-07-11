@@ -275,6 +275,7 @@ MAPPING = {"StringIO":  ("io", ["StringIO"]),
            'urlparse' : ('urllib.parse',
                             ['urlparse', 'urlunparse', 'urlsplit',
                             'urlunsplit', 'urljoin', 'urldefrag']),
+            'robotparser' : ('urllib.robotparser', ['RobotFileParser']),
 }
 
 
