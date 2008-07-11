@@ -272,6 +272,9 @@ MAPPING = {"StringIO":  ("io", ["StringIO"]),
            'commands': ('subprocess', ['getstatusoutput', 'getoutput']),
            'UserString' : ('collections', ['UserString']),
            'UserList' : ('collections', ['UserList']),
+           'urlparse' : ('urllib.parse',
+                            ['urlparse', 'urlunparse', 'urlsplit',
+                            'urlunsplit', 'urljoin', 'urldefrag']),
 }
 
 
