@@ -28,8 +28,10 @@ class Options:
         self.verbose = False
 
 class FixerTestCase(support.TestCase):
-    def setUp(self):
-        options = Options(fix=[self.fixer], print_function=False)
+    def setUp(self, fix_list=None):
+        if not fix_list:
+            fix_list = [self.fixer]
+        options = Options(fix=fix_list, print_function=False)
         self.refactor = refactor.RefactoringTool("lib2to3/fixes", options)
         self.fixer_log = []
         self.filename = "<string>"
@@ -1490,6 +1492,24 @@ class Test_imports(FixerTestCase):
                 foo(%s)
                 """ % (new, ", ".join(members), ", ".join(members))
             self.check(b, a)
+            
+
+class Test_imports2(Test_imports):
+    fixer = "imports2"
+    from ..fixes.fix_imports2 import MAPPING as modules
+    
+    
+class Test_imports_fixer_order(Test_imports):
+    
+    fixer = None
+    
+    def setUp(self):
+        Test_imports.setUp(self, ['imports', 'imports2'])
+        from ..fixes.fix_imports2 import MAPPING as mapping2
+        self.modules = mapping2.copy()
+        from ..fixes.fix_imports import MAPPING as mapping1
+        for key in ('dbhash', 'dumbdbm', 'dbm', 'gdbm'):
+            self.modules[key] = mapping1[key]
 
 
 class Test_input(FixerTestCase):
