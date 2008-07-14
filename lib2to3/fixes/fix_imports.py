@@ -294,6 +294,7 @@ def build_pattern(mapping=MAPPING):
         yield """import_name< 'import'
                               dotted_as_name< module_name=%r 'as' any > >
               """ % old_module
+        # Find usages of module members in code e.g. urllib.foo(bar)
         yield """power< module_name=%r trailer< '.' %s > any* >
               """ % (old_module, members)
     yield """bare_name=%s""" % alternates(bare)
