@@ -6,7 +6,7 @@ from .. import fixer_base
 from ..fixer_util import Name, attr_chain, any, set
 import __builtin__
 builtin_names = [name for name in dir(__builtin__)
-                 if name not in ("__name__", "__doc__")]
+                 if name not in ("__name__", "__doc__", "exec", "print")]
 
 # XXX(alexandre): It would be possible to get the modules exports by fetching
 # XXX: their __all__ attribute. However, I fear that this would add an additional
