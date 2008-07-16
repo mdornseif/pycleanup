@@ -32,7 +32,7 @@ from . import pygram
 
 def main(fixer_dir, args=None):
     """Main program.
-    
+
     Args:
         fixer_dir: directory where fixer modules are located.
         args: optional; a list of command line arguments. If omitted,

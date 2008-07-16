@@ -304,7 +304,7 @@ class FixImports(fixer_base.BaseFix):
     PATTERN = "|".join(build_pattern())
 
     order = "pre" # Pre-order tree traversal
-    
+
     mapping = MAPPING
 
     # Don't match the node if it's within another match
