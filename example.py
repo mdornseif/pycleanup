@@ -1,5 +1,5 @@
 #!/usr/bin/python
-        # comment indented by tab
+	# comment indented by tab
 
 """Docstring.
 
@@ -73,7 +73,7 @@ def has_key_examples():
     if not a.has_key(b) ** 2: pass
 
 def foo():
-    pass # body indented by tab
+	pass # body indented by tab
 
 def test_ws_comma():
     yield 1,2 ,3
