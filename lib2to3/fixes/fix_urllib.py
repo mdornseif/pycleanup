@@ -173,4 +173,3 @@ class FixUrllib(FixImports):
             self.cannot_convert(node, 'Cannot handle star imports.')
         elif results.get('module_as'):
             self.cannot_convert(node, 'This module is now multiple modules')
-
