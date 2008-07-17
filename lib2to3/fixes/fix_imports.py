@@ -30,7 +30,7 @@ MAPPING = {'StringIO':  'io',
            'Tix': 'tkinter.tix',
            'Tkinter': 'tkinter',
            'markupbase': '_markupbase',
-           '_winreg': 'winreg', 
+           '_winreg': 'winreg',
            'thread': '_thread',
            'dummy_thread': '_dummy_thread',
            # anydbm and whichdb are handled by fix_imports2
@@ -75,7 +75,7 @@ def build_pattern(mapping=MAPPING):
                               dotted_as_name< module_name=%r 'as' any > >
               """ % old_module
         # Find usages of module members in code e.g. urllib.foo(bar)
-        yield """power< module_name=%r 
+        yield """power< module_name=%r
                  trailer<'.' any > any* >
               """ % old_module
     yield """bare_name=%s""" % alternates(bare)

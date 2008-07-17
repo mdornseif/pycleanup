@@ -659,7 +659,7 @@ class WildcardPattern(BasePattern):
                 if self.name:
                     r[self.name] = nodes[:count]
                 yield count, r
-    
+
     def _bare_name_matches(self, nodes):
         """Special optimized matcher for bare_name."""
         count = 0
