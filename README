@@ -10,13 +10,15 @@ http://bugs.python.org/ under the "2to3" category.
 General usage
 =============
 
-Run ``refactor.py`` to convert stdin (``-``), files or directories given
+Run ``./2to3`` to convert stdin (``-``), files or directories given
 as arguments.  By default, the tool outputs a unified diff-formatted patch
 on standard output and a "what was changed" summary on standard error,
 but the ``-w`` option can be given to write back converted files, creating
 ``.bak``-named backup files.
 
-2to3 must be run (at the moment) with Python 2.x!
+2to3 must be run with Python 2.6. The intended path for migrating to Python
+3.x is to first migrate to 2.6 (in order to take advantage of Python 2.6's
+runtime compatibility checks).
 
 
 Files
