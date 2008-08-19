@@ -1338,6 +1338,21 @@ class Test_raw_input(FixerTestCase):
         a = """x = input(foo(a) + 6)"""
         self.check(b, a)
 
+    def test_5(self):
+        b = """x = raw_input(invite).split()"""
+        a = """x = input(invite).split()"""
+        self.check(b, a)
+
+    def test_6(self):
+        b = """x = raw_input(invite) . split ()"""
+        a = """x = input(invite) . split ()"""
+        self.check(b, a)
+
+    def test_8(self):
+        b = "x = int(raw_input())"
+        a = "x = int(input())"
+        self.check(b, a)
+
 class Test_funcattrs(FixerTestCase):
     fixer = "funcattrs"
 
