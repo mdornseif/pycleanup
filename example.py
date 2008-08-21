@@ -362,6 +362,8 @@ def basestring_examples():
 def buffer_examples():
     x = buffer(y)
 
+def sys_exc_examples():
+    print sys.exc_type, sys.exc_value, sys.exc_traceback
 
 class X:
     def maximum(self):
