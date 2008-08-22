@@ -24,21 +24,21 @@ runtime compatibility checks).
 Files
 =====
 
-README         - this file
-refactor.py    - main program; use this to convert files or directory trees
-test.py        - runs all unittests for 2to3
-patcomp.py     - pattern compiler
-pytree.py      - parse tree nodes (not specific to Python, despite the name!)
-pygram.py      - code specific to the Python grammar
-example.py     - example input for play.py and fix_*.py
-find_pattern.py - script to help determine the PATTERN for a new fix
-Grammar.txt    - Python grammar input (a copy of Python 2.5's Grammar/Grammar)
-Grammar.pickle - pickled grammar tables (generated file, not in subversion)
-PatternGrammar.txt    - grammar for the pattern language used by patcomp.py
-PatternGrammar.pickle - pickled pattern grammar tables (generated file)
-pgen2/         - Parser generator and driver ([1]_, [2]_)
-fixes/         - Individual transformations
-tests/         - Test files for pytree, fixers, grammar, etc
+README                        - this file
+lib2to3/refactor.py           - main program; use this to convert files or directory trees
+test.py                       - runs all unittests for 2to3
+lib2to3/patcomp.py            - pattern compiler
+lib2to3/pytree.py             - parse tree nodes (not specific to Python, despite the name!)
+lib2to3/pygram.py             - code specific to the Python grammar
+example.py                    - example input for play.py and fix_*.py
+find_pattern.py               - script to help determine the PATTERN for a new fix
+lib2to3/Grammar.txt           - Python grammar input (a copy of Python 2.5's Grammar/Grammar)
+lib2to3/Grammar.pickle        - pickled grammar tables (generated file, not in subversion)
+lib2to3/PatternGrammar.txt    - grammar for the pattern language used by patcomp.py
+lib2to3PatternGrammar.pickle  - pickled pattern grammar tables (generated file)
+lib2to3/pgen2/                - Parser generator and driver ([1]_, [2]_)
+lib2to3/fixes/                - Individual transformations
+lib2to3tests/                 - Test files for pytree, fixers, grammar, etc
 
 
 Capabilities
