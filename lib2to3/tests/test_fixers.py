@@ -385,6 +385,16 @@ class Test_print(FixerTestCase):
         a = """print()"""
         self.check(b, a)
 
+    def test_4(self):
+        # from bug 3000
+        b = """print whatever; print"""
+        a = """print(whatever); print()"""
+        self.check(b, a)
+
+    def test_5(self):
+        b = """print; print whatever;"""
+        a = """print(); print(whatever);"""
+
     def test_tuple(self):
         b = """print (a, b, c)"""
         a = """print((a, b, c))"""
