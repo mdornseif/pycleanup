@@ -120,6 +120,8 @@ A quick run-through of 2to3's current fixers:
 * **fix_xreadlines** - "for x in f.xreadlines():" -> "for x in f:". Also,
   "g(f.xreadlines)" -> "g(f.__iter__)".
 
+* **fix_metaclass** - move __metaclass__ = M to class X(metaclass=M)
+
 
 Limitations
 ===========

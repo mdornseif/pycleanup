@@ -117,6 +117,18 @@ def bad_apply_examples():
     apply(f, args=args, kwds=kwds)
     apply(f, args, kwds=kwds)
 
+def metaclass_examples():
+    class X:
+        __metaclass__ = Meta
+
+    class X(b1, b2):
+        bar = 23 # Comment on me!
+        __metaclass__ = Meta
+        spam = 27.23 # Laughable
+
+    class X:
+        __metaclass__ = Meta; x = 23; y = 34 # Yes, I can handle this, too.
+
 def intern_examples():
     #
     # These should be refactored:
