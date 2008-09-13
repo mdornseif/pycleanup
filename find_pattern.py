@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.5
+#!/usr/bin/env python
 
 """Script that makes determining PATTERN for a new fix much easier.
 
