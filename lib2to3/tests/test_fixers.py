@@ -2387,6 +2387,15 @@ class Test_numliterals(FixerTestCase):
         a = """b = 0x12"""
         self.check(b, a)
 
+    def test_comments_and_spacing(self):
+        b = """b =   0x12L"""
+        a = """b =   0x12"""
+        self.check(b, a)
+
+        b = """b = 0755 # spam"""
+        a = """b = 0o755 # spam"""
+        self.check(b, a)
+
     def test_unchanged_int(self):
         s = """5"""
         self.unchanged(s)
