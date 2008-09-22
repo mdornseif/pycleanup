@@ -94,7 +94,7 @@ class RefactoringTool(object):
 
     _default_options = {"print_function": False}
 
-    def __init__(self, fixer_names, options=None, explicit=[]):
+    def __init__(self, fixer_names, options=None, explicit=None):
         """Initializer.
 
         Args:
@@ -103,7 +103,7 @@ class RefactoringTool(object):
             explicit: a list of fixers to run even if they are explicit.
         """
         self.fixers = fixer_names
-        self.explicit = explicit
+        self.explicit = explicit or []
         self.options = self._default_options.copy()
         if options is not None:
             self.options.update(options)
