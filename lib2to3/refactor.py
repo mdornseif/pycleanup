@@ -90,6 +90,10 @@ def get_fixers_from_package(pkg_name):
             for fix_name in get_all_fix_names(pkg_name, False)]
 
 
+class FixerError(Exception):
+    """A fixer could not be loaded."""
+
+
 class RefactoringTool(object):
 
     _default_options = {"print_function": False}
@@ -134,12 +138,7 @@ class RefactoringTool(object):
         pre_order_fixers = []
         post_order_fixers = []
         for fix_mod_path in self.fixers:
-            try:
-                mod = __import__(fix_mod_path, {}, {}, ["*"])
-            except ImportError:
-                self.log_error("Can't load transformation module %s",
-                               fix_mod_path)
-                continue
+            mod = __import__(fix_mod_path, {}, {}, ["*"])
             fix_name = fix_mod_path.rsplit(".", 1)[-1]
             if fix_name.startswith("fix_"):
                 fix_name = fix_name[4:]
@@ -148,15 +147,8 @@ class RefactoringTool(object):
             try:
                 fix_class = getattr(mod, class_name)
             except AttributeError:
-                self.log_error("Can't find %s.%s",
-                               fix_name, class_name)
-                continue
-            try:
-                fixer = fix_class(self.options, self.fixer_log)
-            except Exception, err:
-                self.log_error("Can't instantiate fixes.fix_%s.%s()",
-                               fix_name, class_name, exc_info=True)
-                continue
+                raise FixerError("Can't find %s.%s" % (fix_name, class_name))
+            fixer = fix_class(self.options, self.fixer_log)
             if fixer.explicit and self.explicit is not True and \
                     fix_mod_path not in self.explicit:
                 self.log_message("Skipping implicit fixer: %s", fix_name)
@@ -168,7 +160,7 @@ class RefactoringTool(object):
             elif fixer.order == "post":
                 post_order_fixers.append(fixer)
             else:
-                raise ValueError("Illegal fixer order: %r" % fixer.order)
+                raise FixerError("Illegal fixer order: %r" % fixer.order)
 
         key_func = operator.attrgetter("run_order")
         pre_order_fixers.sort(key=key_func)
