@@ -187,9 +187,9 @@ class RefactoringTool(object):
         """Refactor a list of files and directories."""
         for dir_or_file in items:
             if os.path.isdir(dir_or_file):
-                self.refactor_dir(dir_or_file, write)
+                self.refactor_dir(dir_or_file, write, doctests_only)
             else:
-                self.refactor_file(dir_or_file, write)
+                self.refactor_file(dir_or_file, write, doctests_only)
 
     def refactor_dir(self, dir_name, write=False, doctests_only=False):
         """Descends down a directory and refactor every Python file found.
