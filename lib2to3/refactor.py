@@ -403,9 +403,7 @@ class RefactoringTool(object):
         block = None
         block_lineno = None
         indent = None
-        lineno = 0
-        for line in input.splitlines(True):
-            lineno += 1
+        for lineno, line in enumerate(input.splitlines(True)):
             if line.lstrip().startswith(self.PS1):
                 if block is not None:
                     result.extend(self.refactor_doctest(block, block_lineno,
