@@ -172,8 +172,7 @@ class RefactoringTool(object):
 
     def log_error(self, msg, *args, **kwds):
         """Increments error count and log a message."""
-        self.errors.append((msg, args, kwds))
-        self.logger.error(msg, *args, **kwds)
+        raise
 
     def log_message(self, msg, *args):
         """Hook to log a message."""

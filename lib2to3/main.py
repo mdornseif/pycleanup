@@ -15,6 +15,10 @@ class StdoutRefactoringTool(refactor.RefactoringTool):
     Prints output to stdout.
     """
 
+    def log_error(self, msg, *args, **kwargs):
+        self.errors.append((msg, args, kwargs))
+        self.logger.error(msg, *args, **kwargs)
+
     def print_output(self, lines):
         for line in lines:
             print line
