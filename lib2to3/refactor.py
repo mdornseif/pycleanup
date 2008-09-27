@@ -171,7 +171,7 @@ class RefactoringTool(object):
         return (pre_order_fixers, post_order_fixers)
 
     def log_error(self, msg, *args, **kwds):
-        """Increments error count and log a message."""
+        """Called when an error occurs."""
         raise
 
     def log_message(self, msg, *args):
