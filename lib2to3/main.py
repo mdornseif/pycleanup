@@ -10,6 +10,16 @@ import optparse
 from . import refactor
 
 
+class StdoutRefactoringTool(refactor.RefactoringTool):
+    """
+    Prints output to stdout.
+    """
+
+    def print_output(self, lines):
+        for line in lines:
+            print line
+
+
 def main(fixer_pkg, args=None):
     """Main program.
 
@@ -68,7 +78,7 @@ def main(fixer_pkg, args=None):
         fixer_names = avail_names if "all" in options.fix else explicit
     else:
         fixer_names = avail_names
-    rt = refactor.RefactoringTool(fixer_names, rt_opts, explicit=explicit)
+    rt = StdoutRefactoringTool(fixer_names, rt_opts, explicit=explicit)
 
     # Refactor all files and directories passed as arguments
     if not rt.errors:

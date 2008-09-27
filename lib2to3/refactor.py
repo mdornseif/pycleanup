@@ -183,6 +183,10 @@ class RefactoringTool(object):
             msg = msg % args
         self.logger.debug(msg)
 
+    def print_output(self, lines):
+        """Called with lines of output to give to the user."""
+        pass
+
     def refactor(self, items, write=False, doctests_only=False):
         """Refactor a list of files and directories."""
         for dir_or_file in items:
@@ -340,12 +344,11 @@ class RefactoringTool(object):
         if old_text == new_text:
             self.log_debug("No changes to %s", filename)
             return
-        diff_texts(old_text, new_text, filename)
-        if not write:
-            self.log_debug("Not writing changes to %s", filename)
-            return
+        self.print_output(diff_texts(old_text, new_text, filename))
         if write:
             self.write_file(new_text, filename, old_text)
+        else:
+            self.log_debug("Not writing changes to %s", filename)
 
     def write_file(self, new_text, filename, old_text=None):
         """Writes a string to a file.
@@ -520,10 +523,9 @@ class RefactoringTool(object):
 
 
 def diff_texts(a, b, filename):
-    """Prints a unified diff of two strings."""
+    """Return a unified diff of two strings."""
     a = a.splitlines()
     b = b.splitlines()
-    for line in difflib.unified_diff(a, b, filename, filename,
-                                     "(original)", "(refactored)",
-                                     lineterm=""):
-        print line
+    return difflib.unified_diff(a, b, filename, filename,
+                                "(original)", "(refactored)",
+                                lineterm="")
