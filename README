@@ -16,9 +16,9 @@ on standard output and a "what was changed" summary on standard error,
 but the ``-w`` option can be given to write back converted files, creating
 ``.bak``-named backup files.
 
-2to3 must be run with Python 2.6. The intended path for migrating to Python
-3.x is to first migrate to 2.6 (in order to take advantage of Python 2.6's
-runtime compatibility checks).
+2to3 must be run with at least Python 2.5. The intended path for migrating to
+Python 3.x is to first migrate to 2.6 (in order to take advantage of Python
+2.6's runtime compatibility checks).
 
 
 Files
