@@ -36,9 +36,7 @@ def get_all_fix_names(fixer_pkg, remove_prefix=True):
     pkg = __import__(fixer_pkg, [], [], ["*"])
     fixer_dir = os.path.dirname(pkg.__file__)
     fix_names = []
-    names = os.listdir(fixer_dir)
-    names.sort()
-    for name in names:
+    for name in sorted(os.listdir(fixer_dir)):
         if name.startswith("fix_") and name.endswith(".py"):
             if remove_prefix:
                 name = name[4:]
