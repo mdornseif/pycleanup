@@ -39,7 +39,9 @@ def main(fixer_pkg, args=None):
     parser.add_option("-d", "--doctests_only", action="store_true",
                       help="Fix up doctests only")
     parser.add_option("-f", "--fix", action="append", default=[],
-                      help="Each FIX specifies a transformation; default all")
+                      help="Each FIX specifies a transformation; default: all")
+    parser.add_option("-x", "--nofix", action="append", default=[],
+                      help="Prevent a fixer from being run.")
     parser.add_option("-l", "--list-fixes", action="store_true",
                       help="List available transformations (fixes/fix_*.py)")
     parser.add_option("-p", "--print-function", action="store_true",
@@ -74,15 +76,21 @@ def main(fixer_pkg, args=None):
 
     # Initialize the refactoring tool
     rt_opts = {"print_function" : options.print_function}
-    avail_names = refactor.get_fixers_from_package(fixer_pkg)
-    explicit = []
+    avail_fixes = set(refactor.get_fixers_from_package(fixer_pkg))
+    unwanted_fixes = set(fixer_pkg + ".fix_" + fix for fix in options.nofix)
+    explicit = set()
     if options.fix:
-        explicit = [fixer_pkg + ".fix_" + fix
-                    for fix in options.fix if fix != "all"]
-        fixer_names = avail_names if "all" in options.fix else explicit
+        all_present = False
+        for fix in options.fix:
+            if fix == "all":
+                all_present = True
+            else:
+                explicit.add(fixer_pkg + ".fix_" + fix)
+        requested = avail_fixes.union(explicit) if all_present else explicit
     else:
-        fixer_names = avail_names
-    rt = StdoutRefactoringTool(fixer_names, rt_opts, explicit=explicit)
+        requested = avail_fixes.union(explicit)
+    fixer_names = requested.difference(unwanted_fixes)
+    rt = StdoutRefactoringTool(sorted(fixer_names), rt_opts, sorted(explicit))
 
     # Refactor all files and directories passed as arguments
     if not rt.errors:
