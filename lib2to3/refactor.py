@@ -253,7 +253,7 @@ class RefactoringTool(object):
             there were errors during the parse.
         """
         try:
-            tree = self.driver.parse_string(data,1)
+            tree = self.driver.parse_string(data)
         except Exception, err:
             self.log_error("Can't parse %s: %s: %s",
                            name, err.__class__.__name__, err)
