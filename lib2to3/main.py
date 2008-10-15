@@ -19,6 +19,22 @@ class StdoutRefactoringTool(refactor.RefactoringTool):
         self.errors.append((msg, args, kwargs))
         self.logger.error(msg, *args, **kwargs)
 
+    def write_file(self, new_text, filename, old_text):
+        # Make backup
+        backup = filename + ".bak"
+        if os.path.lexists(backup):
+            try:
+                os.remove(backup)
+            except os.error, err:
+                self.log_message("Can't remove backup %s", backup)
+        try:
+            os.rename(filename, backup)
+        except os.error, err:
+            self.log_message("Can't rename %s to %s", filename, backup)
+        # Actually write the new file
+        super(StdoutRefactoringTool, self).write_file(new_text,
+                                                      filename, old_text)
+
     def print_output(self, lines):
         for line in lines:
             print line

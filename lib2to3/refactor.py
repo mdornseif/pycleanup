@@ -350,23 +350,13 @@ class RefactoringTool(object):
         else:
             self.log_debug("Not writing changes to %s", filename)
 
-    def write_file(self, new_text, filename, old_text=None):
+    def write_file(self, new_text, filename, old_text):
         """Writes a string to a file.
 
         It first shows a unified diff between the old text and the new text, and
         then rewrites the file; the latter is only done if the write option is
         set.
         """
-        backup = filename + ".bak"
-        if os.path.lexists(backup):
-            try:
-                os.remove(backup)
-            except os.error, err:
-                self.log_message("Can't remove backup %s", backup)
-        try:
-            os.rename(filename, backup)
-        except os.error, err:
-            self.log_message("Can't rename %s to %s", filename, backup)
         try:
             f = open(filename, "w")
         except os.error, err:
