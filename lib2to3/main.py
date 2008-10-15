@@ -15,22 +15,27 @@ class StdoutRefactoringTool(refactor.RefactoringTool):
     Prints output to stdout.
     """
 
+    def __init__(self, fixers, options, explicit, nobackups):
+        self.nobackups = nobackups
+        super(StdoutRefactoringTool, self).__init__(fixers, options, explicit)
+
     def log_error(self, msg, *args, **kwargs):
         self.errors.append((msg, args, kwargs))
         self.logger.error(msg, *args, **kwargs)
 
     def write_file(self, new_text, filename, old_text):
-        # Make backup
-        backup = filename + ".bak"
-        if os.path.lexists(backup):
+        if not self.nobackups:
+            # Make backup
+            backup = filename + ".bak"
+            if os.path.lexists(backup):
+                try:
+                    os.remove(backup)
+                except os.error, err:
+                    self.log_message("Can't remove backup %s", backup)
             try:
-                os.remove(backup)
+                os.rename(filename, backup)
             except os.error, err:
-                self.log_message("Can't remove backup %s", backup)
-        try:
-            os.rename(filename, backup)
-        except os.error, err:
-            self.log_message("Can't rename %s to %s", filename, backup)
+                self.log_message("Can't rename %s to %s", filename, backup)
         # Actually write the new file
         super(StdoutRefactoringTool, self).write_file(new_text,
                                                       filename, old_text)
@@ -66,10 +71,14 @@ def main(fixer_pkg, args=None):
                       help="More verbose logging")
     parser.add_option("-w", "--write", action="store_true",
                       help="Write back modified files")
+    parser.add_option("-n", "--nobackups", action="store_true", default=False,
+                      help="Don't write backups for modified files.")
 
     # Parse command line arguments
     refactor_stdin = False
     options, args = parser.parse_args(args)
+    if not options.write and options.nobackups:
+        parser.error("Can't use -n without -w")
     if options.list_fixes:
         print "Available transformations for the -f/--fix option:"
         for fixname in refactor.get_all_fix_names(fixer_pkg):
@@ -106,7 +115,8 @@ def main(fixer_pkg, args=None):
     else:
         requested = avail_fixes.union(explicit)
     fixer_names = requested.difference(unwanted_fixes)
-    rt = StdoutRefactoringTool(sorted(fixer_names), rt_opts, sorted(explicit))
+    rt = StdoutRefactoringTool(sorted(fixer_names), rt_opts, sorted(explicit),
+                               options.nobackups)
 
     # Refactor all files and directories passed as arguments
     if not rt.errors:
