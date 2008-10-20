@@ -35,4 +35,7 @@ if len(argv) == 2:
 else:
     suite = tests.all_tests
 
-tests.support.run_all_tests(tests=suite)
+try:
+    tests.support.run_all_tests(tests=suite)
+except KeyboardInterrupt:
+    pass
