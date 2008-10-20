@@ -12,10 +12,10 @@ import lib2to3.tests.support
 from sys import exit, argv
 
 if "-h" in argv or "--help" in argv or len(argv) > 2:
-    print "Usage: %s [-h] [test suite[.test class]]" %(argv[0])
-    print "default   : run all tests in lib2to3/tests/test_*.py"
-    print "test suite: run tests in lib2to3/tests/<test suite>"
-    print "test class : run tests in <test suite>.<test class>"
+    print("Usage: %s [-h] [test suite[.test class]]" %(argv[0]))
+    print("default   : run all tests in lib2to3/tests/test_*.py")
+    print("test suite: run tests in lib2to3/tests/<test suite>")
+    print("test class : run tests in <test suite>.<test class>")
     exit(1)
 
 if len(argv) == 2:
@@ -23,7 +23,7 @@ if len(argv) == 2:
     for m in argv[1].split("."):
         mod = getattr(mod, m, None)
         if not mod:
-            print "Error importing %s" %(m)
+            print("Error importing %s" %(m))
             exit(1)
 
     if argv[1].find(".") == -1:
