@@ -1470,6 +1470,12 @@ class Test_imports(FixerTestCase):
             a = "from %s import *" % new
             self.check(b, a)
 
+    def test_parenthesis(self):
+        for old, new in self.modules.items():
+            b = "from %s import (yes, no)" % old
+            a = "from %s import (yes, no)" % new
+            self.check(b, a)
+
     def test_import_module_usage(self):
         for old, new in self.modules.items():
             b = """
