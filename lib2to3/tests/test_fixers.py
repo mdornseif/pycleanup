@@ -3740,6 +3740,26 @@ class Test_metaclass(FixerTestCase):
         a = """class m(a, arg=23, metaclass=Meta): pass"""
         self.check(b, a)
 
+        b = """
+        class X(expression(2 + 4)):
+            __metaclass__ = Meta
+        """
+        a = """
+        class X(expression(2 + 4), metaclass=Meta):
+            pass
+        """
+        self.check(b, a)
+
+        b = """
+        class X(expression(2 + 4), x**4):
+            __metaclass__ = Meta
+        """
+        a = """
+        class X(expression(2 + 4), x**4, metaclass=Meta):
+            pass
+        """
+        self.check(b, a)
+
 
 class Test_getcwdu(FixerTestCase):
 
