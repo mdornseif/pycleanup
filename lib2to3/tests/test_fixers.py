@@ -3347,6 +3347,10 @@ class Test_import(FixerTestCase):
         a = "from .foo import bar"
         self.check_both(b, a)
 
+        b = "from foo import (bar, baz)"
+        a = "from .foo import (bar, baz)"
+        self.check_both(b, a)
+
     def test_dotted_from(self):
         b = "from green.eggs import ham"
         a = "from .green.eggs import ham"
