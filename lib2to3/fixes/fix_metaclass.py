@@ -35,8 +35,9 @@ def has_metaclass(parent):
         elif node.type == syms.simple_stmt and node.children:
             expr_node = node.children[0]
             if expr_node.type == syms.expr_stmt and expr_node.children:
-                leaf_node = expr_node.children[0]
-                if leaf_node.value == '__metaclass__':
+                left_side = expr_node.children[0]
+                if isinstance(left_side, Leaf) and \
+                        left_side.value == '__metaclass__':
                     return True
     return False
 

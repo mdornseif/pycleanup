@@ -3626,6 +3626,12 @@ class Test_metaclass(FixerTestCase):
         """
         self.unchanged(s)
 
+        s = """
+        class X:
+            a[23] = 74
+        """
+        self.unchanged(s)
+
     def test_comments(self):
         b = """
         class X:
