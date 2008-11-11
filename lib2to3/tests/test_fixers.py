@@ -2620,7 +2620,7 @@ class Test_map(FixerTestCase):
 
     def check(self, b, a):
         self.unchanged("from future_builtins import map; " + b, a)
-        FixerTestCase.check(self, b, a)
+        super(Test_map, self).check(b, a)
 
     def test_prefix_preservation(self):
         b = """x =    map(   f,    'abc'   )"""
@@ -2727,7 +2727,7 @@ class Test_zip(FixerTestCase):
 
     def check(self, b, a):
         self.unchanged("from future_builtins import zip; " + b, a)
-        FixerTestCase.check(self, b, a)
+        super(Test_zip, self).check(b, a)
 
     def test_zip_basic(self):
         b = """x = zip(a, b, c)"""
@@ -3272,7 +3272,7 @@ class Test_import(FixerTestCase):
     fixer = "import"
 
     def setUp(self):
-        FixerTestCase.setUp(self)
+        super(Test_import, self).setUp()
         # Need to replace fix_import's exists method
         # so we can check that it's doing the right thing
         self.files_checked = []
@@ -3291,9 +3291,9 @@ class Test_import(FixerTestCase):
 
     def check_both(self, b, a):
         self.always_exists = True
-        FixerTestCase.check(self, b, a)
+        super(Test_import, self).check(b, a)
         self.always_exists = False
-        FixerTestCase.unchanged(self, b)
+        super(Test_import, self).unchanged(b)
 
     def test_files_checked(self):
         def p(path):
