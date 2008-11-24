@@ -3769,6 +3769,17 @@ class Test_metaclass(FixerTestCase):
         """
         self.check(b, a)
 
+        b = """
+        class X:
+            __metaclass__ = Meta
+            save.py = 23
+        """
+        a = """
+        class X(metaclass=Meta):
+            save.py = 23
+        """
+        self.check(b, a)
+
 
 class Test_getcwdu(FixerTestCase):
 
