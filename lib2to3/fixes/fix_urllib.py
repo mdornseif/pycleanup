@@ -7,7 +7,7 @@
 # Local imports
 from .fix_imports import alternates, FixImports
 from .. import fixer_base
-from ..fixer_util import Name, Comma, FromImport, Newline, attr_chain, any, set
+from ..fixer_util import Name, Comma, FromImport, Newline, attr_chain
 
 MAPPING = {'urllib':  [
                 ('urllib.request',
