@@ -63,6 +63,8 @@ def alternates(members):
 def build_pattern(mapping=MAPPING):
     mod_list = ' | '.join(["module='" + key + "'" for key in mapping.keys()])
     mod_name_list = ' | '.join(["module_name='" + key + "'" for key in mapping.keys()])
+    mod_attribute_list = ' | '.join(["mod_with_attribute='" + key + "'"
+                                     for key in mapping.keys()])
     yield """import_name< 'import' ((%s)
                           | dotted_as_names< any* (%s) any* >) >
           """ % (mod_list, mod_list)
@@ -76,8 +78,8 @@ def build_pattern(mapping=MAPPING):
     # Find usages of module members in code e.g. urllib.foo(bar)
     yield """power< (%s)
              trailer<'.' any > any* >
-          """ % mod_name_list
-    yield """bare_name=%s""" % alternates(mapping.keys())
+          """ % mod_attribute_list
+    yield "bare_name=(%s)" % alternates(mapping.keys())
 
 class FixImports(fixer_base.BaseFix):
     PATTERN = "|".join(build_pattern())
@@ -103,6 +105,7 @@ class FixImports(fixer_base.BaseFix):
         import_mod = results.get("module")
         mod_name = results.get("module_name")
         bare_name = results.get("bare_name")
+        mod_with_attribute = results.get("mod_with_attribute")
 
         if import_mod or mod_name:
             new_name = self.mapping[(import_mod or mod_name).value]
@@ -112,6 +115,11 @@ class FixImports(fixer_base.BaseFix):
             import_mod.replace(Name(new_name, prefix=import_mod.get_prefix()))
         elif mod_name:
             mod_name.replace(Name(new_name, prefix=mod_name.get_prefix()))
+        elif mod_with_attribute:
+            new_name = self.replace.get(mod_with_attribute.value)
+            if new_name:
+                mod_with_attribute.replace(Name(new_name,
+                                                prefix=mod_with_attribute.get_prefix()))
         elif bare_name:
             bare_name = bare_name[0]
             new_name = self.replace.get(bare_name.value)

@@ -1485,6 +1485,22 @@ class Test_imports(FixerTestCase):
                 """ % (new, new)
             self.check(b, a)
 
+            b = """
+                from %s import x
+                %s = 23
+                """ % (old, old)
+            a = """
+                from %s import x
+                %s = 23
+                """ % (new, old)
+            self.check(b, a)
+
+            s = """
+                def f():
+                    %s.method()
+                """ % (old,)
+            self.unchanged(s)
+
 
 class Test_imports2(Test_imports):
     fixer = "imports2"
