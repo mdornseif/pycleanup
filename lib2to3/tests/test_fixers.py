@@ -30,10 +30,9 @@ class FixerTestCase(support.TestCase):
         self.fixer_log = []
         self.filename = "<string>"
 
-        for order in (self.refactor.pre_order.values(),\
-                      self.refactor.post_order.values()):
-            for fixer in chain(*order):
-                fixer.log = self.fixer_log
+        for fixer in chain(self.refactor.pre_order,
+                           self.refactor.post_order):
+            fixer.log = self.fixer_log
 
     def _check(self, before, after):
         before = support.reformat(before)
