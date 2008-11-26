@@ -92,7 +92,8 @@ class FixImports(fixer_base.BaseFix):
         match = super(FixImports, self).match
         results = match(node)
         if results:
-            if any([match(obj) for obj in attr_chain(node, "parent")]):
+            if "mod_with_attribute" not in results and \
+                    any([match(obj) for obj in attr_chain(node, "parent")]):
                 return False
             return results
         return False

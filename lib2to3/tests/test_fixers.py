@@ -1501,6 +1501,18 @@ class Test_imports(FixerTestCase):
                 """ % (old,)
             self.unchanged(s)
 
+            # test nested usage
+            b = """
+                import %s
+                %s.bar(%s.foo)
+                """ % (old, old, old)
+            a = """
+                import %s
+                %s.bar(%s.foo)
+                """ % (new, new, new)
+            self.check(b, a)
+
+
 
 class Test_imports2(Test_imports):
     fixer = "imports2"
