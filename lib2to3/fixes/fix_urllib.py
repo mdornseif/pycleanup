@@ -65,7 +65,9 @@ def build_pattern():
 
 
 class FixUrllib(FixImports):
-    PATTERN = "|".join(build_pattern())
+
+    def build_pattern(self):
+        return "|".join(build_pattern())
 
     def transform_import(self, node, results):
         """Transform for the basic import case. Replaces the old

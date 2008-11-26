@@ -84,11 +84,19 @@ def build_pattern(mapping=MAPPING):
 
 class FixImports(fixer_base.BaseFix):
 
-    PATTERN = "|".join(build_pattern())
     order = "pre" # Pre-order tree traversal
 
     # This is overridden in fix_imports2.
     mapping = MAPPING
+
+    def build_pattern(self):
+        return "|".join(build_pattern(self.mapping))
+
+    def compile_pattern(self):
+        # We override this, so MAPPING can be pragmatically altered and the
+        # changes will be reflected in PATTERN.
+        self.PATTERN = self.build_pattern()
+        super(FixImports, self).compile_pattern()
 
     # Don't match the node if it's within another match.
     def match(self, node):
