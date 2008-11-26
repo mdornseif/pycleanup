@@ -15,10 +15,7 @@ from itertools import chain
 from operator import itemgetter
 
 # Local imports
-from .. import pygram
-from .. import pytree
-from .. import refactor
-from .. import fixer_util
+from lib2to3 import pygram, pytree, refactor, fixer_util
 
 
 class FixerTestCase(support.TestCase):
