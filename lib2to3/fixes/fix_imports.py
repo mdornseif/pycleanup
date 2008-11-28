@@ -100,8 +100,8 @@ class FixImports(fixer_base.BaseFix):
         match = super(FixImports, self).match
         results = match(node)
         if results:
-            # Module usage could be in the trailier of an attribute lookup, so
-            # we might have nested matches when "bare_with_attr" is present.
+            # Module usage could be in the trailer of an attribute lookup, so we
+            # might have nested matches when "bare_with_attr" is present.
             if "bare_with_attr" not in results and \
                     any([match(obj) for obj in attr_chain(node, "parent")]):
                 return False
