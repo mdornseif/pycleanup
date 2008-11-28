@@ -30,6 +30,8 @@ TODO
     
     * Refactor common code out of fixes/fix_*.py into fixer_util (on-going).
 
+    * Document how to write fixers.
+
 
     Complex:
     ########
