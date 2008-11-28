@@ -76,10 +76,7 @@ def build_pattern(mapping=MAPPING):
           """ % mod_list
 
     # Find usages of module members in code e.g. thread.foo(bar)
-    # We differentiate between "bare_with_attr" and "bare_name" for the benfit
-    # of the match() override in FixImports.
     yield "power< bare_with_attr=(%s) trailer<'.' any > any* >" % bare_names
-    yield "bare_name=(%s)" % bare_names
 
 
 class FixImports(fixer_base.BaseFix):
@@ -126,8 +123,7 @@ class FixImports(fixer_base.BaseFix):
             import_mod.replace(Name(new_name, prefix=import_mod.get_prefix()))
         else:
             # Replace usage of the module.
-            bare_name = results.get("bare_with_attr") or results.get("bare_name")
-            bare_name = bare_name[0]
+            bare_name = results["bare_with_attr"][0]
             new_name = self.replace.get(bare_name.value)
             if new_name:
                 bare_name.replace(Name(new_name, prefix=bare_name.get_prefix()))

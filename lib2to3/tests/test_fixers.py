@@ -1509,6 +1509,16 @@ class Test_imports(FixerTestCase):
                 """ % (new, new, new)
             self.check(b, a)
 
+            b = """
+                import %s
+                x.%s
+                """ % (old, old)
+            a = """
+                import %s
+                x.%s
+                """ % (new, old)
+            self.check(b, a)
+
 
 
 class Test_imports2(Test_imports):
