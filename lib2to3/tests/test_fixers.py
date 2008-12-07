@@ -1069,6 +1069,37 @@ class Test_long(FixerTestCase):
         a = """x =   int(  x  )"""
         self.check(b, a)
 
+class Test_isinstance(FixerTestCase):
+    fixer = "isinstance"
+
+    def test_remove_multiple_items1(self):
+        b = """isinstance(x, (int, int, int))"""
+        a = """isinstance(x, (int))"""
+        self.check(b, a)
+
+    def test_remove_multiple_items2(self):
+        b = """isinstance(x, (int, float, int, int, float))"""
+        a = """isinstance(x, (int, float))"""
+        self.check(b, a)
+
+    def test_remove_multiple_items3(self):
+        b = """isinstance(x, (int, float, int, int, float, str))"""
+        a = """isinstance(x, (int, float, str))"""
+        self.check(b, a)
+
+    def test_remove_multiple_items4(self):
+        b = """isinstance(foo() + bar(), (x(), y(), x(), int, int))"""
+        a = """isinstance(foo() + bar(), (x(), y(), x(), int))"""
+        self.check(b, a)
+
+    def test_prefix_preservation(self):
+        b = """if    isinstance(  foo(), (  bar, bar, baz )) : pass"""
+        a = """if    isinstance(  foo(), (  bar, baz )) : pass"""
+        self.check(b, a)
+
+    def test_unchanged(self):
+        self.unchanged("isinstance(x, (str, int))")
+
 class Test_dict(FixerTestCase):
     fixer = "dict"
 
