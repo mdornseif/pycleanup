@@ -1,3 +1,6 @@
+# Copyright 2008 Armin Ronacher.
+# Licensed to PSF under a Contributor Agreement.
+
 """Fixer that cleans up a tuple argument to isinstance after the tokens
 in it were fixed.  This is mainly used to remove double occurrences of
 tokens as a leftover of the long -> int / unicode -> str conversion.
