@@ -293,30 +293,30 @@ class Test_intern(FixerTestCase):
 
     def test_prefix_preservation(self):
         b = """x =   intern(  a  )"""
-        a = """x =   sys.intern(  a  )"""
+        a = """import sys\nx =   sys.intern(  a  )"""
         self.check(b, a)
 
         b = """y = intern("b" # test
               )"""
-        a = """y = sys.intern("b" # test
+        a = """import sys\ny = sys.intern("b" # test
               )"""
         self.check(b, a)
 
         b = """z = intern(a+b+c.d,   )"""
-        a = """z = sys.intern(a+b+c.d,   )"""
+        a = """import sys\nz = sys.intern(a+b+c.d,   )"""
         self.check(b, a)
 
     def test(self):
         b = """x = intern(a)"""
-        a = """x = sys.intern(a)"""
+        a = """import sys\nx = sys.intern(a)"""
         self.check(b, a)
 
         b = """z = intern(a+b+c.d,)"""
-        a = """z = sys.intern(a+b+c.d,)"""
+        a = """import sys\nz = sys.intern(a+b+c.d,)"""
         self.check(b, a)
 
         b = """intern("y%s" % 5).replace("y", "")"""
-        a = """sys.intern("y%s" % 5).replace("y", "")"""
+        a = """import sys\nsys.intern("y%s" % 5).replace("y", "")"""
         self.check(b, a)
 
     # These should not be refactored
@@ -335,6 +335,35 @@ class Test_intern(FixerTestCase):
         self.unchanged(s)
 
         s = """intern()"""
+        self.unchanged(s)
+
+class Test_reduce(FixerTestCase):
+    fixer = "reduce"
+
+    def test_simple_call(self):
+        b = "reduce(a, b, c)"
+        a = "from functools import reduce\nreduce(a, b, c)"
+        self.check(b, a)
+
+    def test_call_with_lambda(self):
+        b = "reduce(lambda x, y: x + y, seq)"
+        a = "from functools import reduce\nreduce(lambda x, y: x + y, seq)"
+        self.check(b, a)
+
+    def test_unchanged(self):
+        s = "reduce(a)"
+        self.unchanged(s)
+
+        s = "reduce(a, b=42)"
+        self.unchanged(s)
+
+        s = "reduce(a, b, c, d)"
+        self.unchanged(s)
+
+        s = "reduce(**c)"
+        self.unchanged(s)
+
+        s = "reduce()"
         self.unchanged(s)
 
 class Test_print(FixerTestCase):
