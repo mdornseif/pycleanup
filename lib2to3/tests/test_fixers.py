@@ -1071,28 +1071,6 @@ class Test_long(FixerTestCase):
         a = """z = type(x) in (int, int)"""
         self.check(b, a)
 
-    def test_4(self):
-        b = """a = 12L"""
-        a = """a = 12"""
-        self.check(b, a)
-
-    def test_5(self):
-        b = """b = 0x12l"""
-        a = """b = 0x12"""
-        self.check(b, a)
-
-    def test_unchanged_1(self):
-        s = """a = 12"""
-        self.unchanged(s)
-
-    def test_unchanged_2(self):
-        s = """b = 0x12"""
-        self.unchanged(s)
-
-    def test_unchanged_3(self):
-        s = """c = 3.14"""
-        self.unchanged(s)
-
     def test_prefix_preservation(self):
         b = """x =   long(  x  )"""
         a = """x =   int(  x  )"""
