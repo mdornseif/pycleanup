@@ -33,7 +33,7 @@ class StdoutRefactoringTool(refactor.RefactoringTool):
                 except os.error, err:
                     self.log_message("Can't remove backup %s", backup)
             try:
-                os.rename(filename, backup)
+                shutil.move(filename, backup)
             except os.error, err:
                 self.log_message("Can't rename %s to %s", filename, backup)
         # Actually write the new file
