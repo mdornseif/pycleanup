@@ -5,6 +5,7 @@ Main program for 2to3.
 import sys
 import os
 import logging
+import shutil
 import optparse
 
 from . import refactor
