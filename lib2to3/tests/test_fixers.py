@@ -1323,6 +1323,14 @@ class Test_xrange(FixerTestCase):
         a = """x = list(range(10, 3, 9)) + [4]"""
         self.check(b, a)
 
+        b = """x = range(10)[::-1]"""
+        a = """x = list(range(10))[::-1]"""
+        self.check(b, a)
+
+        b = """x = range(10)  [3]"""
+        a = """x = list(range(10))  [3]"""
+        self.check(b, a)
+
     def test_xrange_in_for(self):
         b = """for i in xrange(10):\n    j=i"""
         a = """for i in range(10):\n    j=i"""
