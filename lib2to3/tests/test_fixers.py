@@ -1079,22 +1079,19 @@ class Test_long(FixerTestCase):
 class Test_isinstance(FixerTestCase):
     fixer = "isinstance"
 
-    def test_remove_multiple_items1(self):
+    def test_remove_multiple_items(self):
         b = """isinstance(x, (int, int, int))"""
         a = """isinstance(x, (int))"""
         self.check(b, a)
 
-    def test_remove_multiple_items2(self):
         b = """isinstance(x, (int, float, int, int, float))"""
         a = """isinstance(x, (int, float))"""
         self.check(b, a)
 
-    def test_remove_multiple_items3(self):
         b = """isinstance(x, (int, float, int, int, float, str))"""
         a = """isinstance(x, (int, float, str))"""
         self.check(b, a)
 
-    def test_remove_multiple_items4(self):
         b = """isinstance(foo() + bar(), (x(), y(), x(), int, int))"""
         a = """isinstance(foo() + bar(), (x(), y(), x(), int))"""
         self.check(b, a)
