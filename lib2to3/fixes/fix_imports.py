@@ -66,16 +66,17 @@ def build_pattern(mapping=MAPPING):
     mod_list = ' | '.join(["module_name='%s'" % key for key in mapping])
     bare_names = alternates(mapping.keys())
 
-    yield """name_import=import_name< 'import' ((%s)
-                          | dotted_as_names< any* (%s) any* >) >
+    yield """name_import=import_name< 'import' ((%s) |
+               multiple_imports=dotted_as_names< any* (%s) any* >) >
           """ % (mod_list, mod_list)
     yield """import_from< 'from' (%s) 'import' ['(']
               ( any | import_as_name< any 'as' any > |
                 import_as_names< any* >)  [')'] >
           """ % mod_list
-    yield """import_name< 'import'
-                          dotted_as_name< (%s) 'as' any > >
-          """ % mod_list
+    yield """import_name< 'import' (dotted_as_name< (%s) 'as' any > |
+               multiple_imports=dotted_as_names<
+                 any* dotted_as_name< (%s) 'as' any > any* >) >
+          """ % (mod_list, mod_list)
 
     # Find usages of module members in code e.g. thread.foo(bar)
     yield "power< bare_with_attr=(%s) trailer<'.' any > any* >" % bare_names
@@ -123,17 +124,16 @@ class FixImports(fixer_base.BaseFix):
                 # If it's not a "from x import x, y" or "import x as y" import,
                 # marked its usage to be replaced.
                 self.replace[import_mod.value] = new_name
-
+            if "multiple_imports" in results:
                 # This is a nasty hack to fix multiple imports on a
-                # line. (ie. "import StringIO, urlparse") The problem is that I
+                # line (e.g., "import StringIO, urlparse"). The problem is that I
                 # can't figure out an easy way to make a pattern recognize the
                 # keys of MAPPING randomly sprinkled in an import statement.
                 while True:
                     results = self.match(node)
-                    if results:
-                        self.transform(node, results)
-                    else:
+                    if not results:
                         break
+                    self.transform(node, results)
         else:
             # Replace usage of the module.
             bare_name = results["bare_with_attr"][0]
