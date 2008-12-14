@@ -1081,7 +1081,7 @@ class Test_isinstance(FixerTestCase):
 
     def test_remove_multiple_items(self):
         b = """isinstance(x, (int, int, int))"""
-        a = """isinstance(x, (int))"""
+        a = """isinstance(x, int)"""
         self.check(b, a)
 
         b = """isinstance(x, (int, float, int, int, float))"""

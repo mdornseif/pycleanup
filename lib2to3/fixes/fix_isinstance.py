@@ -6,15 +6,11 @@ in it were fixed.  This is mainly used to remove double occurrences of
 tokens as a leftover of the long -> int / unicode -> str conversion.
 
 eg.  isinstance(x, (int, long)) -> isinstance(x, (int, int))
-       -> isinstance(x, (int))
-
-TODO: currently a pair of bogus parentheses is left if only one item
-      is left in the list.  This doesn't do harm but doesn't look very
-      nice.
+       -> isinstance(x, int)
 """
 
 from .. import fixer_base
-from ..pgen2 import token
+from ..fixer_util import token
 
 
 class FixIsinstance(fixer_base.BaseFix):
@@ -32,7 +28,8 @@ class FixIsinstance(fixer_base.BaseFix):
 
     def transform(self, node, results):
         names_inserted = set()
-        args = results['args'].children
+        testlist = results["args"]
+        args = testlist.children
         new_args = []
         iterator = enumerate(args)
         for idx, arg in iterator:
@@ -46,5 +43,10 @@ class FixIsinstance(fixer_base.BaseFix):
                     names_inserted.add(arg.value)
         if new_args and new_args[-1].type == token.COMMA:
             del new_args[-1]
-        args[:] = new_args
-        node.changed()
+        if len(new_args) == 1:
+            atom = testlist.parent
+            new_args[0].set_prefix(atom.get_prefix())
+            atom.replace(new_args[0])
+        else:
+            args[:] = new_args
+            node.changed()
