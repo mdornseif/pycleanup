@@ -300,8 +300,7 @@ def touch_import(package, name, node):
     children = [import_, Newline()]
     if add_newline_before:
         children.insert(0, Newline())
-    root.changed()
-    root.children.insert(insert_pos, Node(syms.simple_stmt, children))
+    root.insert_child(insert_pos, Node(syms.simple_stmt, children))
 
 
 _def_syms = set([syms.classdef, syms.funcdef])
