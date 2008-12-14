@@ -28,6 +28,8 @@ class FixIsinstance(fixer_base.BaseFix):
     >
     """
 
+    run_order = 6
+
     def transform(self, node, results):
         names_inserted = set()
         args = results['args'].children
