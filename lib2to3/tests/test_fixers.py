@@ -1463,14 +1463,8 @@ class Test_xreadlines(FixerTestCase):
         s = "foo(xreadlines)"
         self.unchanged(s)
 
-class Test_imports(FixerTestCase):
-    fixer = "imports"
-    from ..fixes.fix_imports import MAPPING as modules
 
-    def test_several_on_a_line(self):
-        b = """import urlparse, cStringIO"""
-        a = """import urllib.parse, io"""
-        self.check(b, a)
+class ImportsFixerTests:
 
     def test_import_module(self):
         for old, new in self.modules.items():
@@ -1568,18 +1562,25 @@ class Test_imports(FixerTestCase):
             self.check(b, a)
 
 
+class Test_imports(FixerTestCase, ImportsFixerTests):
+    fixer = "imports"
+    from ..fixes.fix_imports import MAPPING as modules
 
-class Test_imports2(Test_imports):
+    def test_several_on_a_line(self):
+        b = """import urlparse, cStringIO"""
+        a = """import urllib.parse, io"""
+        self.check(b, a)
+
+
+class Test_imports2(FixerTestCase, ImportsFixerTests):
     fixer = "imports2"
     from ..fixes.fix_imports2 import MAPPING as modules
 
 
-class Test_imports_fixer_order(Test_imports):
-
-    fixer = None
+class Test_imports_fixer_order(FixerTestCase, ImportsFixerTests):
 
     def setUp(self):
-        Test_imports.setUp(self, ['imports', 'imports2'])
+        super(Test_imports_fixer_order, self).setUp(['imports', 'imports2'])
         from ..fixes.fix_imports2 import MAPPING as mapping2
         self.modules = mapping2.copy()
         from ..fixes.fix_imports import MAPPING as mapping1
