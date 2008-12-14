@@ -158,6 +158,9 @@ def is_list(node):
 ### Misc
 ###########################################################
 
+def parenthesize(node):
+    return Node(syms.atom, [LParen(), node, RParen()])
+
 
 consuming_calls = set(["sorted", "list", "set", "any", "all", "tuple", "sum",
                        "min", "max"])
