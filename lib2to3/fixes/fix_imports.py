@@ -118,11 +118,22 @@ class FixImports(fixer_base.BaseFix):
         import_mod = results.get("module_name")
         if import_mod:
             new_name = self.mapping[(import_mod or mod_name).value]
+            import_mod.replace(Name(new_name, prefix=import_mod.get_prefix()))
             if "name_import" in results:
                 # If it's not a "from x import x, y" or "import x as y" import,
                 # marked its usage to be replaced.
                 self.replace[import_mod.value] = new_name
-            import_mod.replace(Name(new_name, prefix=import_mod.get_prefix()))
+
+                # This is a nasty hack to fix multiple imports on a
+                # line. (ie. "import StringIO, urlparse") The problem is that I
+                # can't figure out an easy way to make a pattern recognize the
+                # keys of MAPPING randomly sprinkled in an import statement.
+                while True:
+                    results = self.match(node)
+                    if results:
+                        self.transform(node, results)
+                    else:
+                        break
         else:
             # Replace usage of the module.
             bare_name = results["bare_with_attr"][0]

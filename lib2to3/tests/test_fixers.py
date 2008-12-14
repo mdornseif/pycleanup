@@ -1467,6 +1467,11 @@ class Test_imports(FixerTestCase):
     fixer = "imports"
     from ..fixes.fix_imports import MAPPING as modules
 
+    def test_several_on_a_line(self):
+        b = """import urlparse, cStringIO"""
+        a = """import urllib.parse, io"""
+        self.check(b, a)
+
     def test_import_module(self):
         for old, new in self.modules.items():
             b = "import %s" % old
