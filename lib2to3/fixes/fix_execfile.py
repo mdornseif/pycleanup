@@ -7,7 +7,6 @@ This converts usages of the execfile function into calls to the built-in
 exec() function.
 """
 
-from .. import pytree
 from .. import fixer_base
 from ..fixer_util import (Comma, Name, Call, LParen, RParen, Dot, Node,
                           ArgList, String, syms)
