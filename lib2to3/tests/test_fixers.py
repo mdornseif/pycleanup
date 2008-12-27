@@ -3503,10 +3503,29 @@ class Test_import(FixerTestCase):
         a = "from . import foo, bar"
         self.check_both(b, a)
 
+        b = "import foo, bar, x"
+        a = "from . import foo, bar, x"
+        self.check_both(b, a)
+
+        b = "import x, y, z"
+        a = "from . import x, y, z"
+        self.check_both(b, a)
+
     def test_import_as(self):
         b = "import foo as x"
         a = "from . import foo as x"
         self.check_both(b, a)
+
+        b = "import a as b, b as c, c as d"
+        a = "from . import a as b, b as c, c as d"
+        self.check_both(b, a)
+
+    def test_local_and_absolute(self):
+        self.always_exists = False
+        self.present_files = set(["foo.py", "__init__.py"])
+
+        s = "import foo, bar"
+        self.warns_unchanged(s, "absolute and local imports together")
 
     def test_dotted_import(self):
         b = "import foo.bar"
