@@ -129,10 +129,8 @@ class FixImports(fixer_base.BaseFix):
                 # line (e.g., "import StringIO, urlparse"). The problem is that I
                 # can't figure out an easy way to make a pattern recognize the
                 # keys of MAPPING randomly sprinkled in an import statement.
-                while True:
-                    results = self.match(node)
-                    if not results:
-                        break
+                results = self.match(node)
+                if results:
                     self.transform(node, results)
         else:
             # Replace usage of the module.
