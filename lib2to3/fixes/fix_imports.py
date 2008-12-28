@@ -118,7 +118,7 @@ class FixImports(fixer_base.BaseFix):
     def transform(self, node, results):
         import_mod = results.get("module_name")
         if import_mod:
-            new_name = self.mapping[(import_mod or mod_name).value]
+            new_name = self.mapping[import_mod.value]
             import_mod.replace(Name(new_name, prefix=import_mod.get_prefix()))
             if "name_import" in results:
                 # If it's not a "from x import x, y" or "import x as y" import,
