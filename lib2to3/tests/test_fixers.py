@@ -1084,6 +1084,9 @@ class Test_long(FixerTestCase):
         s = """class long(): pass"""
         self.unchanged(s)
 
+        s = """def f(g, long): pass"""
+        self.unchanged(s)
+
         s = """def f(x, long=True): pass"""
         self.unchanged(s)
 
