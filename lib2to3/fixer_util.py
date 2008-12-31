@@ -236,10 +236,12 @@ def is_probably_builtin(node):
     if parent.type == syms.expr_stmt and parent.children[0] is node:
         # Assignment.
         return False
-    if parent.type == syms.typedargslist and (
-        (prev is not None and prev.type == token.COMMA) or
-        parent.children[0] is node
-        ):
+    if parent.type == syms.parameters or \
+            (parent.type == syms.typedargslist and (
+            (prev is not None and prev.type == token.COMMA) or
+            parent.children[0] is node
+            )):
+        # The name of an argument.
         return False
     return True
 
