@@ -5,7 +5,6 @@
 """
 
 # Local imports
-from .. import pytree
 from .. import fixer_base
 from ..fixer_util import Name, Number, is_probably_builtin
 
