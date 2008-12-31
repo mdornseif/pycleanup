@@ -1071,6 +1071,22 @@ class Test_long(FixerTestCase):
         a = """z = type(x) in (int, int)"""
         self.check(b, a)
 
+    def test_unchanged(self):
+        s = """long = True"""
+        self.unchanged(s)
+
+        s = """s.long = True"""
+        self.unchanged(s)
+
+        s = """def long(): pass"""
+        self.unchanged(s)
+
+        s = """class long(): pass"""
+        self.unchanged(s)
+
+        s = """def f(x, long=True): pass"""
+        self.unchanged(s)
+
     def test_prefix_preservation(self):
         b = """x =   long(  x  )"""
         a = """x =   int(  x  )"""
