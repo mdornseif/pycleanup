@@ -15,7 +15,10 @@ MAPPING = {'urllib':  [
                      '_urlopener', 'urlcleanup']),
                 ('urllib.parse',
                     ['quote', 'quote_plus', 'unquote', 'unquote_plus',
-                     'urlencode', 'pahtname2url', 'url2pathname']),
+                     'urlencode', 'pahtname2url', 'url2pathname', 'splitattr',
+                     'splithost', 'splitnport', 'splitpasswd', 'splitport',
+                     'splitquery', 'splittag', 'splittype', 'splituser',
+                     'splitvalue', ]),
                 ('urllib.error',
                     ['ContentTooShortError'])],
            'urllib2' : [
@@ -34,9 +37,12 @@ MAPPING = {'urllib':  [
                      'FTPHandler', 'CacheFTPHandler',
                      'UnknownHandler']),
                 ('urllib.error',
-                    ['URLError', 'HTTPError'])],
+                    ['URLError', 'HTTPError']),
+           ]
 }
 
+# Duplicate the url parsing functions for urllib2.
+MAPPING["urllib2"].append(MAPPING["urllib"][1])
 
 # def alternates(members):
 #     return "(" + "|".join(map(repr, members)) + ")"
