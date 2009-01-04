@@ -44,9 +44,6 @@ MAPPING = {'urllib':  [
 # Duplicate the url parsing functions for urllib2.
 MAPPING["urllib2"].append(MAPPING["urllib"][1])
 
-# def alternates(members):
-#     return "(" + "|".join(map(repr, members)) + ")"
-
 
 def build_pattern():
     bare = set()
