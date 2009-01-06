@@ -15,7 +15,7 @@ MAPPING = {'urllib':  [
                      '_urlopener', 'urlcleanup']),
                 ('urllib.parse',
                     ['quote', 'quote_plus', 'unquote', 'unquote_plus',
-                     'urlencode', 'pahtname2url', 'url2pathname', 'splitattr',
+                     'urlencode', 'pathname2url', 'url2pathname', 'splitattr',
                      'splithost', 'splitnport', 'splitpasswd', 'splitport',
                      'splitquery', 'splittag', 'splittype', 'splituser',
                      'splitvalue', ]),
