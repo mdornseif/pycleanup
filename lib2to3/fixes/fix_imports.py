@@ -129,10 +129,10 @@ class FixImports(fixer_base.BaseFix):
                 # marked its usage to be replaced.
                 self.replace[mod_name] = new_name
             if "multiple_imports" in results:
-                # This is a nasty hack to fix multiple imports on a
-                # line (e.g., "import StringIO, urlparse"). The problem is that I
-                # can't figure out an easy way to make a pattern recognize the
-                # keys of MAPPING randomly sprinkled in an import statement.
+                # This is a nasty hack to fix multiple imports on a line (e.g.,
+                # "import StringIO, urlparse"). The problem is that I can't
+                # figure out an easy way to make a pattern recognize the keys of
+                # MAPPING randomly sprinkled in an import statement.
                 results = self.match(node)
                 if results:
                     self.transform(node, results)
