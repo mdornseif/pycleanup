@@ -121,12 +121,13 @@ class FixImports(fixer_base.BaseFix):
     def transform(self, node, results):
         import_mod = results.get("module_name")
         if import_mod:
-            new_name = self.mapping[import_mod.value]
+            mod_name = import_mod.value
+            new_name = self.mapping[mod_name]
             import_mod.replace(Name(new_name, prefix=import_mod.get_prefix()))
             if "name_import" in results:
                 # If it's not a "from x import x, y" or "import x as y" import,
                 # marked its usage to be replaced.
-                self.replace[import_mod.value] = new_name
+                self.replace[mod_name] = new_name
             if "multiple_imports" in results:
                 # This is a nasty hack to fix multiple imports on a
                 # line (e.g., "import StringIO, urlparse"). The problem is that I
