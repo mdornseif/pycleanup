@@ -162,10 +162,12 @@ class Base(object):
                     self.parent = None
                     return i
 
-    def get_next_sibling(self):
-        """Return the node immediately following the invocant in their
-        parent's children list. If the invocant does not have a next
-        sibling, return None."""
+    @property
+    def next_sibling(self):
+        """
+        The node immediately following the invocant in their parent's children
+        list. If the invocant does not have a next sibling, it is None
+        """
         if self.parent is None:
             return None
 
@@ -177,10 +179,12 @@ class Base(object):
                 except IndexError:
                     return None
 
-    def get_prev_sibling(self):
-        """Return the node immediately preceding the invocant in their
-        parent's children list. If the invocant does not have a previous
-        sibling, return None."""
+    @property
+    def prev_sibling(self):
+        """
+        The node immediately preceding the invocant in their parent's children
+        list. If the invocant does not have a previous sibling, it is None.
+        """
         if self.parent is None:
             return None
 
@@ -193,8 +197,8 @@ class Base(object):
 
     def get_suffix(self):
         """Return the string immediately following the invocant node. This
-        is effectively equivalent to node.get_next_sibling().get_prefix()"""
-        next_sib = self.get_next_sibling()
+        is effectively equivalent to node.next_sibling.get_prefix()"""
+        next_sib = self.next_sibling
         if next_sib is None:
             return ""
         return next_sib.get_prefix()
