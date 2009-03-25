@@ -43,3 +43,7 @@ TODO
 
     * Remove the need to explicitly assign a node's parent attribute.  This
       could be gone with a magic children list.
+
+    * Import statements are complicated and a pain to handle, and there are many
+      fixers that manipulate them. It would be nice to have a little API for
+      manipulating imports in fixers.
