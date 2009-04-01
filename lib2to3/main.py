@@ -10,8 +10,12 @@ import optparse
 
 from . import refactor
 
+HAVE_MULTIPROCESS = hasattr(refactor, "MultiprocessRefactoringTool")
 
-class StdoutRefactoringTool(refactor.RefactoringTool):
+base_refactor = getattr(refactor, "MultiprocessRefactoringTool",
+                        refactor.RefactoringTool)
+
+class StdoutRefactoringTool(base_refactor):
     """
     Prints output to stdout.
     """
@@ -64,6 +68,9 @@ def main(fixer_pkg, args=None):
                       help="Fix up doctests only")
     parser.add_option("-f", "--fix", action="append", default=[],
                       help="Each FIX specifies a transformation; default: all")
+    if HAVE_MULTIPROCESS:
+        parser.add_option("-j", "--processes", action="store", default=1,
+                          type="int", help="Run 2to3 concurrently")
     parser.add_option("-x", "--nofix", action="append", default=[],
                       help="Prevent a fixer from being run.")
     parser.add_option("-l", "--list-fixes", action="store_true",
@@ -126,7 +133,8 @@ def main(fixer_pkg, args=None):
         if refactor_stdin:
             rt.refactor_stdin()
         else:
-            rt.refactor(args, options.write, options.doctests_only)
+            rt.refactor(args, options.write, options.doctests_only,
+                        options.processes)
         rt.summarize()
 
     # Return error status (0 if rt.errors is zero)

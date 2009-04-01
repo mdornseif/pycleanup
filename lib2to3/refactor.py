@@ -506,6 +506,56 @@ class RefactoringTool(object):
             yield ""
 
 
+try:
+    import multiprocessing
+except ImportError:
+    pass
+else:
+    class MultiprocessRefactoringTool(RefactoringTool):
+
+        def __init__(self, *args, **kwargs):
+            super(MultiprocessRefactoringTool, self).__init__(*args, **kwargs)
+            self.queue = None
+
+        def refactor(self, items, write=False, doctests_only=False,
+                     num_processes=1):
+            if num_processes == 1:
+                super(MultiprocessRefactoringTool, self).refactor(items, write,
+                                                                  doctests_only)
+            if self.queue is not None:
+                raise RuntimeError("already doing multiple processes")
+            self.queue = multiprocessing.JoinableQueue()
+            processes = [multiprocessing.Process(target=self._child)
+                         for i in xrange(num_processes)]
+            try:
+                for p in processes:
+                    p.start()
+                super(MultiprocessRefactoringTool, self).refactor(items, write,
+                                                                  doctests_only)
+            finally:
+                self.queue.join()
+                for i in xrange(num_processes):
+                    self.queue.put(None)
+                for p in processes:
+                    if p.is_alive():
+                        p.join()
+                self.queue = None
+
+        def _child(self):
+            task = self.queue.get()
+            while task is not None:
+                args, kwargs = task
+                try:
+                    super(MultiprocessRefactoringTool, self).refactor_file(
+                        *args, **kwargs)
+                finally:
+                    self.queue.task_done()
+                task = self.queue.get()
+
+        def refactor_file(self, *args, **kwargs):
+            self.queue.put((args, kwargs))
+
+
 def diff_texts(a, b, filename):
     """Return a unified diff of two strings."""
     a = a.splitlines()
