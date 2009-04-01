@@ -520,8 +520,8 @@ else:
         def refactor(self, items, write=False, doctests_only=False,
                      num_processes=1):
             if num_processes == 1:
-                super(MultiprocessRefactoringTool, self).refactor(items, write,
-                                                                  doctests_only)
+                return super(MultiprocessRefactoringTool, self).refactor(
+                    items, write, doctests_only)
             if self.queue is not None:
                 raise RuntimeError("already doing multiple processes")
             self.queue = multiprocessing.JoinableQueue()
@@ -553,7 +553,11 @@ else:
                 task = self.queue.get()
 
         def refactor_file(self, *args, **kwargs):
-            self.queue.put((args, kwargs))
+            if self.queue is not None:
+                self.queue.put((args, kwargs))
+            else:
+                return super(MultiprocessRefactoringTool, self).refactor_file(
+                    *args, **kwargs)
 
 
 def diff_texts(a, b, filename):

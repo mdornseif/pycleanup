@@ -133,8 +133,11 @@ def main(fixer_pkg, args=None):
         if refactor_stdin:
             rt.refactor_stdin()
         else:
-            rt.refactor(args, options.write, options.doctests_only,
-                        options.processes)
+            if HAVE_MULTIPROCESS:
+                rt.refactor(args, options.write, options.doctests_only,
+                            options.processes)
+            else:
+                rt.refactor(args, options.write, options.doctests_only)
         rt.summarize()
 
     # Return error status (0 if rt.errors is zero)
