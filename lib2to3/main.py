@@ -10,12 +10,7 @@ import optparse
 
 from . import refactor
 
-HAVE_MULTIPROCESS = hasattr(refactor, "MultiprocessRefactoringTool")
-
-base_refactor = getattr(refactor, "MultiprocessRefactoringTool",
-                        refactor.RefactoringTool)
-
-class StdoutRefactoringTool(base_refactor):
+class StdoutRefactoringTool(refactor.MultiprocessRefactoringTool):
     """
     Prints output to stdout.
     """
@@ -68,9 +63,8 @@ def main(fixer_pkg, args=None):
                       help="Fix up doctests only")
     parser.add_option("-f", "--fix", action="append", default=[],
                       help="Each FIX specifies a transformation; default: all")
-    if HAVE_MULTIPROCESS:
-        parser.add_option("-j", "--processes", action="store", default=1,
-                          type="int", help="Run 2to3 concurrently")
+    parser.add_option("-j", "--processes", action="store", default=1,
+                      type="int", help="Run 2to3 concurrently")
     parser.add_option("-x", "--nofix", action="append", default=[],
                       help="Prevent a fixer from being run.")
     parser.add_option("-l", "--list-fixes", action="store_true",
@@ -133,11 +127,14 @@ def main(fixer_pkg, args=None):
         if refactor_stdin:
             rt.refactor_stdin()
         else:
-            if HAVE_MULTIPROCESS:
+            try:
                 rt.refactor(args, options.write, options.doctests_only,
                             options.processes)
-            else:
-                rt.refactor(args, options.write, options.doctests_only)
+            except refactor.MultiprocessingUnsupported:
+                assert options.processes > 1
+                print >> sys.stderr, "Sorry, -j isn't " \
+                    "supported on this platform."
+                return 1
         rt.summarize()
 
     # Return error status (0 if rt.errors is zero)
