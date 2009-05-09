@@ -95,11 +95,11 @@ if sys.version_info < (3, 0):
     # codecs.open doesn't translate newlines sadly.
     def _from_system_newlines(input):
         return input.replace(u"\r\n", u"\n")
-    if os.linesep != "\n":
-        def _to_system_newlines(input):
+    def _to_system_newlines(input):
+        if os.linesep != "\n":
             return input.replace(u"\n", os.linesep)
-    else:
-        _to_system_newlines = _identity
+        else:
+            return input
 else:
     _open_with_encoding = open
     _from_system_newlines = _identity
