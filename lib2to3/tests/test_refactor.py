@@ -121,19 +121,31 @@ class TestRefactoringTool(unittest.TestCase):
 +def cheese(): pass""".splitlines()
         self.assertEqual(diff_lines[:-1], expected)
 
-    def test_refactor_file(self):
-        test_file = os.path.join(FIXER_DIR, "parrot_example.py")
-        old_contents = open(test_file, "r").read()
-        rt = self.rt()
+    def check_file_refactoring(self, test_file, fixers=_DEFAULT_FIXERS):
+        def read_file():
+            with open(test_file, "rb") as fp:
+                return fp.read()
+        old_contents = read_file()
+        rt = self.rt(fixers=fixers)
 
         rt.refactor_file(test_file)
-        self.assertEqual(old_contents, open(test_file, "r").read())
+        self.assertEqual(old_contents, read_file())
 
-        rt.refactor_file(test_file, True)
         try:
-            self.assertNotEqual(old_contents, open(test_file, "r").read())
+            rt.refactor_file(test_file, True)
+            self.assertNotEqual(old_contents, read_file())
         finally:
-            open(test_file, "w").write(old_contents)
+            with open(test_file, "wb") as fp:
+                fp.write(old_contents)
+
+    def test_refactor_file(self):
+        test_file = os.path.join(FIXER_DIR, "parrot_example.py")
+        self.check_file_refactoring(test_file)
+
+    def test_file_encoding(self):
+        fn = os.path.join(FIXER_DIR, "..", "different_encoding.py")
+        fixes = refactor.get_fixers_from_package("lib2to3.fixes")
+        self.check_file_refactoring(fn, fixes)
 
     def test_refactor_docstring(self):
         rt = self.rt()
