@@ -23,11 +23,7 @@ from itertools import chain
 
 # Local imports
 from .pgen2 import driver, tokenize
-
-from . import pytree
-from . import patcomp
-from . import fixes
-from . import pygram
+from . import pytree, pygram
 
 
 def get_all_fix_names(fixer_pkg, remove_prefix=True):
