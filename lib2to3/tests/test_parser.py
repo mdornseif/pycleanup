@@ -198,7 +198,7 @@ class TestLiterals(GrammarTest):
 
 
 def diff(fn, result):
-    f = open("@", "w")
+    f = open("@", "wb")
     try:
         f.write(result)
     finally:
