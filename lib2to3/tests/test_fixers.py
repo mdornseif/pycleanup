@@ -2675,8 +2675,8 @@ class Test_unicode(FixerTestCase):
         self.check(b, a)
 
     def test_unicode_literal_3(self):
-        b = """UR'''x'''"""
-        a = """R'''x'''"""
+        b = """UR'''x''' """
+        a = """R'''x''' """
         self.check(b, a)
 
 class Test_callable(FixerTestCase):
