@@ -144,6 +144,8 @@ class PatternCompiler(object):
             if value.isupper():
                 if value not in TOKEN_MAP:
                     raise PatternSyntaxError("Invalid token: %r" % value)
+                if nodes[1:]:
+                    raise PatternSyntaxError("Can't have details for token")
                 return pytree.LeafPattern(TOKEN_MAP[value])
             else:
                 if value == "any":
