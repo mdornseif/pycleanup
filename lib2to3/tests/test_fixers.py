@@ -2641,6 +2641,19 @@ class Test_renames(FixerTestCase):
 class Test_unicode(FixerTestCase):
     fixer = "unicode"
 
+    def test_whitespace(self):
+        b = """unicode( x)"""
+        a = """str( x)"""
+        self.check(b, a)
+
+        b = """ unicode(x )"""
+        a = """ str(x )"""
+        self.check(b, a)
+
+        b = """ u'h'"""
+        a = """ 'h'"""
+        self.check(b, a)
+
     def test_unicode_call(self):
         b = """unicode(x, y, z)"""
         a = """str(x, y, z)"""
