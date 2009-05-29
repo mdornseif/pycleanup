@@ -19,11 +19,14 @@ from lib2to3 import pygram, pytree, refactor, fixer_util
 
 
 class FixerTestCase(support.TestCase):
-    def setUp(self, fix_list=None):
+
+    # Other test cases can subclass this class and replace "fixer_pkg" with
+    # their own.
+    def setUp(self, fix_list=None, fixer_pkg="lib2to3"):
         if fix_list is None:
             fix_list = [self.fixer]
         options = {"print_function" : False}
-        self.refactor = support.get_refactorer(fix_list, options)
+        self.refactor = support.get_refactorer(fixer_pkg, fix_list, options)
         self.fixer_log = []
         self.filename = u"<string>"
 
@@ -62,7 +65,7 @@ class FixerTestCase(support.TestCase):
         fixes = [self.fixer]
         fixes.extend(names)
         options = {"print_function" : False}
-        r = support.get_refactorer(fixes, options)
+        r = support.get_refactorer("lib2to3", fixes, options)
         (pre, post) = r.get_fixers()
         n = "fix_" + self.fixer
         if post and post[-1].__class__.__module__.endswith(n):
