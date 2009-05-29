@@ -2646,6 +2646,11 @@ class Test_unicode(FixerTestCase):
         a = """str(x, y, z)"""
         self.check(b, a)
 
+    def test_unichr(self):
+        b = """unichr(u'h')"""
+        a = """chr('h')"""
+        self.check(b, a)
+
     def test_unicode_literal_1(self):
         b = '''u"x"'''
         a = '''"x"'''
