@@ -15,8 +15,7 @@ import warnings
 # Testing imports
 from . import support
 
-# Local imports (XXX should become a package)
-from .. import pytree
+from lib2to3 import pytree
 
 try:
     sorted
