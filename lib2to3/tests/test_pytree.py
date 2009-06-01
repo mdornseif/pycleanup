@@ -10,6 +10,8 @@ more helpful than printing of (the first line of) the docstring,
 especially when debugging a test.
 """
 
+import warnings
+
 # Testing imports
 from . import support
 
@@ -27,6 +29,20 @@ except NameError:
 class TestNodes(support.TestCase):
 
     """Unit tests for nodes (Base, Leaf, Node)."""
+
+    def test_deprecated_prefix_methods(self):
+        l = pytree.Leaf(100, "foo")
+        with warnings.catch_warnings(record=True) as w:
+            self.assertEqual(l.get_prefix(), "")
+            l.set_prefix("hi")
+        self.assertEqual(l.prefix, "hi")
+        self.assertEqual(len(w), 2)
+        for warning in w:
+            self.assertTrue(warning.category is DeprecationWarning)
+        self.assertEqual(str(w[0].message), "get_prefix() is deprecated; " \
+                             "use the prefix property")
+        self.assertEqual(str(w[1].message), "set_prefix() is deprecated; " \
+                             "use the prefix property")
 
     def testBaseCantConstruct(self):
         if __debug__:
@@ -52,7 +68,7 @@ class TestNodes(support.TestCase):
         # Make sure that the Leaf's value is stringified. Failing to
         #  do this can cause a TypeError in certain situations.
         l1 = pytree.Leaf(2, 5)
-        l1.set_prefix("foo_")
+        l1.prefix = "foo_"
         self.assertEqual(str(l1), "foo_5")
 
     def testLeafEq(self):
@@ -66,10 +82,10 @@ class TestNodes(support.TestCase):
 
     def testLeafPrefix(self):
         l1 = pytree.Leaf(100, "foo")
-        self.assertEqual(l1.get_prefix(), "")
+        self.assertEqual(l1.prefix, "")
         self.failIf(l1.was_changed)
-        l1.set_prefix("  ##\n\n")
-        self.assertEqual(l1.get_prefix(), "  ##\n\n")
+        l1.prefix = "  ##\n\n"
+        self.assertEqual(l1.prefix, "  ##\n\n")
         self.failUnless(l1.was_changed)
 
     def testNode(self):
@@ -94,26 +110,26 @@ class TestNodes(support.TestCase):
 
     def testNodePrefix(self):
         l1 = pytree.Leaf(100, "foo")
-        self.assertEqual(l1.get_prefix(), "")
+        self.assertEqual(l1.prefix, "")
         n1 = pytree.Node(1000, [l1])
-        self.assertEqual(n1.get_prefix(), "")
-        n1.set_prefix(" ")
-        self.assertEqual(n1.get_prefix(), " ")
-        self.assertEqual(l1.get_prefix(), " ")
+        self.assertEqual(n1.prefix, "")
+        n1.prefix = " "
+        self.assertEqual(n1.prefix, " ")
+        self.assertEqual(l1.prefix, " ")
 
     def testGetSuffix(self):
         l1 = pytree.Leaf(100, "foo", prefix="a")
         l2 = pytree.Leaf(100, "bar", prefix="b")
         n1 = pytree.Node(1000, [l1, l2])
 
-        self.assertEqual(l1.get_suffix(), l2.get_prefix())
+        self.assertEqual(l1.get_suffix(), l2.prefix)
         self.assertEqual(l2.get_suffix(), "")
         self.assertEqual(n1.get_suffix(), "")
 
         l3 = pytree.Leaf(100, "bar", prefix="c")
         n2 = pytree.Node(1000, [n1, l3])
 
-        self.assertEqual(n1.get_suffix(), l3.get_prefix())
+        self.assertEqual(n1.get_suffix(), l3.prefix)
         self.assertEqual(l3.get_suffix(), "")
         self.assertEqual(n2.get_suffix(), "")
 
@@ -204,7 +220,7 @@ class TestNodes(support.TestCase):
         for prefix in ("xyz_", ""):
             l1 = pytree.Leaf(100, "self", prefix=prefix)
             self.failUnless(str(l1), prefix + "self")
-            self.assertEqual(l1.get_prefix(), prefix)
+            self.assertEqual(l1.prefix, prefix)
 
     def testNodeConstructorPrefix(self):
         for prefix in ("xyz_", ""):
@@ -212,9 +228,9 @@ class TestNodes(support.TestCase):
             l2 = pytree.Leaf(100, "foo", prefix="_")
             n1 = pytree.Node(1000, [l1, l2], prefix=prefix)
             self.failUnless(str(n1), prefix + "self_foo")
-            self.assertEqual(n1.get_prefix(), prefix)
-            self.assertEqual(l1.get_prefix(), prefix)
-            self.assertEqual(l2.get_prefix(), "_")
+            self.assertEqual(n1.prefix, prefix)
+            self.assertEqual(l1.prefix, prefix)
+            self.assertEqual(l2.prefix, "_")
 
     def testRemove(self):
         l1 = pytree.Leaf(100, "foo")
