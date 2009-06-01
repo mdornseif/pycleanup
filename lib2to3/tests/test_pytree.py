@@ -185,22 +185,18 @@ class TestNodes(support.TestCase):
         n1 = pytree.Node(1000, [l1, l2])
         self.assertEqual(list(n1.pre_order()), [n1, l1, l2])
 
-    def test_changed_leaf(self):
+    def test_changed(self):
         l1 = pytree.Leaf(100, "f")
         self.failIf(l1.was_changed)
-
         l1.changed()
         self.failUnless(l1.was_changed)
 
-    def test_changed_node(self):
         l1 = pytree.Leaf(100, "f")
         n1 = pytree.Node(1000, [l1])
         self.failIf(n1.was_changed)
-
         n1.changed()
         self.failUnless(n1.was_changed)
 
-    def test_changed_recursive(self):
         l1 = pytree.Leaf(100, "foo")
         l2 = pytree.Leaf(100, "+")
         l3 = pytree.Leaf(100, "bar")
