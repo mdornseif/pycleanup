@@ -4052,8 +4052,3 @@ class Test_getcwdu(FixerTestCase):
         b = """os.getcwdu (  )"""
         a = """os.getcwd (  )"""
         self.check(b, a)
-
-
-if __name__ == "__main__":
-    import __main__
-    support.run_all_tests(__main__)
