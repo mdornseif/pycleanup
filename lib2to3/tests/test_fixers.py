@@ -3325,6 +3325,11 @@ class Test_buffer(FixerTestCase):
         a = """x = memoryview(y)"""
         self.check(b, a)
 
+    def test_slicing(self):
+        b = """buffer(y)[4:5]"""
+        a = """memoryview(y)[4:5]"""
+        self.check(b, a)
+
 class Test_future(FixerTestCase):
     fixer = "future"
 
