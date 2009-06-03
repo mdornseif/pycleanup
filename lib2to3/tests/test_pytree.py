@@ -1,4 +1,3 @@
-#!/usr/bin/env python2.5
 # Copyright 2006 Google, Inc. All Rights Reserved.
 # Licensed to PSF under a Contributor Agreement.
 
@@ -462,8 +461,3 @@ class TestPatterns(support.TestCase):
         r = {}
         self.assert_(pattern.match(node, r))
         self.assertEqual(r["args"], [l2])
-
-
-if __name__ == "__main__":
-    import __main__
-    support.run_all_tests(__main__)

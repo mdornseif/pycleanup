@@ -1,12 +1,4 @@
-#!/usr/bin/env python2.5
 """ Test suite for the fixer modules """
-# Author: Collin Winter
-
-# Testing imports
-try:
-    from tests import support
-except ImportError:
-    import support
 
 # Python imports
 import os
@@ -16,6 +8,7 @@ from operator import itemgetter
 
 # Local imports
 from lib2to3 import pygram, pytree, refactor, fixer_util
+from lib2to3.tests import support
 
 
 class FixerTestCase(support.TestCase):
