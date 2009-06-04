@@ -415,6 +415,7 @@ class Test_print(FixerTestCase):
     def test_5(self):
         b = """print; print whatever;"""
         a = """print(); print(whatever);"""
+        self.check(b, a)
 
     def test_tuple(self):
         b = """print (a, b, c)"""
