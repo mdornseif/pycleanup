@@ -48,7 +48,6 @@ class FixNext(fixer_base.BaseFix):
         base = results.get("base")
         attr = results.get("attr")
         name = results.get("name")
-        mod = results.get("mod")
 
         if base:
             if self.shadowed_next:
