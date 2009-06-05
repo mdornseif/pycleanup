@@ -15,10 +15,11 @@ class FixerTestCase(support.TestCase):
 
     # Other test cases can subclass this class and replace "fixer_pkg" with
     # their own.
-    def setUp(self, fix_list=None, fixer_pkg="lib2to3"):
+    def setUp(self, fix_list=None, fixer_pkg="lib2to3", options=None):
         if fix_list is None:
             fix_list = [self.fixer]
-        options = {"print_function" : False}
+        if options is None:
+            options = {"print_function" : False}
         self.refactor = support.get_refactorer(fixer_pkg, fix_list, options)
         self.fixer_log = []
         self.filename = u"<string>"
