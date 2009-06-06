@@ -36,11 +36,11 @@ def find_excepts(nodes):
 class FixExcept(fixer_base.BaseFix):
 
     PATTERN = """
-    try_stmt< 'try' ':' suite
-                  cleanup=(except_clause ':' suite)+
-                  tail=(['except' ':' suite]
-                        ['else' ':' suite]
-                        ['finally' ':' suite]) >
+    try_stmt< 'try' ':' (simple_stmt | suite)
+                  cleanup=(except_clause ':' (simple_stmt | suite))+
+                  tail=(['except' ':' (simple_stmt | suite)]
+                        ['else' ':' (simple_stmt | suite)]
+                        ['finally' ':' (simple_stmt | suite)]) >
     """
 
     def transform(self, node, results):

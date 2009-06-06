@@ -778,6 +778,39 @@ class Test_except(FixerTestCase):
                 pass"""
         self.check(b, a)
 
+    def test_one_line_suites(self):
+        b = """
+            try: raise TypeError
+            except TypeError, e:
+                pass
+            """
+        a = """
+            try: raise TypeError
+            except TypeError as e:
+                pass
+            """
+        self.check(b, a)
+        b = """
+            try:
+                raise TypeError
+            except TypeError, e: pass
+            """
+        a = """
+            try:
+                raise TypeError
+            except TypeError as e: pass
+            """
+        self.check(b, a)
+        b = """
+            try: raise TypeError
+            except TypeError, e: pass
+            """
+        a = """
+            try: raise TypeError
+            except TypeError as e: pass
+            """
+        self.check(b, a)
+
     # These should not be touched:
 
     def test_unchanged_1(self):
