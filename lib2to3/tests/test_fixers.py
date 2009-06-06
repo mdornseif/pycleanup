@@ -810,6 +810,19 @@ class Test_except(FixerTestCase):
             except TypeError as e: pass
             """
         self.check(b, a)
+        b = """
+            try: raise TypeError
+            except TypeError, e: pass
+            else: function()
+            finally: done()
+            """
+        a = """
+            try: raise TypeError
+            except TypeError as e: pass
+            else: function()
+            finally: done()
+            """
+        self.check(b, a)
 
     # These should not be touched:
 
