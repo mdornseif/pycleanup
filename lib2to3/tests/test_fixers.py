@@ -1703,6 +1703,11 @@ class Test_imports_fixer_order(FixerTestCase, ImportsFixerTests):
         for key in ('dbhash', 'dumbdbm', 'dbm', 'gdbm'):
             self.modules[key] = mapping1[key]
 
+    def test_after_local_imports_refactoring(self):
+        for fix in ("imports", "imports2"):
+            self.fixer = fix
+            self.assert_runs_after("import")
+
 
 class Test_urllib(FixerTestCase):
     fixer = "urllib"
@@ -3501,6 +3506,7 @@ class Test_itertools_imports(FixerTestCase):
     def test_unchanged(self):
         s = "from itertools import foo"
         self.unchanged(s)
+
 
 class Test_import(FixerTestCase):
     fixer = "import"
