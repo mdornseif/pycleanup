@@ -3542,8 +3542,7 @@ class Test_import(FixerTestCase):
 
         self.always_exists = False
         self.present_files = set(['__init__.py'])
-        expected_extensions = ('.py', os.path.pathsep, '.pyc', '.so',
-                               '.sl', '.pyd')
+        expected_extensions = ('.py', os.path.sep, '.pyc', '.so', '.sl', '.pyd')
         names_to_test = (p("/spam/eggs.py"), "ni.py", p("../../shrubbery.py"))
 
         for name in names_to_test:
@@ -3571,6 +3570,13 @@ class Test_import(FixerTestCase):
         a = "from . import bar"
         self.always_exists = False
         self.present_files = set(["__init__.py", "bar.py"])
+        self.check(b, a)
+
+    def test_import_from_package(self):
+        b = "import bar"
+        a = "from . import bar"
+        self.always_exists = False
+        self.present_files = set(["__init__.py", "bar/"])
         self.check(b, a)
 
     def test_comments_and_indent(self):
