@@ -64,6 +64,10 @@ class StdoutRefactoringTool(refactor.MultiprocessRefactoringTool):
                     print line
 
 
+def warn(msg):
+    print >> sys.stderr, "WARNING: %s" % (msg,)
+
+
 def main(fixer_pkg, args=None):
     """Main program.
 
@@ -100,6 +104,8 @@ def main(fixer_pkg, args=None):
     # Parse command line arguments
     refactor_stdin = False
     options, args = parser.parse_args(args)
+    if not options.write and not options.show_diffs:
+        warn("not writing files and not printing diffs; that's not very useful")
     if not options.write and options.nobackups:
         parser.error("Can't use -n without -w")
     if options.list_fixes:
