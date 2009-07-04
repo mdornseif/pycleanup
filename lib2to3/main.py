@@ -4,19 +4,31 @@ Main program for 2to3.
 
 import sys
 import os
+import difflib
 import logging
 import shutil
 import optparse
 
 from . import refactor
 
+
+def diff_texts(a, b, filename):
+    """Return a unified diff of two strings."""
+    a = a.splitlines()
+    b = b.splitlines()
+    return difflib.unified_diff(a, b, filename, filename,
+                                "(original)", "(refactored)",
+                                lineterm="")
+
+
 class StdoutRefactoringTool(refactor.MultiprocessRefactoringTool):
     """
     Prints output to stdout.
     """
 
-    def __init__(self, fixers, options, explicit, nobackups):
+    def __init__(self, fixers, options, explicit, nobackups, show_diffs):
         self.nobackups = nobackups
+        self.show_diffs = show_diffs
         super(StdoutRefactoringTool, self).__init__(fixers, options, explicit)
 
     def log_error(self, msg, *args, **kwargs):
@@ -42,9 +54,14 @@ class StdoutRefactoringTool(refactor.MultiprocessRefactoringTool):
         if not self.nobackups:
             shutil.copymode(backup, filename)
 
-    def print_output(self, lines):
-        for line in lines:
-            print line
+    def print_output(self, old, new, filename, equal):
+        if equal:
+            self.log_message("No changes to %s", filename)
+        else:
+            self.log_message("Refactored %s", filename)
+            if self.show_diffs:
+                for line in diff_texts(old, new, filename):
+                    print line
 
 
 def main(fixer_pkg, args=None):
@@ -73,6 +90,8 @@ def main(fixer_pkg, args=None):
                       help="Modify the grammar so that print() is a function")
     parser.add_option("-v", "--verbose", action="store_true",
                       help="More verbose logging")
+    parser.add_option("-s", "--show-diffs", action="store_true",
+                      help="Show diffs of the refactored file")
     parser.add_option("-w", "--write", action="store_true",
                       help="Write back modified files")
     parser.add_option("-n", "--nobackups", action="store_true", default=False,
@@ -120,7 +139,7 @@ def main(fixer_pkg, args=None):
         requested = avail_fixes.union(explicit)
     fixer_names = requested.difference(unwanted_fixes)
     rt = StdoutRefactoringTool(sorted(fixer_names), rt_opts, sorted(explicit),
-                               options.nobackups)
+                               options.nobackups, options.show_diffs)
 
     # Refactor all files and directories passed as arguments
     if not rt.errors:

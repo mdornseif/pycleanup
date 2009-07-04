@@ -14,7 +14,6 @@ __author__ = "Guido van Rossum <guido@python.org>"
 # Python imports
 import os
 import sys
-import difflib
 import logging
 import operator
 from collections import defaultdict
@@ -196,8 +195,9 @@ class RefactoringTool(object):
             msg = msg % args
         self.logger.debug(msg)
 
-    def print_output(self, lines):
-        """Called with lines of output to give to the user."""
+    def print_output(self, old_text, new_text, filename, equal):
+        """Called with the old version, new version, and filename of a
+        refactored file."""
         pass
 
     def refactor(self, items, write=False, doctests_only=False):
@@ -357,10 +357,11 @@ class RefactoringTool(object):
             old_text = self._read_python_source(filename)[0]
             if old_text is None:
                 return
-        if old_text == new_text:
+        equal = old_text == new_text
+        self.print_output(old_text, new_text, filename, equal)
+        if equal:
             self.log_debug("No changes to %s", filename)
             return
-        self.print_output(diff_texts(old_text, new_text, filename))
         if write:
             self.write_file(new_text, filename, old_text, encoding)
         else:
@@ -582,12 +583,3 @@ class MultiprocessRefactoringTool(RefactoringTool):
         else:
             return super(MultiprocessRefactoringTool, self).refactor_file(
                 *args, **kwargs)
-
-
-def diff_texts(a, b, filename):
-    """Return a unified diff of two strings."""
-    a = a.splitlines()
-    b = b.splitlines()
-    return difflib.unified_diff(a, b, filename, filename,
-                                "(original)", "(refactored)",
-                                lineterm="")
