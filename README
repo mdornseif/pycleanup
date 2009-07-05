@@ -1,7 +1,7 @@
 Abstract
 ========
 
-A refactoring tool for converting Python 2.x code to 3.0.
+A refactoring tool for converting Python 2.x code to 3.x.
 
 This is a work in progress! Bugs should be reported to http://bugs.python.org/
 under the "2to3" category.
@@ -11,12 +11,9 @@ General usage
 =============
 
 Run ``./2to3`` to convert stdin (``-``), files or directories given as
-arguments.  By default, the tool outputs a unified diff-formatted patch on
-standard output and a "what was changed" summary on standard error, but the
-``-w`` option can be given to write back converted files, creating
-``.bak``-named backup files.
+arguments.
 
-2to3 must be run with at least Python 2.5. The intended path for migrating to
+2to3 must be run with at least Python 2.6. The intended path for migrating to
 Python 3.x is to first migrate to 2.6 (in order to take advantage of Python
 2.6's runtime compatibility checks).
 
@@ -30,15 +27,15 @@ test.py                       - runs all unittests for 2to3
 lib2to3/patcomp.py            - pattern compiler
 lib2to3/pytree.py             - parse tree nodes (not specific to Python, despite the name!)
 lib2to3/pygram.py             - code specific to the Python grammar
-example.py                    - example input for play.py and fix_*.py
-find_pattern.py               - script to help determine the PATTERN for a new fix
+scripts/example.py            - example input for play.py and fix_*.py
+scripts/find_pattern.py       - script to help determine the PATTERN for a new fix
 lib2to3/Grammar.txt           - Python grammar input (accepts 2.x and 3.x syntax)
 lib2to3/Grammar.pickle        - pickled grammar tables (generated file, not in subversion)
 lib2to3/PatternGrammar.txt    - grammar for the pattern language used by patcomp.py
 lib2to3/PatternGrammar.pickle - pickled pattern grammar tables (generated file)
 lib2to3/pgen2/                - Parser generator and driver ([1]_, [2]_)
 lib2to3/fixes/                - Individual transformations
-lib2to3tests/                 - Test files for pytree, fixers, grammar, etc
+lib2to3/tests/                - Test files for pytree, fixers, grammar, etc
 
 
 Capabilities
