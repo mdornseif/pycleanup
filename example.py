@@ -377,6 +377,16 @@ def buffer_examples():
 def sys_exc_examples():
     print sys.exc_type, sys.exc_value, sys.exc_traceback
 
+def operator_examples():
+    import operator
+    operator.isCallable(foo)
+    operator.sequenceIncludes(foo, bar)
+
+    from operator import isCallable, sequenceIncludes
+    # These should produce warnings.
+    isCallable(foo)
+    sequenceIncludes(foo, bar)
+
 class X:
     def maximum(self):
         return max(self.data.values())

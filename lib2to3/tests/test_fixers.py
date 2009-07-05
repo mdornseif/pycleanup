@@ -4105,3 +4105,26 @@ class Test_getcwdu(FixerTestCase):
         b = """os.getcwdu (  )"""
         a = """os.getcwd (  )"""
         self.check(b, a)
+
+
+class Test_operator(FixerTestCase):
+
+    fixer = "operator"
+
+    def test_operator_isCallable(self):
+        b = "operator.isCallable(x)"
+        a = "hasattr(x, '__call__')"
+        self.check(b, a)
+
+    def test_operator_sequenceIncludes(self):
+        b = "operator.sequenceIncludes(x, y)"
+        a = "operator.contains(x, y)"
+        self.check(b, a)
+
+    def test_bare_isCallable(self):
+        s = "isCallable(x)"
+        self.warns_unchanged(s, "You should use hasattr(x, '__call__') here.")
+
+    def test_bare_sequenceIncludes(self):
+        s = "sequenceIncludes(x, y)"
+        self.warns_unchanged(s, "You should use operator.contains here.")

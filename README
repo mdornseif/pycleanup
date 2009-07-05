@@ -93,6 +93,9 @@ A quick run-through of 2to3's current fixers:
 * **fix_paren** - Add parentheses to places where they are needed in list
     comprehensions and generator expressions.
 
+* **fix_operator** - "operator.isCallable(x)" -> "hasattr(x, '__call__')",
+  "operator.sequenceIncludes(x, y)" -> "operator.contains(a, b)"
+
 * **fix_print** - convert "print" statements to print() function calls.
 
 * **fix_raise** - convert "raise" statements to Python 3 syntax (PEP 3109).
