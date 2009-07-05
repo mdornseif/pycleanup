@@ -106,10 +106,10 @@ class TestRefactoringTool(unittest.TestCase):
 
         class MyRT(refactor.RefactoringTool):
 
-            def print_output(self, lines):
-                diff_lines.extend(lines)
+            def print_output(self, old_text, new_text, filename, equal):
+                results.extend([old_text, new_text, filename, equal])
 
-        diff_lines = []
+        results = []
         rt = MyRT(_DEFAULT_FIXERS)
         save = sys.stdin
         sys.stdin = StringIO.StringIO("def parrot(): pass\n\n")
@@ -117,12 +117,10 @@ class TestRefactoringTool(unittest.TestCase):
             rt.refactor_stdin()
         finally:
             sys.stdin = save
-        expected = """--- <stdin> (original)
-+++ <stdin> (refactored)
-@@ -1,2 +1,2 @@
--def parrot(): pass
-+def cheese(): pass""".splitlines()
-        self.assertEqual(diff_lines[:-1], expected)
+        expected = ["def parrot(): pass\n\n",
+                    "def cheese(): pass\n\n",
+                    "<stdin>", False]
+        self.assertEqual(results, expected)
 
     def check_file_refactoring(self, test_file, fixers=_2TO3_FIXERS):
         def read_file():
