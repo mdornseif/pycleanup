@@ -343,7 +343,8 @@ class RefactoringTool(object):
                 results = fixer.match(node)
                 if results:
                     new = fixer.transform(node, results)
-                    if new is not None:
+                    if new is not None and (new != node or
+                                            unicode(new) != unicode(node)):
                         node.replace(new)
                         node = new
 
