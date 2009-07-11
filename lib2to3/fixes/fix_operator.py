@@ -37,4 +37,4 @@ class FixOperator(fixer_base.BaseFix):
             else:
                 func = results["func"]
                 args = [func.clone(), String(u", "), String(u"'__call__'")]
-                return Call(Name(u"hasattr"), args, prefix=node.get_prefix())
+                return Call(Name(u"hasattr"), args, prefix=node.prefix)
