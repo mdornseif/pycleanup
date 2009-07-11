@@ -7,6 +7,7 @@ import os
 import operator
 import StringIO
 import tempfile
+import shutil
 import unittest
 
 from lib2to3 import refactor, pygram, fixer_base
@@ -142,6 +143,36 @@ class TestRefactoringTool(unittest.TestCase):
     def test_refactor_file(self):
         test_file = os.path.join(FIXER_DIR, "parrot_example.py")
         self.check_file_refactoring(test_file, _DEFAULT_FIXERS)
+
+    def test_refactor_dir(self):
+        def check(structure, expected):
+            def mock_refactor_file(self, f, *args):
+                got.append(f)
+            save_func = refactor.RefactoringTool.refactor_file
+            refactor.RefactoringTool.refactor_file = mock_refactor_file
+            rt = self.rt()
+            got = []
+            dir = tempfile.mkdtemp(prefix="2to3-test_refactor")
+            try:
+                os.mkdir(os.path.join(dir, "a_dir"))
+                for fn in structure:
+                    open(os.path.join(dir, fn), "wb").close()
+                rt.refactor_dir(dir)
+            finally:
+                refactor.RefactoringTool.refactor_file = save_func
+                shutil.rmtree(dir)
+            self.assertEqual(got,
+                             [os.path.join(dir, path) for path in expected])
+        check([], [])
+        tree = ["nothing",
+                "hi.py",
+                ".dumb",
+                ".after.py"]
+        expected = ["hi.py"]
+        check(tree, expected)
+        tree = ["hi.py",
+                "a_dir/stuff.py"]
+        check(tree, tree)
 
     def test_file_encoding(self):
         fn = os.path.join(TEST_DATA_DIR, "different_encoding.py")
