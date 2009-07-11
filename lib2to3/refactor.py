@@ -298,7 +298,7 @@ class RefactoringTool(object):
         else:
             tree = self.refactor_string(input, "<stdin>")
             if tree and tree.was_changed:
-                self.processed_file(str(tree), "<stdin>", input)
+                self.processed_file(unicode(tree), "<stdin>", input)
             else:
                 self.log_debug("No changes in stdin")
 
@@ -452,7 +452,7 @@ class RefactoringTool(object):
                            filename, lineno, err.__class__.__name__, err)
             return block
         if self.refactor_tree(tree, filename):
-            new = str(tree).splitlines(True)
+            new = unicode(tree).splitlines(True)
             # Undo the adjustment of the line numbers in wrap_toks() below.
             clipped, new = new[:lineno-1], new[lineno-1:]
             assert clipped == [u"\n"] * (lineno-1), clipped
