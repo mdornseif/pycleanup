@@ -167,7 +167,8 @@ class TestRefactoringTool(unittest.TestCase):
         tree = ["nothing",
                 "hi.py",
                 ".dumb",
-                ".after.py"]
+                ".after.py",
+                "sappy"]
         expected = ["hi.py"]
         check(tree, expected)
         tree = ["hi.py",

@@ -220,7 +220,8 @@ class RefactoringTool(object):
             dirnames.sort()
             filenames.sort()
             for name in filenames:
-                if not name.startswith(".") and name.endswith("py"):
+                if not name.startswith(".") and \
+                        os.path.splitext(name)[1].endswith("py"):
                     fullname = os.path.join(dirpath, name)
                     self.refactor_file(fullname, write, doctests_only)
             # Modify dirnames in-place to remove subdirs with leading dots
