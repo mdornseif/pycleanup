@@ -41,7 +41,7 @@ class _EveryNode(Exception):
     pass
 
 
-def get_head_types(pat):
+def _get_head_types(pat):
     """ Accepts a pytree Pattern Node and returns a set
         of the pattern types which will match first. """
 
@@ -55,7 +55,7 @@ def get_head_types(pat):
 
     if isinstance(pat, pytree.NegatedPattern):
         if pat.content:
-            return get_head_types(pat.content)
+            return _get_head_types(pat.content)
         raise _EveryNode # Negated Patterns don't have a type
 
     if isinstance(pat, pytree.WildcardPattern):
@@ -63,13 +63,13 @@ def get_head_types(pat):
         r = set()
         for p in pat.content:
             for x in p:
-                r.update(get_head_types(x))
+                r.update(_get_head_types(x))
         return r
 
     raise Exception("Oh no! I don't understand pattern %s" %(pat))
 
 
-def get_headnode_dict(fixer_list):
+def _get_headnode_dict(fixer_list):
     """ Accepts a list of fixers and returns a dictionary
         of head node type --> fixer list.  """
     head_nodes = collections.defaultdict(list)
@@ -77,7 +77,7 @@ def get_headnode_dict(fixer_list):
     for fixer in fixer_list:
         if fixer.pattern:
             try:
-                heads = get_head_types(fixer.pattern)
+                heads = _get_head_types(fixer.pattern)
             except _EveryNode:
                 every.append(fixer)
             else:
@@ -153,8 +153,8 @@ class RefactoringTool(object):
                                     logger=self.logger)
         self.pre_order, self.post_order = self.get_fixers()
 
-        self.pre_order_heads = get_headnode_dict(self.pre_order)
-        self.post_order_heads = get_headnode_dict(self.post_order)
+        self.pre_order_heads = _get_headnode_dict(self.pre_order)
+        self.post_order_heads = _get_headnode_dict(self.post_order)
 
         self.files = []  # List of files that were or should be modified
 

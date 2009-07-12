@@ -76,7 +76,7 @@ class TestRefactoringTool(unittest.TestCase):
         no_head = NoneFix({}, [])
         with_head = FileInputFix({}, [])
         simple = SimpleFix({}, [])
-        d = refactor.get_headnode_dict([no_head, with_head, simple])
+        d = refactor._get_headnode_dict([no_head, with_head, simple])
         self.assertEqual(d[pygram.python_symbols.file_input],
                          [with_head, no_head, simple])
         del d[pygram.python_symbols.file_input]
