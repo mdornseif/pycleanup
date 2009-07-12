@@ -94,8 +94,8 @@ def main(fixer_pkg, args=None):
                       help="Modify the grammar so that print() is a function")
     parser.add_option("-v", "--verbose", action="store_true",
                       help="More verbose logging")
-    parser.add_option("-s", "--show-diffs", action="store_true",
-                      help="Show diffs of the refactored file")
+    parser.add_option("--no-diffs", action="store_true",
+                      help="Don't show diffs of the refactoring")
     parser.add_option("-w", "--write", action="store_true",
                       help="Write back modified files")
     parser.add_option("-n", "--nobackups", action="store_true", default=False,
@@ -104,7 +104,7 @@ def main(fixer_pkg, args=None):
     # Parse command line arguments
     refactor_stdin = False
     options, args = parser.parse_args(args)
-    if not options.write and not options.show_diffs:
+    if not options.write and options.no_diffs:
         warn("not writing files and not printing diffs; that's not very useful")
     if not options.write and options.nobackups:
         parser.error("Can't use -n without -w")
@@ -145,7 +145,7 @@ def main(fixer_pkg, args=None):
         requested = avail_fixes.union(explicit)
     fixer_names = requested.difference(unwanted_fixes)
     rt = StdoutRefactoringTool(sorted(fixer_names), rt_opts, sorted(explicit),
-                               options.nobackups, options.show_diffs)
+                               options.nobackups, not options.no_diffs)
 
     # Refactor all files and directories passed as arguments
     if not rt.errors:
