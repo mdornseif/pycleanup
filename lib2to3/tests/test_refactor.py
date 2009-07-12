@@ -77,11 +77,12 @@ class TestRefactoringTool(unittest.TestCase):
         with_head = FileInputFix({}, [])
         simple = SimpleFix({}, [])
         d = refactor._get_headnode_dict([no_head, with_head, simple])
-        self.assertEqual(d[pygram.python_symbols.file_input],
-                         [with_head, no_head, simple])
-        del d[pygram.python_symbols.file_input]
+        top_fixes = d.pop(pygram.python_symbols.file_input)
+        self.assertEqual(top_fixes, [with_head, no_head])
+        name_fixes = d.pop(token.NAME)
+        self.assertEqual(name_fixes, [simple, no_head])
         for fixes in d.itervalues():
-            self.assertEqual(fixes, [no_head, simple])
+            self.assertEqual(fixes, [no_head])
 
     def test_fixer_loading(self):
         from myfixes.fix_first import FixFirst
