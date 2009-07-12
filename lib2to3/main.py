@@ -115,13 +115,13 @@ def main(fixer_pkg, args=None):
         if not args:
             return 0
     if not args:
-        print >>sys.stderr, "At least one file or directory argument required."
-        print >>sys.stderr, "Use --help to show usage."
+        print >> sys.stderr, "At least one file or directory argument required."
+        print >> sys.stderr, "Use --help to show usage."
         return 2
     if "-" in args:
         refactor_stdin = True
         if options.write:
-            print >>sys.stderr, "Can't write to stdin."
+            print >> sys.stderr, "Can't write to stdin."
             return 2
 
     # Set up logging handler
