@@ -84,7 +84,10 @@ def _get_headnode_dict(fixer_list):
                 for node_type in heads:
                     head_nodes[node_type].append(fixer)
         else:
-            every.append(fixer)
+            if fixer._accept_type is not None:
+                head_nodes[fixer._accept_type].append(fixer)
+            else:
+                every.append(fixer)
     for node_type in chain(pygram.python_grammar.symbol2number.itervalues(),
                            pygram.python_grammar.tokens):
         head_nodes[node_type].extend(every)
