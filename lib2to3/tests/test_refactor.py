@@ -11,6 +11,7 @@ import shutil
 import unittest
 
 from lib2to3 import refactor, pygram, fixer_base
+from lib2to3.pgen2 import token
 
 from . import support
 
@@ -64,17 +65,23 @@ class TestRefactoringTool(unittest.TestCase):
 
     def test_get_headnode_dict(self):
         class NoneFix(fixer_base.BaseFix):
-            PATTERN = None
+            pass
 
         class FileInputFix(fixer_base.BaseFix):
             PATTERN = "file_input< any * >"
 
+        class SimpleFix(fixer_base.BaseFix):
+            PATTERN = "'name'"
+
         no_head = NoneFix({}, [])
         with_head = FileInputFix({}, [])
-        d = refactor.get_headnode_dict([no_head, with_head])
-        expected = {None: [no_head],
-                    pygram.python_symbols.file_input : [with_head]}
-        self.assertEqual(d, expected)
+        simple = SimpleFix({}, [])
+        d = refactor.get_headnode_dict([no_head, with_head, simple])
+        self.assertEqual(d[pygram.python_symbols.file_input],
+                         [with_head, no_head, simple])
+        del d[pygram.python_symbols.file_input]
+        for fixes in d.itervalues():
+            self.assertEqual(fixes, [no_head, simple])
 
     def test_fixer_loading(self):
         from myfixes.fix_first import FixFirst

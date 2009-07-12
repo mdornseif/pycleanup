@@ -16,7 +16,7 @@ import os
 import sys
 import logging
 import operator
-from collections import defaultdict
+import collections
 from itertools import chain
 
 # Local imports
@@ -36,6 +36,11 @@ def get_all_fix_names(fixer_pkg, remove_prefix=True):
             fix_names.append(name[:-3])
     return fix_names
 
+
+class _EveryNode(Exception):
+    pass
+
+
 def get_head_types(pat):
     """ Accepts a pytree Pattern Node and returns a set
         of the pattern types which will match first. """
@@ -44,12 +49,14 @@ def get_head_types(pat):
         # NodePatters must either have no type and no content
         #   or a type and content -- so they don't get any farther
         # Always return leafs
+        if pat.type is None:
+            raise _EveryNode
         return set([pat.type])
 
     if isinstance(pat, pytree.NegatedPattern):
         if pat.content:
             return get_head_types(pat.content)
-        return set([None]) # Negated Patterns don't have a type
+        raise _EveryNode # Negated Patterns don't have a type
 
     if isinstance(pat, pytree.WildcardPattern):
         # Recurse on each node in content
@@ -61,17 +68,28 @@ def get_head_types(pat):
 
     raise Exception("Oh no! I don't understand pattern %s" %(pat))
 
+
 def get_headnode_dict(fixer_list):
     """ Accepts a list of fixers and returns a dictionary
         of head node type --> fixer list.  """
-    head_nodes = defaultdict(list)
+    head_nodes = collections.defaultdict(list)
+    every = []
     for fixer in fixer_list:
-        if not fixer.pattern:
-            head_nodes[None].append(fixer)
-            continue
-        for t in get_head_types(fixer.pattern):
-            head_nodes[t].append(fixer)
-    return head_nodes
+        if fixer.pattern:
+            try:
+                heads = get_head_types(fixer.pattern)
+            except _EveryNode:
+                every.append(fixer)
+            else:
+                for node_type in heads:
+                    head_nodes[node_type].append(fixer)
+        else:
+            every.append(fixer)
+    for node_type in chain(pygram.python_grammar.symbol2number.itervalues(),
+                           pygram.python_grammar.tokens):
+        head_nodes[node_type].extend(every)
+    return dict(head_nodes)
+
 
 def get_fixers_from_package(pkg_name):
     """
@@ -339,7 +357,7 @@ class RefactoringTool(object):
         if not fixers:
             return
         for node in traversal:
-            for fixer in fixers[node.type] + fixers[None]:
+            for fixer in fixers[node.type]:
                 results = fixer.match(node)
                 if results:
                     new = fixer.transform(node, results)
