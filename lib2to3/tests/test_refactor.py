@@ -9,6 +9,7 @@ import StringIO
 import tempfile
 import shutil
 import unittest
+import warnings
 
 from lib2to3 import refactor, pygram, fixer_base
 from lib2to3.pgen2 import token
@@ -44,14 +45,11 @@ class TestRefactoringTool(unittest.TestCase):
         return refactor.RefactoringTool(fixers, options, explicit)
 
     def test_print_function_option(self):
-        gram = pygram.python_grammar
-        save = gram.keywords["print"]
-        try:
-            rt = self.rt({"print_function" : True})
-            self.assertRaises(KeyError, operator.itemgetter("print"),
-                              gram.keywords)
-        finally:
-            gram.keywords["print"] = save
+        with warnings.catch_warnings(record=True) as w:
+            refactor.RefactoringTool(_DEFAULT_FIXERS, {"print_function" : True})
+        self.assertEqual(len(w), 1)
+        msg, = w
+        self.assertTrue(msg.category is DeprecationWarning)
 
     def test_fixer_loading_helpers(self):
         contents = ["explicit", "first", "last", "parrot", "preorder"]
@@ -62,6 +60,43 @@ class TestRefactoringTool(unittest.TestCase):
         self.assertEqual(non_prefixed, contents)
         self.assertEqual(full_names,
                          ["myfixes.fix_" + name for name in contents])
+
+    def test_detect_future_print(self):
+        run = refactor._detect_future_print
+        self.assertFalse(run(""))
+        self.assertTrue(run("from __future__ import print_function"))
+        self.assertFalse(run("from __future__ import generators"))
+        self.assertFalse(run("from __future__ import generators, feature"))
+        input = "from __future__ import generators, print_function"
+        self.assertTrue(run(input))
+        input ="from __future__ import print_function, generators"
+        self.assertTrue(run(input))
+        input = "from __future__ import (print_function,)"
+        self.assertTrue(run(input))
+        input = "from __future__ import (generators, print_function)"
+        self.assertTrue(run(input))
+        input = "from __future__ import (generators, nested_scopes)"
+        self.assertFalse(run(input))
+        input = """from __future__ import generators
+from __future__ import print_function"""
+        self.assertTrue(run(input))
+        self.assertFalse(run("from"))
+        self.assertFalse(run("from 4"))
+        self.assertFalse(run("from x"))
+        self.assertFalse(run("from x 5"))
+        self.assertFalse(run("from x im"))
+        self.assertFalse(run("from x import"))
+        self.assertFalse(run("from x import 4"))
+        input = "'docstring'\nfrom __future__ import print_function"
+        self.assertTrue(run(input))
+        input = "'docstring'\n'somng'\nfrom __future__ import print_function"
+        self.assertFalse(run(input))
+        input = "# comment\nfrom __future__ import print_function"
+        self.assertTrue(run(input))
+        input = "# comment\n'doc'\nfrom __future__ import print_function"
+        self.assertTrue(run(input))
+        input = "class x: pass\nfrom __future__ import print_function"
+        self.assertFalse(run(input))
 
     def test_get_headnode_dict(self):
         class NoneFix(fixer_base.BaseFix):

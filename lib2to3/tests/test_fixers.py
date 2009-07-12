@@ -379,18 +379,15 @@ class Test_print(FixerTestCase):
         self.unchanged(s)
 
     def test_idempotency_print_as_function(self):
-        print_stmt = pygram.python_grammar.keywords.pop("print")
-        try:
-            s = """print(1, 1+1, 1+1+1)"""
-            self.unchanged(s)
+        self.refactor.driver.grammar = pygram.python_grammar_no_print_statement
+        s = """print(1, 1+1, 1+1+1)"""
+        self.unchanged(s)
 
-            s = """print()"""
-            self.unchanged(s)
+        s = """print()"""
+        self.unchanged(s)
 
-            s = """print('')"""
-            self.unchanged(s)
-        finally:
-            pygram.python_grammar.keywords["print"] = print_stmt
+        s = """print('')"""
+        self.unchanged(s)
 
     def test_1(self):
         b = """print 1, 1+1, 1+1+1"""
@@ -462,29 +459,15 @@ class Test_print(FixerTestCase):
         a = """print(file=sys.stderr)"""
         self.check(b, a)
 
-    # With from __future__ import print_function
     def test_with_future_print_function(self):
-        # XXX: These tests won't actually do anything until the parser
-        #      is fixed so it won't crash when it sees print(x=y).
-        #      When #2412 is fixed, the try/except block can be taken
-        #      out and the tests can be run like normal.
-        try:
-            s = "from __future__ import print_function\n"\
-                "print('Hai!', end=' ')"
-            self.unchanged(s)
+        s = "from __future__ import print_function\n" \
+            "print('Hai!', end=' ')"
+        self.unchanged(s)
 
-            b = "print 'Hello, world!'"
-            a = "print('Hello, world!')"
-            self.check(b, a)
+        b = "print 'Hello, world!'"
+        a = "print('Hello, world!')"
+        self.check(b, a)
 
-            s = "from __future__ import *\n"\
-                "print('Hai!', end=' ')"
-            self.unchanged(s)
-        except:
-            return
-        else:
-            self.assertFalse(True, "#2421 has been fixed -- printing tests "\
-                                   "need to be updated!")
 
 class Test_exec(FixerTestCase):
     fixer = "exec"

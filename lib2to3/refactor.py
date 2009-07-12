@@ -17,10 +17,12 @@ import sys
 import logging
 import operator
 import collections
+import StringIO
+import warnings
 from itertools import chain
 
 # Local imports
-from .pgen2 import driver, tokenize
+from .pgen2 import driver, tokenize, token
 from . import pytree, pygram
 
 
@@ -121,13 +123,56 @@ else:
     _to_system_newlines = _identity
 
 
+def _detect_future_print(source):
+    have_docstring = False
+    gen = tokenize.generate_tokens(StringIO.StringIO(source).readline)
+    def advance():
+        tok = next(gen)
+        return tok[0], tok[1]
+    ignore = frozenset((token.NEWLINE, tokenize.NL, token.COMMENT))
+    try:
+        while True:
+            tp, value = advance()
+            if tp in ignore:
+                continue
+            elif tp == token.STRING:
+                if have_docstring:
+                    break
+                have_docstring = True
+            elif tp == token.NAME:
+                if value == u"from":
+                    tp, value = advance()
+                    if tp != token.NAME and value != u"__future__":
+                        break
+                    tp, value = advance()
+                    if tp != token.NAME and value != u"import":
+                        break
+                    tp, value = advance()
+                    if tp == token.OP and value == u"(":
+                        tp, value = advance()
+                    while tp == token.NAME:
+                        if value == u"print_function":
+                            return True
+                        tp, value = advance()
+                        if tp != token.OP and value != u",":
+                            break
+                        tp, value = advance()
+                else:
+                    break
+            else:
+                break
+    except StopIteration:
+        pass
+    return False
+
+
 class FixerError(Exception):
     """A fixer could not be loaded."""
 
 
 class RefactoringTool(object):
 
-    _default_options = {"print_function": False}
+    _default_options = {}
 
     CLASS_PREFIX = "Fix" # The prefix for fixer classes
     FILE_PREFIX = "fix_" # The prefix for modules with a fixer within
@@ -144,13 +189,14 @@ class RefactoringTool(object):
         self.explicit = explicit or []
         self.options = self._default_options.copy()
         if options is not None:
+            if "print_function" in options:
+                warnings.warn("the 'print_function' option is deprecated",
+                              DeprecationWarning)
             self.options.update(options)
         self.errors = []
         self.logger = logging.getLogger("RefactoringTool")
         self.fixer_log = []
         self.wrote = False
-        if self.options["print_function"]:
-            del pygram.python_grammar.keywords["print"]
         self.driver = driver.Driver(pygram.python_grammar,
                                     convert=pytree.convert,
                                     logger=self.logger)
@@ -298,12 +344,16 @@ class RefactoringTool(object):
             An AST corresponding to the refactored input stream; None if
             there were errors during the parse.
         """
+        if _detect_future_print(data):
+            self.driver.grammar = pygram.python_grammar_no_print_statement
         try:
             tree = self.driver.parse_string(data)
         except Exception, err:
             self.log_error("Can't parse %s: %s: %s",
                            name, err.__class__.__name__, err)
             return
+        finally:
+            self.driver.grammar = pygram.python_grammar
         self.log_debug("Refactoring %s", name)
         self.refactor_tree(tree, name)
         return tree
