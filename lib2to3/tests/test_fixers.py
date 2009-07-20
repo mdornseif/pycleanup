@@ -18,8 +18,6 @@ class FixerTestCase(support.TestCase):
     def setUp(self, fix_list=None, fixer_pkg="lib2to3", options=None):
         if fix_list is None:
             fix_list = [self.fixer]
-        if options is None:
-            options = {"print_function" : False}
         self.refactor = support.get_refactorer(fixer_pkg, fix_list, options)
         self.fixer_log = []
         self.filename = u"<string>"
@@ -58,8 +56,7 @@ class FixerTestCase(support.TestCase):
     def assert_runs_after(self, *names):
         fixes = [self.fixer]
         fixes.extend(names)
-        options = {"print_function" : False}
-        r = support.get_refactorer("lib2to3", fixes, options)
+        r = support.get_refactorer("lib2to3", fixes)
         (pre, post) = r.get_fixers()
         n = "fix_" + self.fixer
         if post and post[-1].__class__.__module__.endswith(n):
