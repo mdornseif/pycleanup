@@ -3,7 +3,7 @@
 
 """Fixer for callable().
 
-This converts callable(obj) into hasattr(obj, '__call__')."""
+This converts callable(obj) into hasattr(type(obj), '__call__')."""
 
 # Local imports
 from .. import pytree
@@ -27,5 +27,8 @@ class FixCallable(fixer_base.BaseFix):
     def transform(self, node, results):
         func = results["func"]
 
-        args = [func.clone(), String(u', '), String(u"'__call__'")]
+        new_func = func.clone()
+        new_func.prefix = u""
+        type_call = Call(Name(u"type"), [new_func], prefix=func.prefix)
+        args = [type_call, String(u', '), String(u"'__call__'")]
         return Call(Name(u"hasattr"), args, prefix=node.prefix)
