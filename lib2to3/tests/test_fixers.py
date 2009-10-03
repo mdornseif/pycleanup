@@ -2710,16 +2710,16 @@ class Test_callable(FixerTestCase):
 
     def test_prefix_preservation(self):
         b = """callable(    x)"""
-        a = """hasattr(    type(x), '__call__')"""
+        a = """hasattr(    x, '__call__')"""
         self.check(b, a)
 
         b = """if     callable(x): pass"""
-        a = """if     hasattr(type(x), '__call__'): pass"""
+        a = """if     hasattr(x, '__call__'): pass"""
         self.check(b, a)
 
     def test_callable_call(self):
         b = """callable(x)"""
-        a = """hasattr(type(x), '__call__')"""
+        a = """hasattr(x, '__call__')"""
         self.check(b, a)
 
     def test_callable_should_not_change(self):
