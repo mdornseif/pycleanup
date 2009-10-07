@@ -3238,6 +3238,46 @@ class Test_idioms(FixerTestCase):
             """
         self.check(b, a)
 
+        b = r"""
+            try:
+                m = list(s)
+                m.sort()
+            except: pass
+            """
+
+        a = r"""
+            try:
+                m = sorted(s)
+            except: pass
+            """
+        self.check(b, a)
+
+        b = r"""
+            try:
+                m = list(s)
+                # foo
+                m.sort()
+            except: pass
+            """
+
+        a = r"""
+            try:
+                m = sorted(s)
+                # foo
+            except: pass
+            """
+        self.check(b, a)
+
+        b = r"""
+            m = list(s)
+            # more comments
+            m.sort()"""
+
+        a = r"""
+            m = sorted(s)
+            # more comments"""
+        self.check(b, a)
+
     def test_sort_simple_expr(self):
         b = """
             v = t
