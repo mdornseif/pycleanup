@@ -384,7 +384,7 @@ def generate_tokens(readline):
             column = 0
             while pos < max:                   # measure leading whitespace
                 if line[pos] == ' ': column = column + 1
-                elif line[pos] == '\t': column = (column/tabsize + 1)*tabsize
+                elif line[pos] == '\t': column = (column//tabsize + 1)*tabsize
                 elif line[pos] == '\f': column = 0
                 else: break
                 pos = pos + 1
