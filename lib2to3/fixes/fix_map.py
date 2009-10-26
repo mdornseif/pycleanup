@@ -50,7 +50,7 @@ class FixMap(fixer_base.ConditionalFix):
     |
     power<
         'map'
-        args=trailer< '(' [any] ')' >
+        args=trailer< '(' [arglist=any] ')' >
     >
     """
 
@@ -73,6 +73,14 @@ class FixMap(fixer_base.ConditionalFix):
             if "map_none" in results:
                 new = results["arg"].clone()
             else:
+                if "arglist" in results:
+                    args = results["arglist"]
+                    if args.type == syms.arglist and \
+                       args.children[0].type == token.NAME and \
+                       args.children[0].value == "None":
+                        self.warning(node, "cannot convert map(None, ...) "
+                                     "with multiple arguments")
+                        return
                 if in_special_context(node):
                     return None
                 new = node.clone()
