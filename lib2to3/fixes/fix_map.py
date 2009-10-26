@@ -65,9 +65,9 @@ class FixMap(fixer_base.ConditionalFix):
             new.prefix = u""
             new = Call(Name(u"list"), [new])
         elif "map_lambda" in results:
-            new = ListComp(results.get("xp").clone(),
-                           results.get("fp").clone(),
-                           results.get("it").clone())
+            new = ListComp(results["xp"].clone(),
+                           results["fp"].clone(),
+                           results["it"].clone())
         else:
             if "map_none" in results:
                 new = results["arg"].clone()
