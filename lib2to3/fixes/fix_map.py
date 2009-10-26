@@ -49,8 +49,7 @@ class FixMap(fixer_base.ConditionalFix):
     >
     |
     power<
-        'map'
-        args=trailer< '(' [arglist=any] ')' >
+        'map' trailer< '(' [arglist=any] ')' >
     >
     """
 
