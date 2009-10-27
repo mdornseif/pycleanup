@@ -78,7 +78,8 @@ class FixMap(fixer_base.ConditionalFix):
                        args.children[0].type == token.NAME and \
                        args.children[0].value == "None":
                         self.warning(node, "cannot convert map(None, ...) "
-                                     "with multiple arguments")
+                                     "with multiple arguments because map() "
+                                     "now truncates to the shortest sequence")
                         return
                 if in_special_context(node):
                     return None
