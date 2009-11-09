@@ -138,26 +138,23 @@ def _detect_future_print(source):
                 if have_docstring:
                     break
                 have_docstring = True
-            elif tp == token.NAME:
-                if value == u"from":
-                    tp, value = advance()
-                    if tp != token.NAME and value != u"__future__":
-                        break
-                    tp, value = advance()
-                    if tp != token.NAME and value != u"import":
-                        break
-                    tp, value = advance()
-                    if tp == token.OP and value == u"(":
-                        tp, value = advance()
-                    while tp == token.NAME:
-                        if value == u"print_function":
-                            return True
-                        tp, value = advance()
-                        if tp != token.OP and value != u",":
-                            break
-                        tp, value = advance()
-                else:
+            elif tp == token.NAME and value == u"from":
+                tp, value = advance()
+                if tp != token.NAME and value != u"__future__":
                     break
+                tp, value = advance()
+                if tp != token.NAME and value != u"import":
+                    break
+                tp, value = advance()
+                if tp == token.OP and value == u"(":
+                    tp, value = advance()
+                while tp == token.NAME:
+                    if value == u"print_function":
+                        return True
+                    tp, value = advance()
+                    if tp != token.OP and value != u",":
+                        break
+                    tp, value = advance()
             else:
                 break
     except StopIteration:
