@@ -45,12 +45,10 @@ class TestRefactoringTool(unittest.TestCase):
         return refactor.RefactoringTool(fixers, options, explicit)
 
     def test_print_function_option(self):
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter("always", DeprecationWarning)
-            refactor.RefactoringTool(_DEFAULT_FIXERS, {"print_function" : True})
-        self.assertEqual(len(w), 1)
-        msg, = w
-        self.assertTrue(msg.category is DeprecationWarning)
+        rt = self.rt({"print_function" : True})
+        self.assertTrue(rt.grammar is pygram.python_grammar_no_print_statement)
+        self.assertTrue(rt.driver.grammar is
+                        pygram.python_grammar_no_print_statement)
 
     def test_fixer_loading_helpers(self):
         contents = ["explicit", "first", "last", "parrot", "preorder"]

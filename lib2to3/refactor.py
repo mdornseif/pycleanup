@@ -18,7 +18,6 @@ import logging
 import operator
 import collections
 import StringIO
-import warnings
 from itertools import chain
 
 # Local imports
@@ -172,7 +171,7 @@ class FixerError(Exception):
 
 class RefactoringTool(object):
 
-    _default_options = {}
+    _default_options = {"print_function" : False}
 
     CLASS_PREFIX = "Fix" # The prefix for fixer classes
     FILE_PREFIX = "fix_" # The prefix for modules with a fixer within
@@ -189,15 +188,16 @@ class RefactoringTool(object):
         self.explicit = explicit or []
         self.options = self._default_options.copy()
         if options is not None:
-            if "print_function" in options:
-                warnings.warn("the 'print_function' option is deprecated",
-                              DeprecationWarning)
             self.options.update(options)
+        if self.options["print_function"]:
+            self.grammar = pygram.python_grammar_no_print_statement
+        else:
+            self.grammar = pygram.python_grammar
         self.errors = []
         self.logger = logging.getLogger("RefactoringTool")
         self.fixer_log = []
         self.wrote = False
-        self.driver = driver.Driver(pygram.python_grammar,
+        self.driver = driver.Driver(self.grammar,
                                     convert=pytree.convert,
                                     logger=self.logger)
         self.pre_order, self.post_order = self.get_fixers()
@@ -353,7 +353,7 @@ class RefactoringTool(object):
                            name, err.__class__.__name__, err)
             return
         finally:
-            self.driver.grammar = pygram.python_grammar
+            self.driver.grammar = self.grammar
         self.log_debug("Refactoring %s", name)
         self.refactor_tree(tree, name)
         return tree
