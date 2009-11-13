@@ -161,7 +161,6 @@ class TestParserIdempotency(support.TestCase):
             tree = driver.parse_string(source)
             new = unicode(tree)
             if diff(filepath, new, encoding):
-                import pdb; pdb.set_trace()
                 self.fail("Idempotency failed: %s" % filepath)
 
     def test_extended_unpacking(self):
