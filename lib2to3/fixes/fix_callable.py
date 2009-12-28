@@ -7,9 +7,8 @@ This converts callable(obj) into isinstance(obj, collections.Callable), adding a
 collections import if needed."""
 
 # Local imports
-from .. import pytree
-from .. import fixer_base
-from ..fixer_util import Call, Name, String, Attr, touch_import
+from lib2to3 import fixer_base
+from lib2to3.fixer_util import Call, Name, String, Attr, touch_import
 
 class FixCallable(fixer_base.BaseFix):
 
