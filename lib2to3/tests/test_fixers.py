@@ -2799,7 +2799,7 @@ if isinstance(do_stuff, Callable):
 else:
     assert not isinstance(do_stuff, collections.Callable)"""[1:]
         self.check(b, a)
-        
+
     def test_callable_should_not_change(self):
         a = """callable(*x)"""
         self.unchanged(a)
