@@ -2792,28 +2792,6 @@ import collections
 if isinstance(do_stuff, Callable):
     assert isinstance(do_stuff, collections.Callable)
     do_stuff(do_stuff)
-    if not isinstance(do_stuff, collections.Callable):
-        exit(1)
-    else:
-        assert isinstance(do_stuff, collections.Callable)
-else:
-    assert not isinstance(do_stuff, collections.Callable)"""[1:]
-        self.check(b, a)
-        
-    def test_callable_should_not_change(self):
-        a = """callable(*x)"""
-        self.unchanged(a)
-
-        a = """callable(x, y)"""
-        self.unchanged(a)
-
-        a = """callable(x, kw=y)"""
-        self.unchanged(a)
-
-        a = """callable()"""
-        self.unchanged(a)
-
-class Test_filter(FixerTestCase):
     fixer = "filter"
 
     def test_prefix_preservation(self):
