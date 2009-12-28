@@ -291,8 +291,6 @@ def touch_import(package, name, node):
     if does_tree_import(package, name, root):
         return
 
-    # figure out where to insert the new import.  First try to find
-    # the first import and then skip to the last one.
     insert_pos = offset = 0
     for idx, node in enumerate(root.children):
         if not is_import_stmt(node):
