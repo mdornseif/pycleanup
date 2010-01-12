@@ -335,6 +335,12 @@ def dict_examples():
     print h.keys()[0]
     print list(h.iterkeys().next())
     for x in h.keys()[0]: print x
+    #
+    # Examples with dict views
+    #
+    print d.viewkeys()
+    print d.viewitems()
+    print d.viewvalues()
 
 def dict_negative_examples():
     #
