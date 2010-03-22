@@ -65,6 +65,6 @@ class FixExitfunc(fixer_base.BaseFix):
             new_import = pytree.Node(syms.import_name,
                               [Name("import"), Name("atexit", " ")]
                               )
-            new = pytree.Node("simple_stmt", [new_import])
+            new = pytree.Node(syms.simple_stmt, [new_import])
             containing_stmt.insert_child(position + 1, Newline())
             containing_stmt.insert_child(position + 2, new)
