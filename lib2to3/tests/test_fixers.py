@@ -3679,7 +3679,7 @@ class Test_import(FixerTestCase):
             self.files_checked.append(name)
             return self.always_exists or (name in self.present_files)
 
-        from ..fixes import fix_import
+        from lib2to3.fixes import fix_import
         fix_import.exists = fake_exists
 
     def tearDown(self):
