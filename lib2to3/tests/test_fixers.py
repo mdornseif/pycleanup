@@ -3722,6 +3722,12 @@ class Test_import(FixerTestCase):
         self.present_files = set(["bar.py"])
         self.unchanged(s)
 
+    def test_with_absolute_import_enabled(self):
+        s = "from __future__ import absolute_import\nimport bar"
+        self.always_exists = False
+        self.present_files = set(["__init__.py", "bar.py"])
+        self.unchanged(s)
+
     def test_in_package(self):
         b = "import bar"
         a = "from . import bar"

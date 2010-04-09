@@ -43,7 +43,13 @@ class FixImport(fixer_base.BaseFix):
     import_name< 'import' imp=any >
     """
 
+    def start_tree(self, tree, name):
+        super(FixImport, self).start_tree(tree, name)
+        self.skip = "absolute_import" in tree.future_features
+
     def transform(self, node, results):
+        if self.skip:
+            return
         imp = results['imp']
 
         if node.type == syms.import_from:
