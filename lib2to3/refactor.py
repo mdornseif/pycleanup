@@ -122,13 +122,14 @@ else:
     _to_system_newlines = _identity
 
 
-def _detect_future_print(source):
+def _detect_future_features(source):
     have_docstring = False
     gen = tokenize.generate_tokens(StringIO.StringIO(source).readline)
     def advance():
         tok = next(gen)
         return tok[0], tok[1]
     ignore = frozenset((token.NEWLINE, tokenize.NL, token.COMMENT))
+    features = set()
     try:
         while True:
             tp, value = advance()
@@ -140,26 +141,25 @@ def _detect_future_print(source):
                 have_docstring = True
             elif tp == token.NAME and value == u"from":
                 tp, value = advance()
-                if tp != token.NAME and value != u"__future__":
+                if tp != token.NAME or value != u"__future__":
                     break
                 tp, value = advance()
-                if tp != token.NAME and value != u"import":
+                if tp != token.NAME or value != u"import":
                     break
                 tp, value = advance()
                 if tp == token.OP and value == u"(":
                     tp, value = advance()
                 while tp == token.NAME:
-                    if value == u"print_function":
-                        return True
+                    features.add(value)
                     tp, value = advance()
-                    if tp != token.OP and value != u",":
+                    if tp != token.OP or value != u",":
                         break
                     tp, value = advance()
             else:
                 break
     except StopIteration:
         pass
-    return False
+    return frozenset(features)
 
 
 class FixerError(Exception):
@@ -341,7 +341,8 @@ class RefactoringTool(object):
             An AST corresponding to the refactored input stream; None if
             there were errors during the parse.
         """
-        if _detect_future_print(data):
+        features = _detect_future_features(data)
+        if "print_function" in features:
             self.driver.grammar = pygram.python_grammar_no_print_statement
         try:
             tree = self.driver.parse_string(data)
@@ -351,6 +352,7 @@ class RefactoringTool(object):
             return
         finally:
             self.driver.grammar = self.grammar
+        tree.future_features = features
         self.log_debug("Refactoring %s", name)
         self.refactor_tree(tree, name)
         return tree
