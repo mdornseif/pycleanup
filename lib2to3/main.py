@@ -62,8 +62,14 @@ class StdoutRefactoringTool(refactor.MultiprocessRefactoringTool):
             if self.show_diffs:
                 diff_lines = diff_texts(old, new, filename)
                 try:
-                    for line in diff_lines:
-                        print line
+                    if self.output_lock is not None:
+                        with self.output_lock:
+                            for line in diff_lines:
+                                print line
+                            sys.stdout.flush()
+                    else:
+                        for line in diff_lines:
+                            print line
                 except UnicodeEncodeError:
                     warn("couldn't encode %s's diff for your terminal" %
                          (filename,))

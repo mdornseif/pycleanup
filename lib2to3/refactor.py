@@ -607,6 +607,7 @@ class MultiprocessRefactoringTool(RefactoringTool):
     def __init__(self, *args, **kwargs):
         super(MultiprocessRefactoringTool, self).__init__(*args, **kwargs)
         self.queue = None
+        self.output_lock = None
 
     def refactor(self, items, write=False, doctests_only=False,
                  num_processes=1):
@@ -620,6 +621,7 @@ class MultiprocessRefactoringTool(RefactoringTool):
         if self.queue is not None:
             raise RuntimeError("already doing multiple processes")
         self.queue = multiprocessing.JoinableQueue()
+        self.output_lock = multiprocessing.Lock()
         processes = [multiprocessing.Process(target=self._child)
                      for i in xrange(num_processes)]
         try:
