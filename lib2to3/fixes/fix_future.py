@@ -11,6 +11,7 @@ from ..fixer_util import BlankLine
 class FixFuture(fixer_base.BaseFix):
     PATTERN = """import_from< 'from' module_name="__future__" 'import' any >"""
 
+    explicit = True # The user must ask for this fixers
     # This should be run last -- some things check for the import
     run_order = 10
 

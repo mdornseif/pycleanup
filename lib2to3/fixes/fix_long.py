@@ -12,6 +12,7 @@ from lib2to3.fixer_util import is_probably_builtin
 class FixLong(fixer_base.BaseFix):
 
     PATTERN = "'long'"
+    explicit = True # The user must ask for this fixers
 
     def transform(self, node, results):
         if is_probably_builtin(node):

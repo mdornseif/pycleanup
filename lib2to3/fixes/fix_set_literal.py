@@ -22,6 +22,7 @@ class FixSetLiteral(fixer_base.BaseFix):
                      )
                      ')' > >
               """
+    explicit = True # The user must ask for this fixers
 
     def transform(self, node, results):
         single = results.get("single")

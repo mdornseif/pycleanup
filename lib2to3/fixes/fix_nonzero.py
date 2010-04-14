@@ -13,6 +13,7 @@ class FixNonzero(fixer_base.BaseFix):
                               parameters< '(' NAME ')' > any+ >
                      any* > >
     """
+    explicit = True # The user must ask for this fixers
 
     def transform(self, node, results):
         name = results["name"]

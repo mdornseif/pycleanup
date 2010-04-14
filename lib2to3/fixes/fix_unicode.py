@@ -12,6 +12,7 @@ _literal_re = re.compile(ur"[uU][rR]?[\'\"]")
 class FixUnicode(fixer_base.BaseFix):
 
     PATTERN = "STRING | 'unicode' | 'unichr'"
+    explicit = True # The user must ask for this fixers
 
     def transform(self, node, results):
         if node.type == token.NAME:

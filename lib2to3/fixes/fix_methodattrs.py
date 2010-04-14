@@ -16,6 +16,7 @@ class FixMethodattrs(fixer_base.BaseFix):
     PATTERN = """
     power< any+ trailer< '.' attr=('im_func' | 'im_self' | 'im_class') > any* >
     """
+    explicit = True # The user must ask for this fixers
 
     def transform(self, node, results):
         attr = results["attr"][0]

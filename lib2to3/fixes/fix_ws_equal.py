@@ -13,7 +13,7 @@ from ..pygram import python_symbols as syms
 
 class FixWsEqual(fixer_base.BaseFix):
 
-    explicit = True # The user must ask for this fixers
+    explicit = False
 
     PATTERN = """
     any<(not('=') any)+ '=' (not('=') any)>

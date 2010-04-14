@@ -84,6 +84,8 @@ def build_pattern(mapping=MAPPING):
 
 class FixImports(fixer_base.BaseFix):
 
+    explicit = True # The user must ask for this fixers
+
     # This is overridden in fix_imports2.
     mapping = MAPPING
 

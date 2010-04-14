@@ -54,6 +54,7 @@ _pats = ["power< 'types' trailer< '.' name='%s' > >" % t for t in _TYPE_MAPPING]
 class FixTypes(fixer_base.BaseFix):
 
     PATTERN = '|'.join(_pats)
+    explicit = True # The user must ask for this fixers
 
     def transform(self, node, results):
         new_value = unicode(_TYPE_MAPPING.get(results["name"].value))

@@ -13,6 +13,7 @@ class FixNumliterals(fixer_base.BaseFix):
     # This is so simple that we don't need the pattern compiler.
 
     _accept_type = token.NUMBER
+    explicit = True # The user must ask for this fixers
 
     def match(self, node):
         # Override

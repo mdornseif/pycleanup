@@ -28,6 +28,7 @@ class FixReduce(fixer_base.BaseFix):
         ')' >
     >
     """
+    explicit = True # The user must ask for this fixers
 
     def transform(self, node, results):
         touch_import(u'functools', u'reduce', node)

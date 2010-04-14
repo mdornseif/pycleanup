@@ -23,6 +23,7 @@ class FixItertools(fixer_base.BaseFix):
 
     # Needs to be run after fix_(map|zip|filter)
     run_order = 6
+    explicit = True # The user must ask for this fixers
 
     def transform(self, node, results):
         prefix = None

@@ -17,7 +17,7 @@ from .. import fixer_base
 
 class FixWsComma(fixer_base.BaseFix):
 
-    explicit = True # The user must ask for this fixers
+    explicit = False
 
     PATTERN = """
     any<(not(',') any)+ ',' ((not(',') any)+ ',')* [not(',') any]>

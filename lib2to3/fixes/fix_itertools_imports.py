@@ -9,6 +9,7 @@ class FixItertoolsImports(fixer_base.BaseFix):
     PATTERN = """
               import_from< 'from' 'itertools' 'import' imports=any >
               """ %(locals())
+    explicit = True # The user must ask for this fixers
 
     def transform(self, node, results):
         imports = results['imports']

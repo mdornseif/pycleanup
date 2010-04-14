@@ -43,6 +43,8 @@ class FixImport(fixer_base.BaseFix):
     import_name< 'import' imp=any >
     """
 
+    explicit = True # The user must ask for this fixers
+
     def start_tree(self, tree, name):
         super(FixImport, self).start_tree(tree, name)
         self.skip = "absolute_import" in tree.future_features

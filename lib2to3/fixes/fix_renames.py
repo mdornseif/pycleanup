@@ -43,6 +43,7 @@ class FixRenames(fixer_base.BaseFix):
     PATTERN = "|".join(build_pattern())
 
     order = "pre" # Pre-order tree traversal
+    explicit = True # The user must ask for this fixers
 
     # Don't match the node if it's within another match
     def match(self, node):

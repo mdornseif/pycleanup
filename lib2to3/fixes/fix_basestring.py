@@ -7,6 +7,8 @@ from ..fixer_util import Name
 
 class FixBasestring(fixer_base.BaseFix):
 
+    explicit = True # The user must ask for this fixers
+
     PATTERN = "'basestring'"
 
     def transform(self, node, results):

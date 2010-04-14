@@ -22,6 +22,7 @@ class FixThrow(fixer_base.BaseFix):
     |
     power< any trailer< '.' 'throw' > trailer< '(' exc=any ')' > >
     """
+    explicit = True # The user must ask for this fixers
 
     def transform(self, node, results):
         syms = self.syms

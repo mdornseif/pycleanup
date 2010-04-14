@@ -31,6 +31,7 @@ class FixPrint(fixer_base.BaseFix):
     PATTERN = """
               simple_stmt< any* bare='print' any* > | print_stmt
               """
+    explicit = True # The user must ask for this fixers
 
     def transform(self, node, results):
         assert results

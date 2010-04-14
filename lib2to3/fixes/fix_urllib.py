@@ -70,6 +70,8 @@ def build_pattern():
 
 class FixUrllib(FixImports):
 
+    explicit = True # The user must ask for this fixers
+
     def build_pattern(self):
         return "|".join(build_pattern())
 

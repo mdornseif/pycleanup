@@ -147,6 +147,7 @@ class FixMetaclass(fixer_base.BaseFix):
     PATTERN = """
     classdef<any*>
     """
+    explicit = True # The user must ask for this fixers
 
     def transform(self, node, results):
         if not has_metaclass(node):
