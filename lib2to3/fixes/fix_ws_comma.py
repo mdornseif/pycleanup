@@ -9,6 +9,12 @@ from .. import pytree
 from ..pgen2 import token
 from .. import fixer_base
 
+
+#     response = render_to_response('pressespiegel/pressclipping_archive.html',
+#                                  {'language': request.LANGUAGE_CODE.split('-')[0],'latest': latest_press},
+#                                  context_instance=RequestContext(request))
+
+
 class FixWsComma(fixer_base.BaseFix):
 
     explicit = True # The user must ask for this fixers
@@ -16,6 +22,7 @@ class FixWsComma(fixer_base.BaseFix):
     PATTERN = """
     any<(not(',') any)+ ',' ((not(',') any)+ ',')* [not(',') any]>
     """
+    #[^,]+,([^,]+,)*[^,]+
 
     COMMA = pytree.Leaf(token.COMMA, u",")
     COLON = pytree.Leaf(token.COLON, u":")
@@ -33,7 +40,8 @@ class FixWsComma(fixer_base.BaseFix):
             else:
                 if comma:
                     prefix = child.prefix
-                    if not prefix:
-                        child.prefix = u" "
+                    if not prefix or (prefix.isspace() and u"\n" not in prefix):
+                        prefix = u" "
+                    child.prefix = prefix
                 comma = False
         return new
